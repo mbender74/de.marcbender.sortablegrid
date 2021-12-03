@@ -1,0 +1,104 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.5.1 (swiftlang-1300.0.31.4 clang-1300.0.29.6)
+// swift-module-flags: -target x86_64-apple-ios13.1-macabi -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name TiCircularprogress
+import Foundation
+import Swift
+@_exported import TiCircularprogress
+import TitaniumKit
+import UIKit
+import _Concurrency
+@objc public enum KDCircularProgressGlowMode : Swift.Int {
+  case forward, reverse, constant, noGlow
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public var parentProxy: TitaniumKit.TiViewProxy!
+public var _processThickness: CoreGraphics.CGFloat!
+public func updateProgress(value: Swift.Double)
+@objc @_inheritsConvenienceInitializers @IBDesignable @objcMembers @_Concurrency.MainActor(unsafe) public class KDCircularProgress : UIKit.UIView, QuartzCore.CAAnimationDelegate {
+  @objc @_Concurrency.MainActor(unsafe) public var myProxy: TitaniumKit.TiViewProxy {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var progress: Foundation.NSNumber {
+    @objc get
+    @objc set
+  }
+  @objc @IBInspectable @_Concurrency.MainActor(unsafe) public var angle: Swift.Double {
+    @objc get
+    @objc set
+  }
+  @objc @IBInspectable @_Concurrency.MainActor(unsafe) public var startAngle: Swift.Double {
+    @objc get
+    @objc set
+  }
+  @objc @IBInspectable @_Concurrency.MainActor(unsafe) public var clockwise: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc @IBInspectable @_Concurrency.MainActor(unsafe) public var roundedCorners: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc @IBInspectable @_Concurrency.MainActor(unsafe) public var lerpColorMode: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var gradientRotateSpeed: CoreGraphics.CGFloat {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var glowAmount: CoreGraphics.CGFloat {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var glowMode: TiCircularprogress.KDCircularProgressGlowMode {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var progressThickness: CoreGraphics.CGFloat {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var trackThickness: CoreGraphics.CGFloat {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var trackColor: UIKit.UIColor {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var progressInsideFillColor: UIKit.UIColor? {
+    @objc get
+    @objc set
+  }
+  @objc @_Concurrency.MainActor(unsafe) public var progressColors: [UIKit.UIColor] {
+    @objc get
+    @objc set
+  }
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public init(frame: CoreGraphics.CGRect)
+  @_Concurrency.MainActor(unsafe) convenience public init(frame: CoreGraphics.CGRect, colors: UIKit.UIColor...)
+  @_Concurrency.MainActor(unsafe) @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  @objc override dynamic public func awakeFromNib()
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public class var layerClass: Swift.AnyClass {
+    @_Concurrency.MainActor(unsafe) @objc get
+  }
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public func layoutSubviews()
+  @_Concurrency.MainActor(unsafe) public func set(colors: UIKit.UIColor...)
+  @objc @_Concurrency.MainActor(unsafe) public func animate(fromAngle: Swift.Double, toAngle: Swift.Double, duration: Foundation.TimeInterval, relativeDuration: Swift.Bool = true, proxy: TitaniumKit.TiViewProxy, completion: ((Swift.Bool) -> Swift.Void)?)
+  @objc @_Concurrency.MainActor(unsafe) public func animate(toAngle: Swift.Double, duration: Foundation.TimeInterval, relativeDuration: Swift.Bool = true, proxy: TitaniumKit.TiViewProxy, completion: ((Swift.Bool) -> Swift.Void)?)
+  @objc @_Concurrency.MainActor(unsafe) public func pauseAnimation()
+  @objc @_Concurrency.MainActor(unsafe) public func stopAnimation()
+  @objc @_Concurrency.MainActor(unsafe) public func isAnimating() -> Swift.Bool
+  @_Concurrency.MainActor(unsafe) @objc public func animationDidStop(_ anim: QuartzCore.CAAnimation, finished flag: Swift.Bool)
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public func didMoveToWindow()
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public func willMove(toSuperview newSuperview: UIKit.UIView?)
+  @objc override dynamic public func prepareForInterfaceBuilder()
+  @objc deinit
+}
+extension TiCircularprogress.KDCircularProgressGlowMode : Swift.Equatable {}
+extension TiCircularprogress.KDCircularProgressGlowMode : Swift.Hashable {}
+extension TiCircularprogress.KDCircularProgressGlowMode : Swift.RawRepresentable {}

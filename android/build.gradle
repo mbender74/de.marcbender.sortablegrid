@@ -1,0 +1,6 @@
+repositories {
+	maven { url 'https://jitpack.io' }
+}
+dependencies {
+	implementation 'com.github.raghavtilak:SimpleDragSwipeRV:1.0.0'
+}

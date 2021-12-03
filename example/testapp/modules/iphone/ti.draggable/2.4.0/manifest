@@ -1,0 +1,13 @@
+version: 2.4.0
+apiversion:2 
+architectures: x86_64 arm64
+description: Ti.Draggable
+author: Seth Benjamin
+license: GPLv3
+copyright: Copyright (c) 2012 by Seth Benjamin
+mac:true
+name: draggable
+moduleid: ti.draggable
+guid: e8c13998-8fa8-4cee-8078-353c27e84d19
+platform: iphone
+minsdk:10.0.0 

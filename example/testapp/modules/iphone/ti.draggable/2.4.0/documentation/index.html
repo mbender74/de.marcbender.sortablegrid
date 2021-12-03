@@ -1,0 +1,153 @@
+<h1>TiDraggable - Native Draggable Views</h1>
+
+<p>Create draggable views.</p>
+
+<h2>History</h2>
+
+<p>The original module was done by <a href="https://github.com/pec1985/TiDraggable">Pedro Enrique</a>, but is not maintained anymore. Then <a href="https://github.com/animecyc/TiDraggable">Seth Benjamin</a> enhanced it, but also seems to have abandoned it. This new fork was sponsored by <a href="https://github.com/fokkezb/">Fokke Zandbergen</a> and adds new features to the iOS version and updated it to 64-bit.</p>
+
+<p>See <a href="#changelog">Changelog</a> for details.</p>
+
+<h2>Usage</h2>
+
+<p>See the <a href="../example/app.js">example</a> for a demo.</p>
+
+<p><code>javascript
+var Draggable = require(&#39;ti.draggable&#39;);
+var draggableView = Draggable.createView({
+    width : 100,
+    height : 100,
+    backgroundColor : &#39;black&#39;,
+    draggableConfig: {
+        enabled: false,
+        enabledOnLongpress: true,
+        showShadowOnMove: true
+    }
+});
+</code></p>
+
+<h2>Creating draggable views</h2>
+
+<p>To create a draggable view use the modules&#39; <code>createView()</code> method. All of Titanium&#39;s properties for a view are supported along the additional <code>draggableConfig</code> property containing any options that should be set upon creation. See <a href="#options">Options</a></p>
+
+<p>When the draggable proxy is created a new property is set called <code>draggable</code> which stores all the configuration properties and allows for options to be updated after creation.</p>
+
+<h3>Other types of views</h3>
+
+<p><strong>iOS ONLY:</strong> You can call almost all of the Ti.UI factory methods on the module, such as <code>createWindow( ... )</code>. Only <code>createView()</code> and <code>createWindow()</code> are officially supported. Other APIs haven&#39;t been fully tested.</p>
+
+<h2>Options</h2>
+
+<p>Options can be set on view creation using <code>draggableConfig</code> or after creation using <code>DraggableView.draggable.setConfig( ... )</code></p>
+
+<p>The <code>setConfig</code> method can set options two different ways. You can pass an <code>object</code> containing the parameters you with to set or you can pass a key-value pair.</p>
+
+<p><strong>Setting Options With An Object</strong>
+<code>javascript
+DraggableView.draggable.setConfig(&#39;enabled&#39;, false);
+</code></p>
+
+<p><strong>Setting Options With An Object</strong>
+<code>javascript
+DraggableView.draggable.setConfig({
+  enabled : false
+});
+</code></p>
+
+<h3><code>Boolean</code> - enabled</h3>
+
+<p>Flag to enable or disable dragging.</p>
+
+<h3><code>Boolean</code> - enableOnLongpress</h3>
+
+<p><strong>iOS ONLY:</strong> Flag to enable or disable dragging after a longpress on the view.</p>
+
+<h3><code>Boolean</code> - showShadowOnMove</h3>
+
+<p><strong>iOS ONLY:</strong> Flag to enable or disable showing a shadow while the view is being moved.</p>
+
+<h3><code>Number</code> - minLeft</h3>
+
+<p>The left-most boundary of the view being dragged. Can be set to <code>null</code> to disable property.</p>
+
+<h3><code>Number</code> - maxLeft</h3>
+
+<p>The right-most boundary of the view being dragged. Can be set to <code>null</code> to disable property.</p>
+
+<h3><code>Number</code> - minTop</h3>
+
+<p>The top-most boundary of the view being dragged. Can be set to <code>null</code> to disable property.</p>
+
+<h3><code>Number</code> - maxTop</h3>
+
+<p>The bottom-most boundary of the view being dragged. Can be set to <code>null</code> to disable property.</p>
+
+<h3><code>Boolean</code> - ensureRight</h3>
+
+<p>Ensure that that the <code>right</code> edge of the view being dragged keeps its integrity. Can be set to <code>null</code> to disable property.</p>
+
+<h3><code>Boolean</code> - ensureBottom</h3>
+
+<p>Ensure that that the <code>bottom</code> edge of the view being dragged keeps its integrity. Can be set to <code>null</code> to disable property.</p>
+
+<h3><code>Array</code> - maps</h3>
+
+<p>An array of views that should be translated along with the view being dragged. See <a href="#view-mapping">View Mapping</a>.</p>
+
+<h2>Events</h2>
+
+<p>Draggable views emit the following events.</p>
+
+<p><strong>iOS ONLY:</strong> Only on iOS, you can also listen to these same events on the module instead of the views created. Look at the event&#39;s <code>source</code> property to see what view is being dragged.</p>
+
+<h3>start</h3>
+
+<p>Fires when the view starts dragging, passing:</p>
+
+<ul><li><code>center.x</code>, <code>center.y</code> - The coordinates of the center of the view.</li><li><code>left</code>, <code>top</code> - The coordinates of the left top of the view.</li><li><code>source</code> - The view being dragged</li></ul>
+
+<h3>move</h3>
+
+<p>Fires when the view changes position, passing:</p>
+
+<ul><li><code>center.x</code>, <code>center.y</code> - The coordinates of the center of the view.</li><li><code>left</code>, <code>top</code> - The coordinates of the left top of the view.</li><li><code>source</code> - The view being dragged</li><li><code>velocity.x</code>, <code>velocity.y</code> - The velocity of the view.</li></ul>
+
+<h3>end</h3>
+
+<p>Fires when the drag ends, passing:</p>
+
+<ul><li><code>center.x</code>, <code>center.y</code> - The coordinates of the center of the view.</li><li><code>left</code>, <code>top</code> - The coordinates of the left top of the view.</li><li><code>source</code> - The view being dragged</li><li><code>distance.x</code>, <code>distance.y</code> - The distance the view was dragged over.</li><li></li></ul>
+
+<h3>cancel</h3>
+
+<p>Fires when the drag is interupted by an incoming call for example.</p>
+
+<h2>View Mapping</h2>
+
+<p>In the case where you want multiple views to be translated at the same time you can pass the <code>maps</code> property to the draggable config. This functionality is useful for creating parallax or 1:1 movements.</p>
+
+<p>The <code>maps</code> property accepts an array of objects containing any of the following. The <code>view</code> property is required.</p>
+
+<h3>Map Options</h3>
+
+<h3><code>Ti.UI.View</code> - view</h3>
+
+<p>The view to translate.</p>
+
+<h3><code>Number</code> - parallaxAmount</h3>
+
+<p>A positive or negative number. Numbers less than <code>|1|</code> such as <code>0.1</code>, <code>0.2</code>, or <code>0.3</code> will cause the translation to move <em>faster</em> then the translation. A <code>parallaxAmount</code> of 1 will translate mapped views 1:1. A parallaxAmount <code>&gt; 1</code> will result in a slower translation.</p>
+
+<h3><code>Object</code> - constrain</h3>
+
+<p>An object containing the boundaries of the mapped view. Can have the following:</p>
+
+<ul><li><strong>x</strong><ul><li><strong>start</strong> The start position for the mapped view.</li><li><strong>end</strong> The end position for the mapped view.</li><li><strong>callback</strong> A function that will receive the completed percentage of the mapped translation. . Android does not support this option.</li><li><strong>fromCenter</strong> Translate the view from its center. Android does not support this option.</li></ul></li><li><strong>y</strong><ul><li><strong>start</strong> The start position for the mapped view.</li><li><strong>end</strong> The end position for the mapped view.</li><li><strong>callback</strong> A function that will receive the completed percentage of the mapped translation. . Android does not support this option.</li><li><strong>fromCenter</strong> Translate the view from its center. Android does not support this option.</li></ul></li></ul>
+
+<h2>Changelog</h2>
+
+<ul><li>Additions in this fork:<ul><li>iOS: Added listening to events of all draggable views via the module.</li><li>iOS: Added <code>enableOnLongpress</code> and <code>showShadowOnMove</code>.</li><li>iOS: Updated to 64-bit.</li></ul></li><li>Enhancements by <a href="https://github.com/animecyc/TiDraggable">Seth Benjamin</a>:<ul><li>Improved drag performance for iOS and Android.</li><li>Updated public APIs for more seamless integration.</li><li>Removed the InfiniteScroll class as it doesn&#39;t really have much to do with the overall module.</li><li>Removed unnecessary APIs to reduce overall module footprint.</li><li>Removed unused variables and organized imports.</li><li>Added ability to unset boundaries.</li><li>Mapped the missing cancel gesture to the end gesture (firing the respective event).</li><li>Added ensureRight and ensureBottom, this allows for stable dragging of views where the dimensions are not known.</li><li>Added enabled boolean property for toggeling drag</li><li>Views can be mapped and translated with a draggable view.</li><li>Draggable implementation now has its own configurable property called draggable.</li><li>iOS: Supports all Ti.UI.View subclasses and Ti.UI.View wrapped views (View, Window, Label)</li><li>Android: Fixed a bug where touch events were not correctly passed to children or bubbled to the parent.</li><li>Android: Fixed a bug where min and max bounds were being incorrectly reported after being set.</li><li>Android: Improved drag tracking. It plays nice with child views now.</li><li>Android: Added a touch threshold to ensure all child views have a chance to have their respective events fired.</li></ul></li><li>Original version by <a href="https://github.com/pec1985/TiDraggable">Pedro Enrique</a></li></ul>
+
+<h2>Building the module yourself</h2>
+
+<p>If you are building the Android module, make sure you update the .classpath and build.properties files to match your setup.</p>
