@@ -3,7 +3,9 @@ package de.marcbender.sortablegrid;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import org.appcelerator.titanium.util.TiRHelper;
+
+import de.marcbender.sortablegrid.DragGridBaseAdapter;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,21 +14,22 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import android.animation.ValueAnimator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 /**
- * @blog http://blog.csdn.net/xiaanming
- *
+ * @blog http://blog.csdn.net/xiaanming 
+ * 
  * @author xiaanming
  *
  */
 public class DragAdapter extends BaseAdapter implements DragGridBaseAdapter{
 	private List<HashMap<String, Object>> list;
-	private LayoutInflater mInflater;
 	private int mHidePosition = -1;
 
+	
 	public DragAdapter(Context context, List<HashMap<String, Object>> list){
 		this.list = list;
-		mInflater = LayoutInflater.from(context);
 	}
 
 	@Override
@@ -45,28 +48,18 @@ public class DragAdapter extends BaseAdapter implements DragGridBaseAdapter{
 	}
 
 	/**
-	 *
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		try{
-		convertView = mInflater.inflate(TiRHelper.getResource("layout.grid_item"), null);
-		ImageView mImageView = (ImageView) convertView.findViewById(TiRHelper.getResource("id.item_image"));
-		TextView mTextView = (TextView) convertView.findViewById(TiRHelper.getResource("id.item_text"));
-		mImageView.setImageResource((Integer) list.get(position).get("item_image"));
-		mTextView.setText((CharSequence) list.get(position).get("item_text"));
-
-	}catch (TiRHelper.ResourceNotFoundException e) {
-
-	}
-
+		convertView = (View)list.get(position).get("item_view");
+		
 		if(position == mHidePosition){
 			convertView.setVisibility(View.INVISIBLE);
 		}
 
 		return convertView;
 	}
-
+	
 
 	@Override
 	public void reorderItems(int oldPosition, int newPosition) {
@@ -80,13 +73,13 @@ public class DragAdapter extends BaseAdapter implements DragGridBaseAdapter{
 				Collections.swap(list, i, i-1);
 			}
 		}
-
+		
 		list.set(newPosition, temp);
 	}
 
 	@Override
 	public void setHideItem(int hidePosition) {
-		this.mHidePosition = hidePosition;
+		this.mHidePosition = hidePosition; 
 		notifyDataSetChanged();
 	}
 
@@ -94,7 +87,7 @@ public class DragAdapter extends BaseAdapter implements DragGridBaseAdapter{
 	public void removeItem(int removePosition) {
 		list.remove(removePosition);
 		notifyDataSetChanged();
-
+		
 	}
 
 

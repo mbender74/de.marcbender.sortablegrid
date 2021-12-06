@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.TiApplication;
@@ -27,7 +28,7 @@ import org.appcelerator.titanium.TiDimension;
 import android.util.AttributeSet;
 
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
+// import android.widget.RelativeLayout.LayoutParams;
 //import android.widget.LinearLayout;
 //import android.widget.LinearLayout.LayoutParams;
 import android.graphics.Color;
@@ -40,7 +41,7 @@ import java.util.List;
 
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-
+import android.view.View.OnClickListener;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -49,16 +50,16 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.content.Context;
 import de.marcbender.sortablegrid.R;
 import android.widget.BaseAdapter;
 import android.os.Bundle;
-import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 
 
 // This proxy can be created by calling TiSortablegrid.createExample({message: "hello world"})
@@ -79,7 +80,7 @@ public class ViewProxy extends TiViewProxy
 	 TiViewProxy myProxy;
 	 TiUIView myView;
 
-
+	 DragGridView mDragGridView;
 
 
 	 TiCompositeLayout compositeView;
@@ -88,20 +89,15 @@ public class ViewProxy extends TiViewProxy
 	 LayoutInflater inflater;
 	 RelativeLayout layout;
 	 RelativeLayout layout2;
-
-
-
-
-
 	 int id_main_layout = 0;
 	 int id_dragableGridview1 = 0;
-	 int id_item_layout = 0;
-	int resId_viewHolder = 0;
+	 int resId_viewHolder = 0;
      int id_bottomSheet = 0;
 
-	public static final String PROPERTY_ITEMS = "items";
+	public static final String PROPERTY_ITEMS = "data";
+	public static final String PROPERTY_ITEM = "item";
 
-
+	View.OnClickListener myOnlyhandler;
 
 
 
@@ -111,95 +107,30 @@ public class ViewProxy extends TiViewProxy
 			super(proxy);
 			myProxy = proxy;
 
-
-			try {
-			   // id_main_layout = TiRHelper.getResource("layout.layout_main");
-
-			    id_item_layout = TiRHelper.getResource("layout.item_layout");
-
-
-
-	         } catch (TiRHelper.ResourceNotFoundException e) {
-	              //
-
-				Log.d(LCAT, "RESOURCE NOT FOUND");
-
-
-	         }
 			inflater = LayoutInflater.from(proxy.getActivity());
-
+			context = proxy.getActivity();
 			resources = proxy.getActivity().getResources();
 
-		 //	resId_viewHolder = resources.getIdentifier("layout_main", "layout", proxy.getActivity().getPackageName());
-try{
-		 	id_main_layout = TiRHelper.getResource("layout.layout_main");
-			id_dragableGridview1 = TiRHelper.getResource("id.dragGridView");
-		}catch (TiRHelper.ResourceNotFoundException e) {
+			try{
+			 	id_main_layout = TiRHelper.getResource("layout.layout_main");
+				id_dragableGridview1 = TiRHelper.getResource("id.dragGridView");
+			}catch (TiRHelper.ResourceNotFoundException e) {
 
-		}
+			}
 
 			layout = (RelativeLayout) inflater.inflate(id_main_layout, null);
 
-
-		//	resId_viewHolder = resources.getIdentifier("item_layout", "layout", proxy.getActivity().getPackageName());
-
-
-            //mGridview = (DragableGridview) layout.findViewById(id_dragableGridview1);
+			  mDragGridView = (DragGridView) layout.findViewById(id_dragableGridview1);
 
 
-						final DragGridView mDragGridView = (DragGridView) layout.findViewById(id_dragableGridview1);
-						for (int i = 0; i < 15; i++) {
-							HashMap<String, Object> itemHashMap = new HashMap<String, Object>();
-							try{
-								itemHashMap.put("item_image",TiRHelper.getResource("drawable.com_tencent_open_notice_msg_icon_big"));
+			  mDragGridView.setHorizontalSpacing(4);
+			  mDragGridView.setVerticalSpacing(4);
 
-							}catch (TiRHelper.ResourceNotFoundException e) {
+			  //mDragGridView.setColumnWidth();
 
-							}
-							itemHashMap.put("item_text", " " + Integer.toString(i));
-							dataSourceList.add(itemHashMap);
-						}
+			  final DragAdapter mDragAdapter = new DragAdapter(myProxy.getActivity(), dataSourceList);
 
-						final DragAdapter mDragAdapter = new DragAdapter(proxy.getActivity(), dataSourceList);
-
-						mDragGridView.setAdapter(mDragAdapter);
-
-
-						mDragGridView.setOnItemClickListener(new OnItemClickListener() {
-
-							@Override
-							public void onItemClick(AdapterView<?> parent, View view,
-									int position, long id) {
-								mDragGridView.removeItemAnimation(position);
-							}
-						});
-
-
-
-
-
-// 			try {
-// 			    id_drawer_layout = TiRHelper.getResource("layout.main");
-// 	        	id_bottomSheet = TiRHelper.getResource("id.sortable_grid");
-// 				id_layout_item = TiRHelper.getResource("layout.item");
-
-// 	         } catch (TiRHelper.ResourceNotFoundException e) {
-// 	              //
-
-// 				Log.d(LCAT, "RESOURCE NOT FOUND");
-
-
-// 	         }
-// 				inflater = LayoutInflater.from(myProxy.getActivity());
-
-// 	       		 layout = (LinearLayout) inflater.inflate(id_drawer_layout, null);
-
-
-
-
-
-// //		        mSortableGridView = (SortableGridView) layout.findViewById(id_bottomSheet);
-
+			  mDragGridView.setAdapter(mDragAdapter);
 
 
 
@@ -211,57 +142,87 @@ try{
 
 
 
-
 		@Override
 		public void processProperties(KrollDict d)
 		{
-			super.processProperties(d);
+				super.processProperties(d);
 
-
-			if (d.containsKey(PROPERTY_ITEMS)) {
-				 itemsList = new ArrayList<Object>();
-				 for (Object o : (Object[]) d.get(PROPERTY_ITEMS)) {
-				 	itemsList.add(o);
-
-
-						//
-						// TiViewProxy contentView = (TiViewProxy) o;
-						//
-            // 			TiUIView thatView = contentView.peekView();
-						//
-            // 			myView.add(thatView);
-
+				if (d.containsKey(PROPERTY_ITEMS)) {
+					 itemsList = new ArrayList<Object>();
+					 for (Object o : (Object[]) d.get(PROPERTY_ITEMS)) {
+					 	itemsList.add(o);
 
 				 }
 
+			// myOnlyhandler = new OnClickListener() {
+			//   public void onClick(View v) {
 
- 				 // imageReferences = new ArrayList<TiDrawableReference>();
-				  // for (Object o : imageSources) {
 
-				  // 	imageReferences.add(TiDrawableReference.fromObject(myProxy, o));
-				  // }
-				// adapter = new ItemsListAdapter();
-	           // mGridview.setAdapter(adapter);
+			//   				Log.d(LCAT, "+++++++++++++++++++  onClick ");
 
-	            // mGridview.setOnItemClick(new OnItemClickListener() {
+			//       // switch(v.getId()) {
+			//       //   case R.id.b1:
+			//       //     // it was the first button
+			//       //     break;
+			//       //   case R.id.b2:
+			//       //     // it was the second button
+			//       //     break;
+			//       // }
+			//   }
+			// };
 
-	            //     @Override
-	            //     public void click(int index) {
-	            //       //  Log.d(TAG, "item : " + index + " -- clicked!");
-	            //     }
-	            // });
 
-		           //  mGridview.setOnSwappingListener(new OnSwappingListener() {
 
-		           //      @Override
-		           //      public void waspping(int oldIndex, int newIndex) {
-		           //         // Book book = books.get(oldIndex);
-		           //         // books.remove(oldIndex);
-		           //         //books.add(newIndex, book);
 
-		           //          //adapter.notifyDataSetChanged();
-		           //      }
-		           //  });
+		 		for (int i = 0; i < itemsList.size(); i++) {
+		 			HashMap<String, Object> itemHashMap = new HashMap<String, Object>();
+
+		 			View pageView = null;
+		 			ViewGroup.LayoutParams layoutParams = null;
+
+		 			TiViewProxy thisproxy = (TiViewProxy) itemsList.get(i);
+		 			if (thisproxy != null) {
+		 			 TiUIView uiView = thisproxy.getOrCreateView();
+
+		 			 if (uiView != null) {
+
+		 			 	layoutParams = uiView.getLayoutParams();
+
+						TiDimension nativeWidth = new TiDimension(TiConvert.toString(thisproxy.getWidth()), TiDimension.TYPE_WIDTH);
+						TiDimension nativeHeight = new TiDimension(TiConvert.toString(thisproxy.getHeight()), TiDimension.TYPE_HEIGHT);
+
+						layoutParams.height = (int)(nativeHeight.getValue());
+
+						layoutParams.width = (int)(nativeWidth.getValue());
+
+						pageView = uiView.getOuterView();
+
+
+						TiCompositeLayout pageLayout = new TiCompositeLayout(context);
+						pageLayout.addView(pageView, layoutParams);
+
+						pageLayout.setClipChildren(false);
+				       	pageLayout.setClipToPadding(false);
+
+						if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+							pageLayout.setId(5000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
+						}
+
+		 				itemHashMap.put("item_view", pageLayout);
+		 				dataSourceList.add(itemHashMap);
+
+		 			 }
+		 			}
+		 		}
+
+		 		// mDragGridView.setOnItemClickListener(new OnItemClickListener() {
+		 		// 	@Override
+		 		// 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+ 				// 			Log.d(LCAT, "+++++++++++++++++++++++  onItemClick");
+
+		 		// 			mDragGridView.removeItemAnimation(position);
+		 		// 	}
+			  // 	});
 
 			}
 
@@ -297,32 +258,33 @@ try{
 		if (options.containsKey("message")) {
 			Log.d(LCAT, "example created with message: " + options.get("message"));
 		}
+
+
 	}
 
 
 
-	// Methods
 	@Kroll.method
-	public void printMessage(String message)
-	{
-		Log.d(LCAT, "printing message: " + message);
+	public void deleteItem(String id) {
+
+			View v = mDragGridView.findViewById(5000+Integer.parseInt(id));
+
+			if (v!=null){
+				int leftOffset = v.getLeft();
+				int topOffset = v.getTop();
+
+				int midX = leftOffset + (v.getWidth()/2);
+				int midY = topOffset + (v.getHeight()/2);
+
+				int position = mDragGridView.getItemPosition(midX,midY);
+
+				Log.d(LCAT, "POSITION: " + position);
+
+
+				mDragGridView.removeItemAnimation(position);
+			}
+
 	}
-
-
-	@Kroll.getProperty @Kroll.method
-	public String getMessage()
-	{
-        return "Hello World from my module";
-	}
-
-	@Kroll.setProperty @Kroll.method
-	public void setMessage(String message)
-	{
-	    Log.d(LCAT, "Tried setting module message to: " + message);
-	}
-
-
-
 
 
 }

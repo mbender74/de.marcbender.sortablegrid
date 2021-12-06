@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -22,11 +23,29 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
-
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import androidx.core.view.ViewCompat;
+import android.view.Gravity;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RoundRectShape;
+import org.appcelerator.titanium.util.TiConvert;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.graphics.BlurMaskFilter;
+import android.graphics.PorterDuff;
+import androidx.annotation.FloatRange;
+import android.util.AttributeSet;
+import android.widget.FrameLayout;
+import org.appcelerator.kroll.common.Log;
 
 /**
  *
@@ -36,9 +55,11 @@ import android.animation.ObjectAnimator;
  *
  */
 public class DragGridView extends GridView{
+
+
 	/**
 	 */
-	private long dragResponseMS = 1000;
+	private long dragResponseMS = 500;
 
 	/**
 	 */
@@ -59,6 +80,8 @@ public class DragGridView extends GridView{
 	/**
 	 */
 	private ImageView mDragImageView;
+
+	private ShadowLayout shadowLayout;
 
 	/**
 	 */
@@ -123,6 +146,377 @@ public class DragGridView extends GridView{
 	private int mHorizontalSpacing;
 	private int mVerticalSpacing;
 
+
+
+
+	public class ShadowLayout extends FrameLayout {
+
+	    // Default shadow values
+	    private final static float DEFAULT_SHADOW_RADIUS = 30.0F;
+	    private final static float DEFAULT_SHADOW_DISTANCE = 15.0F;
+	    private final static float DEFAULT_SHADOW_ANGLE = 45.0F;
+	    private final static int DEFAULT_SHADOW_COLOR = Color.DKGRAY;
+
+	    // Shadow bounds values
+	    private final static int MAX_ALPHA = 255;
+	    private final static float MAX_ANGLE = 360.0F;
+	    private final static float MIN_RADIUS = 0.1F;
+	    private final static float MIN_ANGLE = 0.0F;
+	    // Shadow paint
+	    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG) {
+	        {
+	            setDither(true);
+	            setFilterBitmap(true);
+	        }
+	    };
+	    // Shadow bitmap and canvas
+	    private Bitmap mBitmap;
+	    private final Canvas mCanvas = new Canvas();
+	    // View bounds
+	    private final Rect mBounds = new Rect();
+	    // Check whether need to redraw shadow
+	    private boolean mInvalidateShadow = true;
+
+	    // Detect if shadow is visible
+	    private boolean mIsShadowed;
+
+	    // Shadow variables
+	    private int mShadowColor;
+	    private int mShadowAlpha;
+	    private float mShadowRadius;
+	    private float mShadowDistance;
+	    private float mShadowAngle;
+	    private float mShadowDx;
+	    private float mShadowDy;
+
+	    public ShadowLayout(final Context context) {
+	        this(context, null);
+	    }
+
+	    public ShadowLayout(final Context context, final AttributeSet attrs) {
+	        this(context, attrs, 0);
+	    }
+
+	    public ShadowLayout(final Context context, final AttributeSet attrs, final int defStyleAttr) {
+	        super(context, attrs, defStyleAttr);
+
+	        setWillNotDraw(false);
+	        setLayerType(LAYER_TYPE_HARDWARE, mPaint);
+
+	        // Retrieve attributes from xml
+	        final TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ShadowLayout);
+	        try {
+	            setIsShadowed(typedArray.getBoolean(R.styleable.ShadowLayout_sl_shadowed, true));
+	            setShadowRadius(
+	                    typedArray.getDimension(
+	                            R.styleable.ShadowLayout_sl_shadow_radius, DEFAULT_SHADOW_RADIUS
+	                    )
+	            );
+	            setShadowDistance(
+	                    typedArray.getDimension(
+	                            R.styleable.ShadowLayout_sl_shadow_distance, DEFAULT_SHADOW_DISTANCE
+	                    )
+	            );
+	            setShadowAngle(
+	                    typedArray.getInteger(
+	                            R.styleable.ShadowLayout_sl_shadow_angle, (int) DEFAULT_SHADOW_ANGLE
+	                    )
+	            );
+	            setShadowColor(
+	                    typedArray.getColor(
+	                            R.styleable.ShadowLayout_sl_shadow_color, DEFAULT_SHADOW_COLOR
+	                    )
+	            );
+	        } finally {
+	            typedArray.recycle();
+	        }
+	    }
+
+	    @Override
+	    protected void onDetachedFromWindow() {
+	        super.onDetachedFromWindow();
+	        // Clear shadow bitmap
+	        if (mBitmap != null) {
+	            mBitmap.recycle();
+	            mBitmap = null;
+	        }
+	    }
+
+	    public boolean isShadowed() {
+	        return mIsShadowed;
+	    }
+
+	    public void setIsShadowed(final boolean isShadowed) {
+	        mIsShadowed = isShadowed;
+	        postInvalidate();
+	    }
+
+	    public float getShadowDistance() {
+	        return mShadowDistance;
+	    }
+
+	    public void setShadowDistance(final float shadowDistance) {
+	        mShadowDistance = shadowDistance;
+	        resetShadow();
+	    }
+
+	    public float getShadowAngle() {
+	        return mShadowAngle;
+	    }
+
+	    @FloatRange
+	    public void setShadowAngle(@FloatRange(from = MIN_ANGLE, to = MAX_ANGLE) final float shadowAngle) {
+	        mShadowAngle = Math.max(MIN_ANGLE, Math.min(shadowAngle, MAX_ANGLE));
+	        resetShadow();
+	    }
+
+	    public float getShadowRadius() {
+	        return mShadowRadius;
+	    }
+
+	    public void setShadowRadius(final float shadowRadius) {
+	        mShadowRadius = Math.max(MIN_RADIUS, shadowRadius);
+
+	        if (isInEditMode()) return;
+	        // Set blur filter to paint
+	        mPaint.setMaskFilter(new BlurMaskFilter(mShadowRadius, BlurMaskFilter.Blur.NORMAL));
+	        resetShadow();
+	    }
+
+	    public int getShadowColor() {
+	        return mShadowColor;
+	    }
+
+	    public void setShadowColor(final int shadowColor) {
+	        mShadowColor = shadowColor;
+	        mShadowAlpha = Color.alpha(shadowColor);
+
+	        resetShadow();
+	    }
+
+	    public float getShadowDx() {
+	        return mShadowDx;
+	    }
+
+	    public float getShadowDy() {
+	        return mShadowDy;
+	    }
+
+	    // Reset shadow layer
+	    private void resetShadow() {
+	        // Detect shadow axis offset
+	        mShadowDx = (float) ((mShadowDistance) * Math.cos(mShadowAngle / 180.0F * Math.PI));
+	        mShadowDy = (float) ((mShadowDistance) * Math.sin(mShadowAngle / 180.0F * Math.PI));
+		    mShadowDx = 4;
+		    mShadowDy = 4;
+
+	        // Set padding for shadow bitmap
+	        final int padding = (int) (mShadowDistance);
+
+			// if (mShadowAngle == 0 || mShadowAngle == 360)
+		 //    {
+		 //        setPadding(padding , padding , padding, padding);
+		 //    }
+		 //    else if (mShadowAngle == 90)
+		 //    {
+		 //        setPadding(0, 0, 0, padding);
+		 //    }
+		 //    else if (mShadowAngle == 180)
+		 //    {
+		 //        setPadding(padding, 0, 0, 0);
+		 //    }
+		 //    else if (mShadowAngle == 270)
+		 //    {
+		 //        setPadding(0, padding, 0, 0);
+		 //    }
+		 //    else if ( mShadowAngle > 0 && mShadowAngle < 90)
+		 //    {
+		 //        setPadding(0, 0, padding, padding);
+		 //    }
+		 //    else if ( mShadowAngle > 90 && mShadowAngle < 180)
+		 //    {
+		 //        setPadding(padding, 0, 0, padding);
+		 //    }
+		 //    else if ( mShadowAngle > 180 && mShadowAngle < 270)
+		 //    {
+		 //        setPadding(padding, padding, 0, 0);
+		 //    }
+		 //    else if ( mShadowAngle > 270 && mShadowAngle < 360)
+		 //    {
+		 //        setPadding(0, padding, padding, 0);
+		 //    }
+
+
+	        setPadding(padding, padding, padding, padding);
+	        requestLayout();
+	    }
+
+	    private int adjustShadowAlpha(final boolean adjust) {
+	        return Color.argb(
+	                adjust ? MAX_ALPHA : mShadowAlpha,
+	                Color.red(mShadowColor),
+	                Color.green(mShadowColor),
+	                Color.blue(mShadowColor)
+	        );
+	    }
+
+	    @Override
+	    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+	        // Set ShadowLayout bounds
+	        mBounds.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
+	    }
+
+	    @Override
+	    public void requestLayout() {
+	        // Redraw shadow
+	        mInvalidateShadow = true;
+	        super.requestLayout();
+	    }
+
+	    @Override
+	    protected void dispatchDraw(final Canvas canvas) {
+	        // If is not shadowed, skip
+	        if (mIsShadowed) {
+	            // If need to redraw shadow
+	            if (mInvalidateShadow) {
+	                // If bounds is zero
+	                if (mBounds.width() != 0 && mBounds.height() != 0) {
+	                    // Reset bitmap to bounds
+	                    mBitmap = Bitmap.createBitmap(
+	                            mBounds.width(), mBounds.height(), Bitmap.Config.ARGB_8888
+	                    );
+	                    // Canvas reset
+	                    mCanvas.setBitmap(mBitmap);
+
+	                    // We just redraw
+	                    mInvalidateShadow = false;
+	                    // Main feature of this lib. We create the local copy of all content, so now
+	                    // we can draw bitmap as a bottom layer of natural canvas.
+	                    // We draw shadow like blur effect on bitmap, cause of setShadowLayer() method of
+	                    // paint does`t draw shadow, it draw another copy of bitmap
+	                    super.dispatchDraw(mCanvas);
+
+	                    // Get the alpha bounds of bitmap
+	                    final Bitmap extractedAlpha = mBitmap.extractAlpha();
+	                    // Clear past content content to draw shadow
+	                    mCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+
+	                    // Draw extracted alpha bounds of our local canvas
+	                    mPaint.setColor(adjustShadowAlpha(false));
+	                    mCanvas.drawBitmap(extractedAlpha, mShadowDx, mShadowDy, mPaint);
+
+	                    // Recycle and clear extracted alpha
+	                    extractedAlpha.recycle();
+	                } else {
+	                    // Create placeholder bitmap when size is zero and wait until new size coming up
+	                    mBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+	                }
+	            }
+
+	            // Reset alpha to draw child with full alpha
+	            mPaint.setColor(adjustShadowAlpha(true));
+	            // Draw shadow bitmap
+	            if (mCanvas != null && mBitmap != null && !mBitmap.isRecycled())
+	                canvas.drawBitmap(mBitmap, 0.0F, 0.0F, mPaint);
+	        }
+
+	        // Draw child`s
+	        super.dispatchDraw(canvas);
+	    }
+	}
+
+
+
+
+
+
+
+
+	public static Drawable generateBackgroundWithShadow(View view,int cornerRadius,int elevation,int shadowGravity) {
+		float scale = view.getResources().getDisplayMetrics().density;
+        float cornerRadiusValue = ((float) cornerRadius) * scale;
+
+        int elevationValue = elevation;
+        int shadowColorValue = TiConvert.toColor("#88000000");
+        int backgroundColorValue = TiConvert.toColor("#ffffff");
+
+        float[] outerRadius = {cornerRadiusValue, cornerRadiusValue, cornerRadiusValue,
+                cornerRadiusValue, cornerRadiusValue, cornerRadiusValue, cornerRadiusValue,
+                cornerRadiusValue};
+
+        Paint backgroundPaint = new Paint();
+        backgroundPaint.setStyle(Paint.Style.FILL);
+        backgroundPaint.setShadowLayer(cornerRadiusValue, 0, 0, 0);
+
+        Rect shapeDrawablePadding = new Rect();
+        shapeDrawablePadding.left = elevationValue;
+        shapeDrawablePadding.right = elevationValue;
+        
+        int DY;
+        switch (shadowGravity) {
+            case Gravity.CENTER:
+                shapeDrawablePadding.top = elevationValue;
+                shapeDrawablePadding.bottom = elevationValue;
+                shapeDrawablePadding.left = elevationValue;
+                shapeDrawablePadding.right = elevationValue;
+                DY = 0;
+                break;
+            case Gravity.TOP:
+                shapeDrawablePadding.top = elevationValue*2;
+                shapeDrawablePadding.bottom = elevationValue;
+                DY = -1*elevationValue/3;
+                break;
+            default:
+            case Gravity.BOTTOM:
+                shapeDrawablePadding.top = elevationValue;
+                shapeDrawablePadding.bottom = elevationValue*2;
+                DY = elevationValue/3;
+                break;
+        }
+
+        ShapeDrawable shapeDrawable = new ShapeDrawable();
+        shapeDrawable.setPadding(shapeDrawablePadding);
+
+        shapeDrawable.getPaint().setColor(backgroundColorValue);
+        shapeDrawable.getPaint().setShadowLayer(cornerRadiusValue, 0, DY, shadowColorValue);
+
+        view.setLayerType(LAYER_TYPE_SOFTWARE, shapeDrawable.getPaint());
+
+        shapeDrawable.setShape(new RoundRectShape(outerRadius, null, null));
+
+        LayerDrawable drawable = new LayerDrawable(new Drawable[]{shapeDrawable});
+        drawable.setLayerInset(0, elevationValue, elevationValue, elevationValue, elevationValue);
+
+        //drawable.setAlpha((int)(0.7));
+
+        return drawable;
+
+    }
+
+
+
+	public Bitmap getBitmapFromView(View view)
+	{
+	    Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+	    Canvas canvas = new Canvas(bitmap);
+
+
+	    view.draw(canvas);
+	    return bitmap;
+	}
+
+	public Bitmap getBitmapFromView(View view,int defaultColor)
+	{
+	    Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+	    Canvas canvas = new Canvas(bitmap);
+	    canvas.drawColor(defaultColor);
+	    view.draw(canvas);
+	    return bitmap;
+	}
+
+
 	public DragGridView(Context context) {
 		this(context, null);
 	}
@@ -135,7 +529,7 @@ public class DragGridView extends GridView{
 		super(context, attrs, defStyle);
 	//	mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 		mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		mStatusHeight = getStatusHeight(context); //��ȡ״̬���ĸ߶�
+		mStatusHeight = getStatusHeight(context); //
 
 		if(!mNumColumnsSet){
 			mNumColumns = AUTO_FIT;
@@ -148,6 +542,9 @@ public class DragGridView extends GridView{
 	 * @param position
 	 */
 	public void removeItemAnimation(final int position){
+
+						Log.d("\n\n++++++++++++++++ removeItemAnimation", "removeItemAnimation");
+
 		mDragAdapter.removeItem(position);
 		final ViewTreeObserver observer = getViewTreeObserver();
 		observer.addOnPreDrawListener(new OnPreDrawListener() {
@@ -161,7 +558,7 @@ public class DragGridView extends GridView{
 		} );
 	}
 
-	private Handler mHandler = new Handler();
+	private Handler mHandler = new Handler(Looper.getMainLooper());
 
 	//
 	private Runnable mLongClickRunnable = new Runnable() {
@@ -170,9 +567,7 @@ public class DragGridView extends GridView{
 		public void run() {
 			isDrag = true; //
 			//mVibrator.vibrate(50); //
-			mStartDragItemView.setVisibility(View.INVISIBLE);//���ظ�item
-
-			//
+			mStartDragItemView.setVisibility(View.INVISIBLE);
 			createDragImage(mDragBitmap, mDownX, mDownY);
 		}
 	};
@@ -259,6 +654,15 @@ public class DragGridView extends GridView{
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+
+	public int getItemPosition(int x, int y) {
+			mDragPosition = pointToPosition(x, y);
+
+			return mDragPosition;
+	}
+
+
+
 	/**
 	 *
 	 * @param dragResponseMS
@@ -302,11 +706,11 @@ public class DragGridView extends GridView{
 
 
 			//
-			mStartDragItemView.setDrawingCacheEnabled(true);
+			//mStartDragItemView.setDrawingCacheEnabled(true);
 			//
-			mDragBitmap = Bitmap.createBitmap(mStartDragItemView.getDrawingCache());
+			mDragBitmap = Bitmap.createBitmap(getBitmapFromView(mStartDragItemView));
 			//
-			mStartDragItemView.destroyDrawingCache();
+			//mStartDragItemView.destroyDrawingCache();
 
 			break;
 		case MotionEvent.ACTION_MOVE:
@@ -321,6 +725,22 @@ public class DragGridView extends GridView{
 		case MotionEvent.ACTION_UP:
 			mHandler.removeCallbacks(mLongClickRunnable);
 			mHandler.removeCallbacks(mScrollRunnable);
+
+
+			onStopDrag();
+			isDrag = false;
+
+						Log.d("MotionEvent", "ACTION_UP dispatchTouchEvent");
+
+			break;
+		case MotionEvent.ACTION_CANCEL:
+			mHandler.removeCallbacks(mLongClickRunnable);
+			mHandler.removeCallbacks(mScrollRunnable);
+
+
+			Log.d("MotionEvent", "ACTION_CANCEL");
+
+
 			break;
 		}
 		return super.dispatchTouchEvent(ev);
@@ -355,7 +775,7 @@ public class DragGridView extends GridView{
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		if(isDrag && mDragImageView != null){
+		if(isDrag && shadowLayout != null){
 			switch(ev.getAction()){
 			case MotionEvent.ACTION_MOVE:
 				moveX = (int) ev.getX();
@@ -365,6 +785,14 @@ public class DragGridView extends GridView{
 				onDragItem(moveX, moveY);
 				break;
 			case MotionEvent.ACTION_UP:
+									Log.d("MotionEvent", "ACTION_UP onTouchEvent");
+
+				//onStopDrag();
+				//isDrag = false;
+				break;
+			case MotionEvent.ACTION_CANCEL:
+									Log.d("MotionEvent", "ACTION_CANCEL");
+
 				onStopDrag();
 				isDrag = false;
 				break;
@@ -385,28 +813,60 @@ public class DragGridView extends GridView{
 	 */
 	private void createDragImage(Bitmap bitmap, int downX , int downY){
 		mWindowLayoutParams = new WindowManager.LayoutParams();
-		mWindowLayoutParams.format = PixelFormat.TRANSLUCENT; //ͼƬ֮���������ط�͸��
+		mWindowLayoutParams.format = PixelFormat.TRANSLUCENT; //
 		mWindowLayoutParams.gravity = Gravity.TOP | Gravity.LEFT;
 		mWindowLayoutParams.x = downX - mPoint2ItemLeft + mOffset2Left;
 		mWindowLayoutParams.y = downY - mPoint2ItemTop + mOffset2Top - mStatusHeight;
-		mWindowLayoutParams.alpha = 0.55f; //
+		mWindowLayoutParams.alpha = 1.0f;
 		mWindowLayoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
 		mWindowLayoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 		mWindowLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 	                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE ;
 
+		int paddingTopBottom = 6;
+    	int paddingLeftRight = 6;
+
 		mDragImageView = new ImageView(getContext());
 		mDragImageView.setImageBitmap(bitmap);
-		mWindowManager.addView(mDragImageView, mWindowLayoutParams);
+	   // mDragImageView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
+		mDragImageView.setClickable(false);
+		//mDragImageView.setBackground(generateBackgroundWithShadow(mDragImageView,14,6, Gravity.CENTER));
+
+        int backgroundColorValue = TiConvert.toColor("#CC000000");
+//		mDragImageView.setBackgroundColor(backgroundColorValue);
+		//mDragImageView.setElevation(10f);	
+
+		//mDragImageView.setElevation(10);
+		//mDragImageView.setOutlineAmbientShadowColor(backgroundColorValue);
+		//mDragImageView.setOutlineSpotShadowColor(backgroundColorValue);
+
+		shadowLayout = new ShadowLayout(getContext());
+
+		shadowLayout.setIsShadowed(true);
+		shadowLayout.setShadowAngle(20);
+		shadowLayout.setShadowRadius(14);
+		shadowLayout.setShadowDistance(20);
+		shadowLayout.setShadowColor(Color.BLACK);
+		shadowLayout.setClipChildren(false);
+       	shadowLayout.setClipToPadding(false);
+		shadowLayout.addView(mDragImageView);
+
+		mWindowManager.addView(shadowLayout, mWindowLayoutParams);
+//		mDragImageView.setTranslationZ(10);
+
 	}
 
 	/**
 	 *
 	 */
 	private void removeDragImage(){
-		if(mDragImageView != null){
-			mWindowManager.removeView(mDragImageView);
-			mDragImageView = null;
+										Log.d("removeDragImage", "removeDragImage ");
+
+		if(shadowLayout != null){
+													Log.d("removeDragImage", "NOT NULL ");
+
+			mWindowManager.removeView(shadowLayout);
+			shadowLayout = null;
 		}
 	}
 
@@ -418,7 +878,7 @@ public class DragGridView extends GridView{
 	private void onDragItem(int moveX, int moveY){
 		mWindowLayoutParams.x = moveX - mPoint2ItemLeft + mOffset2Left;
 		mWindowLayoutParams.y = moveY - mPoint2ItemTop + mOffset2Top - mStatusHeight;
-		mWindowManager.updateViewLayout(mDragImageView, mWindowLayoutParams); //���¾�����λ��
+		mWindowManager.updateViewLayout(shadowLayout, mWindowLayoutParams); //
 		onSwapItem(moveX, moveY);
 
 		//
@@ -568,6 +1028,8 @@ public class DragGridView extends GridView{
 	 *
 	 */
 	private void onStopDrag(){
+								Log.d("onStopDrag", "onStopDrag ");
+
 		View view = getChildAt(mDragPosition - getFirstVisiblePosition());
 		if(view != null){
 			view.setVisibility(View.VISIBLE);
@@ -601,3 +1063,6 @@ public class DragGridView extends GridView{
     }
 
 }
+
+
+
