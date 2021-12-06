@@ -18,6 +18,44 @@ var wobbeling = false;
 var gridCells = [];
 
 
+
+function createRemoveButtonImage(){
+	var removeImageButtonContainer = Ti.UI.createView({
+		height:38,
+		width:38,
+		borderRadius:19,
+		borderWidth:3,
+		borderColor:'white',
+		backgroundColor:'rgba(63, 69, 81)'
+	});
+	var label = Ti.UI.createLabel({
+		width: Ti.UI.FILL,
+		height: Ti.UI.FILL,
+		backgroundColor:'white',
+		color : 'rgba(63, 69, 81)',
+		textAlign:'center',
+		font: {
+			fontSize: 34,
+			fontFamily: fontawesome.fontfamily()
+		},
+		text: fontawesome.icon('fa-minus-circle')
+	});
+	removeImageButtonContainer.add(label);
+	return removeImageButtonContainer.toImage(null,true);
+}
+
+var badgeImage = Ti.UI.createView({
+		height:34,
+		width:34,
+		borderRadius: 17,
+		borderWidth:2,
+		borderColor:'white',
+		backgroundColor:'red'
+   }).toImage(null,true);
+var deleteButton = createRemoveButtonImage();
+
+
+
 function createRemoveButton(parent){
 		
 
@@ -266,6 +304,7 @@ btn3.addEventListener("click", function() {
 
 //win.add([circularProgessView, btn, btn2, btn3, lbl]);
 
+
 function createGridDashBoardViews(size){
 	var sortableViewData = [];
 	for (var i = 0; i < size; i++){
@@ -307,17 +346,34 @@ function createGridDashBoardViews(size){
 		// 	}
 		// });
 
-		var removeButton = createRemoveButton(v);
+		if (!isAndroid){
+			var item = sortableGridModule.createItem({
+						height:130,
+						width:130,
+						badgeViewImage:badgeImage,
+						deleteButtonImage:deleteButton,
+						backgroundColor:'transparent',
+						badge:1,
+			});
+			item.add(v);	
+			sortableViewData.push(item);	
+		
+		}
+		else {
+			var removeButton = createRemoveButton(v);
 
-		removeButton.addEventListener("click",function(e){
-			gridView.deleteItem(this.parentCell.id);
-		});
-		v.add(removeButton);
+			removeButton.addEventListener("click",function(e){
+				gridView.deleteItem(this.parentCell.id);
+			});
+			v.add(removeButton);			
+			sortableViewData.push(v);	
 
-		sortableViewData.push(v);	
+		}
+
 	}
 	return sortableViewData;
    }
+
 
 
 function createDashBoardButtons(size){
@@ -396,7 +452,7 @@ function createDashBoardButtons(size){
 	//clipMode:Ti.UI.iOS.CLIP_MODE_DISABLED
 });
 
-gridCells = createGridDashBoardViews(10);
+gridCells = createGridDashBoardViews(20);
 
 gridView = sortableGridModule.createView({
 	height:Ti.UI.FILL,
@@ -405,6 +461,8 @@ gridView = sortableGridModule.createView({
 	bottom:30,
 	left:0,
 	right:0,
+	rowCount:5,
+	wobble: true,
 	backgroundColor:'transparent',
 	data:gridCells
 })

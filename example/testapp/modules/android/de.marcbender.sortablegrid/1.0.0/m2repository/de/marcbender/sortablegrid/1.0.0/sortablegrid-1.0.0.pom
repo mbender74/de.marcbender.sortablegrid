@@ -16,10 +16,5 @@
       <artifactId>kotlin-stdlib-jdk8</artifactId>
       <version>1.5.21</version>
     </dependency>
-    <dependency>
-      <groupId>com.github.raghavtilak</groupId>
-      <artifactId>SimpleDragSwipeRV</artifactId>
-      <version>1.0.0</version>
-    </dependency>
   </dependencies>
 </project>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,7 +13,7 @@
         android:verticalSpacing="10dip"
         android:horizontalSpacing="10dip"
         android:columnWidth="90dip"
-  	    android:gravity="center" 
+          android:gravity="center"
         android:numColumns="auto_fit" >
     </de.marcbender.sortablegrid.DragGridView>
 

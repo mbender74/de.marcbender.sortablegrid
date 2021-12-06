@@ -1,0 +1,19 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 2.0.0
+apiversion: 2
+architectures: arm64 x86_64
+mac: true
+description: TiCircularSlide
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) 2021 by Your Company
+
+# these should not be edited
+name: TiCircularSlide
+moduleid: de.marcelpociot.circularslider
+guid: 34935957-1492-40b2-afa6-e7da94fc3f6f
+platform: iphone
+minsdk: 10.0.0.GA
