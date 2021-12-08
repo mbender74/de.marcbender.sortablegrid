@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:gravity="center"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <de.marcbender.sortablegrid.DragGridView
         android:id="@+id/dragGridView"
@@ -12,9 +16,11 @@
         android:cacheColorHint="@android:color/transparent"
         android:verticalSpacing="10dip"
         android:horizontalSpacing="10dip"
-        android:columnWidth="90dip"
-          android:gravity="center"
-        android:numColumns="auto_fit" >
+        android:columnWidth="110dip"
+        android:gravity="center"
+        android:numColumns="auto_fit"
+        android:clipChildren="false"
+        android:clipToPadding="false">
     </de.marcbender.sortablegrid.DragGridView>
 
 </RelativeLayout>

@@ -2,7 +2,6 @@ package de.marcbender.sortablegrid;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -29,10 +28,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import androidx.core.view.ViewCompat;
-import android.view.Gravity;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -56,10 +52,11 @@ import org.appcelerator.kroll.common.Log;
  */
 public class DragGridView extends GridView{
 
+	private boolean isInEditMode = false;
 
 	/**
 	 */
-	private long dragResponseMS = 500;
+	private long dragResponseMS = 300;
 
 	/**
 	 */
@@ -307,45 +304,11 @@ public class DragGridView extends GridView{
 	        // Detect shadow axis offset
 	        mShadowDx = (float) ((mShadowDistance) * Math.cos(mShadowAngle / 180.0F * Math.PI));
 	        mShadowDy = (float) ((mShadowDistance) * Math.sin(mShadowAngle / 180.0F * Math.PI));
-		    mShadowDx = 4;
-		    mShadowDy = 4;
+		    	mShadowDx = 0;
+		    	mShadowDy = 0;
 
 	        // Set padding for shadow bitmap
-	        final int padding = (int) (mShadowDistance);
-
-			// if (mShadowAngle == 0 || mShadowAngle == 360)
-		 //    {
-		 //        setPadding(padding , padding , padding, padding);
-		 //    }
-		 //    else if (mShadowAngle == 90)
-		 //    {
-		 //        setPadding(0, 0, 0, padding);
-		 //    }
-		 //    else if (mShadowAngle == 180)
-		 //    {
-		 //        setPadding(padding, 0, 0, 0);
-		 //    }
-		 //    else if (mShadowAngle == 270)
-		 //    {
-		 //        setPadding(0, padding, 0, 0);
-		 //    }
-		 //    else if ( mShadowAngle > 0 && mShadowAngle < 90)
-		 //    {
-		 //        setPadding(0, 0, padding, padding);
-		 //    }
-		 //    else if ( mShadowAngle > 90 && mShadowAngle < 180)
-		 //    {
-		 //        setPadding(padding, 0, 0, padding);
-		 //    }
-		 //    else if ( mShadowAngle > 180 && mShadowAngle < 270)
-		 //    {
-		 //        setPadding(padding, padding, 0, 0);
-		 //    }
-		 //    else if ( mShadowAngle > 270 && mShadowAngle < 360)
-		 //    {
-		 //        setPadding(0, padding, padding, 0);
-		 //    }
-
+	        final int padding = 4;
 
 	        setPadding(padding, padding, padding, padding);
 	        requestLayout();
@@ -365,7 +328,7 @@ public class DragGridView extends GridView{
 	        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
 	        // Set ShadowLayout bounds
-	        mBounds.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
+	        mBounds.set(0, 0, getMeasuredWidth()+20, getMeasuredHeight()+20);
 	    }
 
 	    @Override
@@ -428,12 +391,6 @@ public class DragGridView extends GridView{
 	}
 
 
-
-
-
-
-
-
 	public static Drawable generateBackgroundWithShadow(View view,int cornerRadius,int elevation,int shadowGravity) {
 		float scale = view.getResources().getDisplayMetrics().density;
         float cornerRadiusValue = ((float) cornerRadius) * scale;
@@ -453,7 +410,7 @@ public class DragGridView extends GridView{
         Rect shapeDrawablePadding = new Rect();
         shapeDrawablePadding.left = elevationValue;
         shapeDrawablePadding.right = elevationValue;
-        
+
         int DY;
         switch (shadowGravity) {
             case Gravity.CENTER:
@@ -501,8 +458,6 @@ public class DragGridView extends GridView{
 	{
 	    Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
 	    Canvas canvas = new Canvas(bitmap);
-
-
 	    view.draw(canvas);
 	    return bitmap;
 	}
@@ -537,13 +492,21 @@ public class DragGridView extends GridView{
 
 	}
 
+
+
+	public void setEditMode(boolean editing){
+
+		isInEditMode = editing;
+
+	}
+
+
+
 	/**
 	 *
 	 * @param position
 	 */
 	public void removeItemAnimation(final int position){
-
-						Log.d("\n\n++++++++++++++++ removeItemAnimation", "removeItemAnimation");
 
 		mDragAdapter.removeItem(position);
 		final ViewTreeObserver observer = getViewTreeObserver();
@@ -673,76 +636,75 @@ public class DragGridView extends GridView{
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
-		switch(ev.getAction()){
-		case MotionEvent.ACTION_DOWN:
-			mDownX = (int) ev.getX();
-			mDownY = (int) ev.getY();
-
-			//,
-			mDragPosition = pointToPosition(mDownX, mDownY);
 
 
-			if(mDragPosition == AdapterView.INVALID_POSITION){
-				return super.dispatchTouchEvent(ev);
-			}
+		if (isInEditMode == true){
+			switch(ev.getAction()){
+			case MotionEvent.ACTION_DOWN:
+				mDownX = (int) ev.getX();
+				mDownY = (int) ev.getY();
 
-			//
-			mHandler.postDelayed(mLongClickRunnable, dragResponseMS);
-
-			//
-			mStartDragItemView = getChildAt(mDragPosition - getFirstVisiblePosition());
-
-			//
-			mPoint2ItemTop = mDownY - mStartDragItemView.getTop();
-			mPoint2ItemLeft = mDownX - mStartDragItemView.getLeft();
-
-			mOffset2Top = (int) (ev.getRawY() - mDownY);
-			mOffset2Left = (int) (ev.getRawX() - mDownX);
-
-			//
-			mDownScrollBorder = getHeight() / 5;
-			//
-			mUpScrollBorder = getHeight() * 4/5;
+				//,
+				mDragPosition = pointToPosition(mDownX, mDownY);
 
 
-			//
-			//mStartDragItemView.setDrawingCacheEnabled(true);
-			//
-			mDragBitmap = Bitmap.createBitmap(getBitmapFromView(mStartDragItemView));
-			//
-			//mStartDragItemView.destroyDrawingCache();
+				if(mDragPosition == AdapterView.INVALID_POSITION){
+					return super.dispatchTouchEvent(ev);
+				}
 
-			break;
-		case MotionEvent.ACTION_MOVE:
-			int moveX = (int)ev.getX();
-			int moveY = (int) ev.getY();
+				//
+				mHandler.postDelayed(mLongClickRunnable, dragResponseMS);
 
-			//
-			if(!isTouchInItem(mStartDragItemView, moveX, moveY)){
+				//
+				mStartDragItemView = getChildAt(mDragPosition - getFirstVisiblePosition());
+
+				//
+				mPoint2ItemTop = mDownY - mStartDragItemView.getTop();
+				mPoint2ItemLeft = mDownX - mStartDragItemView.getLeft();
+
+				mOffset2Top = (int) (ev.getRawY() - mDownY);
+				mOffset2Left = (int) (ev.getRawX() - mDownX);
+
+				//
+				mDownScrollBorder = getHeight() / 5;
+				//
+				mUpScrollBorder = getHeight() * 4/5;
+
+				mDragBitmap = Bitmap.createBitmap(getBitmapFromView(mStartDragItemView));
+
+				break;
+			case MotionEvent.ACTION_MOVE:
+				int moveX = (int)ev.getX();
+				int moveY = (int) ev.getY();
+
+				//
+				if(!isTouchInItem(mStartDragItemView, moveX, moveY)){
+					mHandler.removeCallbacks(mLongClickRunnable);
+				}
+				break;
+			case MotionEvent.ACTION_UP:
 				mHandler.removeCallbacks(mLongClickRunnable);
+				mHandler.removeCallbacks(mScrollRunnable);
+
+
+				onStopDrag();
+				isDrag = false;
+
+				//Log.d("MotionEvent", "ACTION_UP dispatchTouchEvent");
+
+				break;
+			case MotionEvent.ACTION_CANCEL:
+				mHandler.removeCallbacks(mLongClickRunnable);
+				mHandler.removeCallbacks(mScrollRunnable);
+				//Log.d("MotionEvent", "ACTION_CANCEL");
+				break;
 			}
-			break;
-		case MotionEvent.ACTION_UP:
-			mHandler.removeCallbacks(mLongClickRunnable);
-			mHandler.removeCallbacks(mScrollRunnable);
 
-
-			onStopDrag();
-			isDrag = false;
-
-						Log.d("MotionEvent", "ACTION_UP dispatchTouchEvent");
-
-			break;
-		case MotionEvent.ACTION_CANCEL:
-			mHandler.removeCallbacks(mLongClickRunnable);
-			mHandler.removeCallbacks(mScrollRunnable);
-
-
-			Log.d("MotionEvent", "ACTION_CANCEL");
-
-
-			break;
 		}
+		else {
+
+		}
+
 		return super.dispatchTouchEvent(ev);
 	}
 
@@ -785,13 +747,13 @@ public class DragGridView extends GridView{
 				onDragItem(moveX, moveY);
 				break;
 			case MotionEvent.ACTION_UP:
-									Log.d("MotionEvent", "ACTION_UP onTouchEvent");
+		//							Log.d("MotionEvent", "ACTION_UP onTouchEvent");
 
 				//onStopDrag();
 				//isDrag = false;
 				break;
 			case MotionEvent.ACTION_CANCEL:
-									Log.d("MotionEvent", "ACTION_CANCEL");
+			//						Log.d("MotionEvent", "ACTION_CANCEL");
 
 				onStopDrag();
 				isDrag = false;
@@ -817,25 +779,24 @@ public class DragGridView extends GridView{
 		mWindowLayoutParams.gravity = Gravity.TOP | Gravity.LEFT;
 		mWindowLayoutParams.x = downX - mPoint2ItemLeft + mOffset2Left;
 		mWindowLayoutParams.y = downY - mPoint2ItemTop + mOffset2Top - mStatusHeight;
-		mWindowLayoutParams.alpha = 1.0f;
+		mWindowLayoutParams.alpha = 0.95f;
 		mWindowLayoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
 		mWindowLayoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 		mWindowLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 	                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE ;
 
-		int paddingTopBottom = 6;
-    	int paddingLeftRight = 6;
+		int paddingTopBottom = 4;
+    int paddingLeftRight = 4;
 
 		mDragImageView = new ImageView(getContext());
 		mDragImageView.setImageBitmap(bitmap);
-	   // mDragImageView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
+	  //mDragImageView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
 		mDragImageView.setClickable(false);
 		//mDragImageView.setBackground(generateBackgroundWithShadow(mDragImageView,14,6, Gravity.CENTER));
 
-        int backgroundColorValue = TiConvert.toColor("#CC000000");
-//		mDragImageView.setBackgroundColor(backgroundColorValue);
-		//mDragImageView.setElevation(10f);	
-
+    int backgroundColorValue = TiConvert.toColor("#CC000000");
+		//mDragImageView.setBackgroundColor(backgroundColorValue);
+		//mDragImageView.setElevation(10f);
 		//mDragImageView.setElevation(10);
 		//mDragImageView.setOutlineAmbientShadowColor(backgroundColorValue);
 		//mDragImageView.setOutlineSpotShadowColor(backgroundColorValue);
@@ -848,22 +809,21 @@ public class DragGridView extends GridView{
 		shadowLayout.setShadowDistance(20);
 		shadowLayout.setShadowColor(Color.BLACK);
 		shadowLayout.setClipChildren(false);
-       	shadowLayout.setClipToPadding(false);
+    shadowLayout.setClipToPadding(false);
 		shadowLayout.addView(mDragImageView);
 
 		mWindowManager.addView(shadowLayout, mWindowLayoutParams);
-//		mDragImageView.setTranslationZ(10);
-
+		//mDragImageView.setTranslationZ(10);
 	}
 
 	/**
 	 *
 	 */
 	private void removeDragImage(){
-										Log.d("removeDragImage", "removeDragImage ");
+								//		Log.d("removeDragImage", "removeDragImage ");
 
 		if(shadowLayout != null){
-													Log.d("removeDragImage", "NOT NULL ");
+											//		Log.d("removeDragImage", "NOT NULL ");
 
 			mWindowManager.removeView(shadowLayout);
 			shadowLayout = null;
@@ -1028,7 +988,7 @@ public class DragGridView extends GridView{
 	 *
 	 */
 	private void onStopDrag(){
-								Log.d("onStopDrag", "onStopDrag ");
+							//	Log.d("onStopDrag", "onStopDrag ");
 
 		View view = getChildAt(mDragPosition - getFirstVisiblePosition());
 		if(view != null){
@@ -1063,6 +1023,3 @@ public class DragGridView extends GridView{
     }
 
 }
-
-
-

@@ -46,7 +46,7 @@ static const NSInteger kGridDashboardViewDefaultColumnCount = 3;
 //          }
 //      }
       
-      launcher = [[GridLauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)
+    launcher = [[GridLauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)
                                       withRowCount:rowCount
                                    withColumnCount:columnCount withProxy:[self proxy]];
     launcher.delegate = self;
@@ -179,6 +179,15 @@ static const NSInteger kGridDashboardViewDefaultColumnCount = 3;
       [proxy windowWillOpen];
       [proxy reposition];
       [proxy layoutChildrenIfNeeded];
+      
+      if ([(DeMarcbenderSortablegridViewProxy*)[self proxy] deleteButtonImage]!=nil){
+          [proxy.item setCloseButtonImage:[(DeMarcbenderSortablegridViewProxy*)[self proxy] deleteButtonImage]];
+      }
+      
+      if ([(DeMarcbenderSortablegridViewProxy*)[self proxy] badgeViewImage]!=nil){
+          [proxy.item setBadgeViewImage:[(DeMarcbenderSortablegridViewProxy*)[self proxy] badgeViewImage]];
+      }
+
       [launcher addItem:proxy.item animated:NO];
   }
 }

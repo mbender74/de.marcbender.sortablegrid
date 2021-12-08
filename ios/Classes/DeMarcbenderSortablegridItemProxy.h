@@ -7,10 +7,14 @@
 
 #import "GridLauncherItem.h"
 #import <TitaniumKit/TiViewProxy.h>
+#import "DeMarcbenderSortablegridViewProxy.h"
 
 @interface DeMarcbenderSortablegridItemProxy : TiViewProxy {
   @private
   GridLauncherItem *item;
+  UIImage *deleteButtonImage;
+  UIImage *badgeImage;
+  DeMarcbenderSortablegridViewProxy *gridProxy;
 }
 
 @property (nonatomic, readwrite, retain) GridLauncherItem *item;

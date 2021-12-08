@@ -49,8 +49,8 @@ static const NSTimeInterval kGridLauncherViewEditHoldTimeInterval = 1;
 static const NSTimeInterval kGridLauncherViewSpringLoadTimeInterval = 0.5;
 static const NSTimeInterval kGridLauncherViewWobbleTime = 0.07;
 static const NSInteger kGridLauncherViewDefaultColumnCount = 3;
-static const NSTimeInterval kGridLauncherViewTransitionDuration = 0.2;
-static const NSTimeInterval kGridLauncherViewFastTransitionDuration = 0.1;
+static const NSTimeInterval kGridLauncherViewTransitionDuration = 0.3;
+static const NSTimeInterval kGridLauncherViewFastTransitionDuration = 0.3;
 
 @interface GridLauncherScrollView : UIScrollView
 @end

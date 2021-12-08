@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<style name="MyTheme" parent="android:Theme.Light">
+    <item name="android:textAppearance">@style/MyDefaultTextAppearance</item>
+</style>
+     <style name="MyDefaultTextAppearance" parent="@android:style/TextAppearance">
+     <item name="android:textSize">12sp</item>
+    <item name="android:textColor">#333</item>
+     <item name="android:textStyle">bold</item>
+    </style>
+</resources>

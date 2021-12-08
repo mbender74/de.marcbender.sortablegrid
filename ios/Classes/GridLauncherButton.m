@@ -205,7 +205,7 @@
     [cbutton.layer setCornerRadius:15];
 //    [cbutton.layer setBorderColor:[UIColor whiteColor].CGColor];
 //    [cbutton.layer setBorderWidth:2];
-    cbutton.frame = CGRectMake(0, 0, 30, 30);
+    cbutton.frame = CGRectMake(0, 0, 34, 34);
     closeButton = [cbutton retain];
   }
   return closeButton;
@@ -336,7 +336,11 @@
 //          if (point.y < 0) {
   //          point.y = 0;
   //        }
-          badge.frame = CGRectMake(point.x, point.y, badge.bounds.size.width, badge.bounds.size.height);
+            
+            badge.frame = CGRectMake(item.view.bounds.origin.x+item.view.bounds.size.width-(badge.bounds.size.width/6), item.view.bounds.origin.y+(badge.bounds.size.height/2), badge.bounds.size.width, badge.bounds.size.height);
+
+            
+        //  badge.frame = CGRectMake(point.x, point.y, badge.bounds.size.width, badge.bounds.size.height);
           [self bringSubviewToFront:badge];
         }
         if (closeButton) {
@@ -347,7 +351,7 @@
 //          if (point.y < 0) {
 //            point.y = 0;
 //          }
-          closeButton.frame = CGRectMake(point.x, point.y, closeButton.bounds.size.width, closeButton.bounds.size.height);
+          closeButton.frame = CGRectMake(item.view.bounds.origin.x+(closeButton.bounds.size.width/4), item.view.bounds.origin.y+(closeButton.bounds.size.height/2), closeButton.bounds.size.width, closeButton.bounds.size.height);
         }
       }
     }

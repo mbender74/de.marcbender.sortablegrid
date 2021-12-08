@@ -43,6 +43,14 @@
 }
 
 
+- (void)createLauncherItem
+{
+    [self ensureItem];
+    
+}
+
+
+
 - (void)setItem:(GridLauncherItem *)item_
 {
   if (item != nil) {
@@ -63,18 +71,11 @@
       CGFloat width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
       CGFloat height = [self autoHeightForSize:CGSizeMake(width, 0)];
       CGRect myFrame = CGRectMake( 0 , 0, width, height);
-      
       item.view.frame = myFrame;
     item.userData = self;
+                  
   }
   return item;
-}
-
-- (void)setDeleteButtonImage:(id)value
-{
-  UIImage *image = [TiUtils image:value proxy:self];
-
-  [[self ensureItem] setCloseButtonImage:image];
 }
 
 

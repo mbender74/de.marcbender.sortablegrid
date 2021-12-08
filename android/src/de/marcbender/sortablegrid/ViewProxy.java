@@ -7,8 +7,9 @@
  *
  */
 package de.marcbender.sortablegrid;
-import java.util.HashMap;
 
+import android.graphics.Bitmap;
+import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -26,29 +27,22 @@ import org.appcelerator.titanium.TiApplication;
 import android.content.res.Resources;
 import org.appcelerator.titanium.TiDimension;
 import android.util.AttributeSet;
-
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
-// import android.widget.RelativeLayout.LayoutParams;
-//import android.widget.LinearLayout;
-//import android.widget.LinearLayout.LayoutParams;
+import android.widget.LinearLayout;
 import android.graphics.Color;
 import org.appcelerator.titanium.view.TiDrawableReference;
-
 import android.app.Activity;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.view.View.OnClickListener;
-
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -60,6 +54,24 @@ import java.util.ArrayList;
 import java.util.List;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.Gravity;
+import android.widget.Button;
+import android.view.MotionEvent;
+import android.widget.ImageView.ScaleType;
+import android.widget.FrameLayout;
+//import com.readystatesoftware.viewbadger.BadgeView;
+import com.allenliu.badgeview.BadgeView;
+import com.allenliu.badgeview.BadgeFactory;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
+import com.github.florent37.viewanimator.AnimationListener;
+import com.github.florent37.viewanimator.ViewAnimator;
+import android.os.Handler;
+import android.os.Looper;
+
+
 
 
 // This proxy can be created by calling TiSortablegrid.createExample({message: "hello world"})
@@ -72,33 +84,46 @@ public class ViewProxy extends TiViewProxy
 	private static final boolean DBG = TiConfig.LOGD;
 	private List<HashMap<String, Object>> dataSourceList = new ArrayList<HashMap<String, Object>>();
 
-    private static final int NUM_COLUMN = 5;
-    private static final int NUM_ROW = 7;
- 	 String packageName;
-	 Resources resources;
-     Activity context;
-	 TiViewProxy myProxy;
-	 TiUIView myView;
+	int HORIZONTAL_SPACING = 10;
+	int VERTICAL_SPACING = 10;
 
-	 DragGridView mDragGridView;
+	int COLUMN_WIDTH = 110;
+  int num_colums = 3;
+  int NUM_ROW = 7;
+ 	String packageName;
+	Resources resources;
+  Activity context;
+	TiViewProxy myProxy;
+	TiUIView myView;
+  DragGridView mDragGridView;
+  TiCompositeLayout compositeView;
+  ArrayList<Object> itemsList;
+	ArrayList<Object> animationsList;
+  ArrayList<TiDrawableReference> imageReferences;
+  LayoutInflater inflater;
 
-
-	 TiCompositeLayout compositeView;
-	 ArrayList<Object> itemsList;
-	 ArrayList<TiDrawableReference> imageReferences;
-	 LayoutInflater inflater;
-	 RelativeLayout layout;
-	 RelativeLayout layout2;
-	 int id_main_layout = 0;
-	 int id_dragableGridview1 = 0;
-	 int resId_viewHolder = 0;
-     int id_bottomSheet = 0;
+  RelativeLayout layout;
+  RelativeLayout layout2;
+  int id_main_layout = 0;
+  int id_dragableGridview = 0;
+  int resId_viewHolder = 0;
+  int id_bottomSheet = 0;
+	boolean isInEditMode = false;
 
 	public static final String PROPERTY_ITEMS = "data";
 	public static final String PROPERTY_ITEM = "item";
+	public static final String PROPERTY_BADGE = "badge";
+
+	public static final String PROPERTY_DELETE_BUTTON_IMAGE = "deleteButtonImage";
+	public static final String PROPERTY_COLUMNS = "columnCount";
+	public static final String PROPERTY_COLUMN_WIDTH = "columnWidth";
+	public static final String PROPERTY_HORIZONTAL_SPACING = "horizontalSpacing";
+	public static final String PROPERTY_VERTICAL_SPACING = "verticalSpacing";
+
+
+	private TiDrawableReference deleteButtonReference;
 
 	View.OnClickListener myOnlyhandler;
-
 
 
 	private class SGV extends TiUIView
@@ -106,6 +131,7 @@ public class ViewProxy extends TiViewProxy
 		public SGV(TiViewProxy proxy) {
 			super(proxy);
 			myProxy = proxy;
+			animationsList = new ArrayList<Object>();
 
 			inflater = LayoutInflater.from(proxy.getActivity());
 			context = proxy.getActivity();
@@ -113,107 +139,112 @@ public class ViewProxy extends TiViewProxy
 
 			try{
 			 	id_main_layout = TiRHelper.getResource("layout.layout_main");
-				id_dragableGridview1 = TiRHelper.getResource("id.dragGridView");
+				id_dragableGridview = TiRHelper.getResource("id.dragGridView");
 			}catch (TiRHelper.ResourceNotFoundException e) {
 
 			}
 
 			layout = (RelativeLayout) inflater.inflate(id_main_layout, null);
 
-			  mDragGridView = (DragGridView) layout.findViewById(id_dragableGridview1);
-
-
-			  mDragGridView.setHorizontalSpacing(4);
-			  mDragGridView.setVerticalSpacing(4);
-
-			  //mDragGridView.setColumnWidth();
-
-			  final DragAdapter mDragAdapter = new DragAdapter(myProxy.getActivity(), dataSourceList);
-
-			  mDragGridView.setAdapter(mDragAdapter);
+			mDragGridView = (DragGridView) layout.findViewById(id_dragableGridview);
+			setNativeView(layout);
 
 
 
- 		      setNativeView(layout);
-
+			final DragAdapter mDragAdapter = new DragAdapter(myProxy.getActivity(), dataSourceList);
+			mDragGridView.setAdapter(mDragAdapter);
 		}
 
 
+		private void setMargins (View view, int left, int top, int right, int bottom) {
+		    if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+		        ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+
+		        final float scale = context.getResources().getDisplayMetrics().density;
+		        // convert the DP into pixel
+		        int l =  (int)(left * scale + 0.5f);
+		        int r =  (int)(right * scale + 0.5f);
+		        int t =  (int)(top * scale + 0.5f);
+		        int b =  (int)(bottom * scale + 0.5f);
+
+		        p.setMargins(l, t, r, b);
+		        view.requestLayout();
+		    }
+		}
 
 
+		public KrollDict getViewRect(View v)
+			{
+				KrollDict d = new KrollDict();
+				if (v != null) {
+					int[] position = new int[2];
+					v.getLocationInWindow(position);
+
+					TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+					TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+					TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
+					TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
+					TiDimension localLeft = new TiDimension(v.getX(), TiDimension.TYPE_LEFT);
+					TiDimension localTop = new TiDimension(v.getY(), TiDimension.TYPE_TOP);
+
+					// TiDimension needs a view to grab the window manager.
+					d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(v));
+					d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(v));
+					d.put(TiC.PROPERTY_X, localLeft.getAsDefault(v));
+					d.put(TiC.PROPERTY_Y, localTop.getAsDefault(v));
+					d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(v));
+					d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(v));
+
+
+				}
+				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+					d.put(TiC.PROPERTY_WIDTH, 0);
+					d.put(TiC.PROPERTY_HEIGHT, 0);
+					d.put(TiC.PROPERTY_X, 0);
+					d.put(TiC.PROPERTY_Y, 0);
+
+				}
+
+
+				return d;
+			}
 
 		@Override
 		public void processProperties(KrollDict d)
 		{
 				super.processProperties(d);
 
+
+				if (d.containsKey(PROPERTY_COLUMN_WIDTH)) {
+					COLUMN_WIDTH = TiConvert.toInt(d.get(PROPERTY_COLUMN_WIDTH));
+					mDragGridView.setColumnWidth(COLUMN_WIDTH);
+				}
+				if (d.containsKey(PROPERTY_HORIZONTAL_SPACING)) {
+					HORIZONTAL_SPACING = TiConvert.toInt(d.get(PROPERTY_HORIZONTAL_SPACING));
+					mDragGridView.setHorizontalSpacing(HORIZONTAL_SPACING);
+				}
+				if (d.containsKey(PROPERTY_VERTICAL_SPACING)) {
+					VERTICAL_SPACING = TiConvert.toInt(d.get(PROPERTY_VERTICAL_SPACING));
+					mDragGridView.setVerticalSpacing(VERTICAL_SPACING);
+				}
+
+
+				if (d.containsKey(PROPERTY_COLUMNS)) {
+					num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
+					mDragGridView.setNumColumns(num_colums);
+				}
+
+				if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
+					deleteButtonReference = TiDrawableReference.fromObject(myProxy, d.get(PROPERTY_DELETE_BUTTON_IMAGE));
+				}
+
+
 				if (d.containsKey(PROPERTY_ITEMS)) {
 					 itemsList = new ArrayList<Object>();
 					 for (Object o : (Object[]) d.get(PROPERTY_ITEMS)) {
 					 	itemsList.add(o);
-
 				 }
 
-			// myOnlyhandler = new OnClickListener() {
-			//   public void onClick(View v) {
-
-
-			//   				Log.d(LCAT, "+++++++++++++++++++  onClick ");
-
-			//       // switch(v.getId()) {
-			//       //   case R.id.b1:
-			//       //     // it was the first button
-			//       //     break;
-			//       //   case R.id.b2:
-			//       //     // it was the second button
-			//       //     break;
-			//       // }
-			//   }
-			// };
-
-
-
-
-		 		for (int i = 0; i < itemsList.size(); i++) {
-		 			HashMap<String, Object> itemHashMap = new HashMap<String, Object>();
-
-		 			View pageView = null;
-		 			ViewGroup.LayoutParams layoutParams = null;
-
-		 			TiViewProxy thisproxy = (TiViewProxy) itemsList.get(i);
-		 			if (thisproxy != null) {
-		 			 TiUIView uiView = thisproxy.getOrCreateView();
-
-		 			 if (uiView != null) {
-
-		 			 	layoutParams = uiView.getLayoutParams();
-
-						TiDimension nativeWidth = new TiDimension(TiConvert.toString(thisproxy.getWidth()), TiDimension.TYPE_WIDTH);
-						TiDimension nativeHeight = new TiDimension(TiConvert.toString(thisproxy.getHeight()), TiDimension.TYPE_HEIGHT);
-
-						layoutParams.height = (int)(nativeHeight.getValue());
-
-						layoutParams.width = (int)(nativeWidth.getValue());
-
-						pageView = uiView.getOuterView();
-
-
-						TiCompositeLayout pageLayout = new TiCompositeLayout(context);
-						pageLayout.addView(pageView, layoutParams);
-
-						pageLayout.setClipChildren(false);
-				       	pageLayout.setClipToPadding(false);
-
-						if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
-							pageLayout.setId(5000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
-						}
-
-		 				itemHashMap.put("item_view", pageLayout);
-		 				dataSourceList.add(itemHashMap);
-
-		 			 }
-		 			}
-		 		}
 
 		 		// mDragGridView.setOnItemClickListener(new OnItemClickListener() {
 		 		// 	@Override
@@ -225,6 +256,202 @@ public class ViewProxy extends TiViewProxy
 			  // 	});
 
 			}
+
+
+					for (int i = 0; i < itemsList.size(); i++) {
+						HashMap<String, Object> itemHashMap = new HashMap<String, Object>();
+
+						View cellContent = null;
+						TiCompositeLayout.LayoutParams layoutParams = null;
+						//layoutParams = new TiCompositeLayout.LayoutParams();
+
+						TiViewProxy thisproxy = (TiViewProxy) itemsList.get(i);
+						if (thisproxy != null) {
+						 TiUIView uiView = thisproxy.getOrCreateView();
+
+						 if (uiView != null) {
+							layoutParams = uiView.getLayoutParams();
+
+							TiDimension parentViewWidth = new TiDimension(TiConvert.toString(myProxy.getWidth()), TiDimension.TYPE_WIDTH);
+
+
+							TiDimension nativeWidth = new TiDimension(TiConvert.toString(thisproxy.getWidth()), TiDimension.TYPE_WIDTH);
+							TiDimension nativeHeight = new TiDimension(TiConvert.toString(thisproxy.getHeight()), TiDimension.TYPE_HEIGHT);
+							TiDimension cellBottom = new TiDimension(TiConvert.toString(6), TiDimension.TYPE_BOTTOM);
+							TiDimension cellLeft = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_LEFT);
+							TiDimension cellRight = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_RIGHT);
+							TiDimension cellTop = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_TOP);
+							//TiDimension cellLeft = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_LEFT);
+
+							layoutParams.height = (int)(nativeHeight.getValue());
+							layoutParams.width = (int)(nativeWidth.getValue());
+							layoutParams.optionBottom = cellBottom;
+							layoutParams.optionTop = cellTop;
+
+
+							if ((int)(nativeHeight.getValue()) > COLUMN_WIDTH){
+								COLUMN_WIDTH = (int)(nativeHeight.getValue())+10;
+								mDragGridView.setColumnWidth(COLUMN_WIDTH);
+							}
+
+							if ( (((int)(nativeHeight.getValue())+10) * num_colums) < (COLUMN_WIDTH * num_colums)) {
+								COLUMN_WIDTH = (int)(nativeHeight.getValue())+10;
+								mDragGridView.setColumnWidth(COLUMN_WIDTH);
+							}
+
+							layoutParams.optionLeft = cellLeft;
+							layoutParams.optionRight = cellRight;
+
+							//layoutParams.optionLeft = cellLeft;
+
+							cellContent = uiView.getOuterView();
+
+							TiCompositeLayout cellContainer = new TiCompositeLayout(context);
+							cellContainer.addView(cellContent, layoutParams);
+							cellContainer.setClipChildren(false);
+							cellContainer.setClipToPadding(false);
+
+
+							ViewGroup.LayoutParams layoutParamsCellContainer = null;
+							layoutParamsCellContainer = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+							cellContainer.setLayoutParams(layoutParamsCellContainer);
+
+
+
+							int gridWidth = (COLUMN_WIDTH * num_colums) + ((num_colums-1)*HORIZONTAL_SPACING);
+
+							int cellWidth = COLUMN_WIDTH;
+							int diffWidth = cellWidth - (int)(nativeWidth.getValue());
+							Log.d(LCAT, "  ");
+							Log.d(LCAT, "+++++++++++++++++++++++  cellWidth: "+cellWidth);
+							Log.d(LCAT, "+++++++++++++++++++++++  nativeWidth: "+((int)(nativeWidth.getValue())));
+							Log.d(LCAT, "+++++++++++++++++++++++  diffWidth: "+diffWidth);
+							Log.d(LCAT, "+++++++++++++++++++++++  calcLeft: "+((diffWidth/2)-5));
+
+
+
+							if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+								cellContainer.setId(5000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
+							}
+
+
+
+							if (deleteButtonReference != null){
+								float factor = context.getResources().getDisplayMetrics().density;
+								TiCompositeLayout.LayoutParams layoutParamsButton = null;
+								layoutParamsButton = new TiCompositeLayout.LayoutParams();
+								TiDimension left = new TiDimension(TiConvert.toString(((diffWidth/2)-5)), TiDimension.TYPE_LEFT);
+								TiDimension top = new TiDimension(TiConvert.toString(0), TiDimension.TYPE_TOP);
+								layoutParamsButton.width = (int)(30 * factor);
+								layoutParamsButton.height = (int)(30 * factor);
+								layoutParamsButton.optionLeft = left;
+								layoutParamsButton.optionTop = top;
+								TiCompositeLayout buttonContainerLayout = new TiCompositeLayout(context);
+								RelativeLayout relativeLayout;
+								RelativeLayout.LayoutParams layoutParamsImage;
+								relativeLayout = new RelativeLayout(context);
+								layoutParamsImage = new RelativeLayout.LayoutParams((int)(30 * factor), (int)(30 * factor));
+								Bitmap b = deleteButtonReference.getBitmap(false,true);
+								ImageView deleteButtonView = new ImageView(context);
+
+								BitmapDrawable drawable = new BitmapDrawable(context.getResources(),b);
+								drawable.setAntiAlias(true);
+								deleteButtonView.setImageDrawable(drawable);
+								deleteButtonView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+//								 int backgroundColorValue = TiConvert.toColor("red");
+//								 cellContainer.setBackgroundColor(backgroundColorValue);
+								relativeLayout.addView(deleteButtonView,layoutParamsImage);
+
+
+								buttonContainerLayout.setClipChildren(false);
+								buttonContainerLayout.setClipToPadding(false);
+
+								relativeLayout.setClipChildren(false);
+								relativeLayout.setClipToPadding(false);
+
+								buttonContainerLayout.addView(relativeLayout);
+								cellContainer.addView(buttonContainerLayout,layoutParamsButton);
+
+
+								int pressedColorValue = TiConvert.toColor("#88d3413c");
+
+								deleteButtonView.setVisibility(View.INVISIBLE);
+
+
+								if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+									deleteButtonView.setId(8000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
+								}
+
+
+								deleteButtonView.setOnClickListener(new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+													Log.d(LCAT, "OnClickListener: ");
+													deleteItem(TiConvert.toString(5000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID)))));
+										}
+								});
+
+								deleteButtonView.setOnTouchListener(new View.OnTouchListener() {
+										@Override
+										public boolean onTouch(View v, MotionEvent event) {
+												switch(event.getAction()) {
+														case MotionEvent.ACTION_DOWN:
+																deleteButtonView.setColorFilter(pressedColorValue);
+																return false; // if you want to handle the touch event
+														case MotionEvent.ACTION_UP:
+																// RELEASED
+																deleteButtonView.clearColorFilter();
+																v.performClick();
+																return true; // if you want to handle the touch event
+														case MotionEvent.ACTION_CANCEL:
+																		// RELEASED
+																		deleteButtonView.clearColorFilter();
+																		return false; // if you want to handle the touch event
+												}
+												return false;
+										}
+								});
+								itemHashMap.put("delete_button", deleteButtonView);
+
+							}
+							if (thisproxy.hasProperty(PROPERTY_BADGE)){
+									int badgeValue = TiConvert.toInt(thisproxy.getProperty(PROPERTY_BADGE));
+									FrameLayout badgeViewLayout = new FrameLayout(context);
+									cellContainer.addView(badgeViewLayout);
+
+
+
+									View badgeView = BadgeFactory.create(context)
+								 .setTextColor(Color.WHITE)
+								 .setWidthAndHeight(28,28)
+								 .setBadgeBackground(Color.RED)
+								 .setTextSize(13)
+								 .setBadgeGravity(Gravity.RIGHT|Gravity.TOP)
+								 .setBadgeCount(badgeValue)
+								 .setShape(BadgeView.SHAPE_CIRCLE)
+								 .setSpace((int)(nativeWidth.getValue())+12,(int)(nativeHeight.getValue())+5)
+								 .bind(badgeViewLayout);
+								 itemHashMap.put("badge_view", badgeView);
+
+								 if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+ 									badgeView.setId(10000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
+ 								}
+
+
+							}
+
+							itemHashMap.put("item_view", cellContainer);
+							dataSourceList.add(itemHashMap);
+
+						 }
+						}
+					}
+
+
+
+
+
+
 
 		}
 	}
@@ -246,6 +473,12 @@ public class ViewProxy extends TiViewProxy
 		view.getLayoutParams().autoFillsHeight = true;
 		view.getLayoutParams().autoFillsWidth = true;
 		myView = view;
+		TiDimension nativeWidth = new TiDimension(TiConvert.toString(myProxy.getWidth()), TiDimension.TYPE_WIDTH);
+
+		Log.d(LCAT, "  ");
+		Log.d(LCAT, "+++++++++++++++++++++++  viewWidth: "+ nativeWidth);
+
+
 		return view;
 	}
 
@@ -262,12 +495,54 @@ public class ViewProxy extends TiViewProxy
 
 	}
 
+	protected void animateItem(View view, int rotation) {
 
+			 ViewAnimator viewAnimator = ViewAnimator.animate(view).rotation(rotation).repeatMode(ViewAnimator.REVERSE).duration(180).repeatCount(1000).start();
+
+			 animationsList.add(viewAnimator);
+
+							// .dp().translationY(-1000, 0)
+							// .alpha(0, 1)
+							// .singleInterpolator(new OvershootInterpolator())
+							//
+							// .andAnimate(percent)
+							// .scale(0, 1)
+							//
+							// .andAnimate(text)
+							// .textColor(Color.BLACK, Color.WHITE)
+							// .backgroundColor(Color.WHITE, Color.BLACK)
+							//
+							// .waitForHeight()
+							// .singleInterpolator(new AccelerateDecelerateInterpolator())
+							// .duration(2000)
+							//
+							// .thenAnimate(percent)
+							// .custom(new AnimationListener.Update<TextView>() {
+							// 		@Override
+							// 		public void update(TextView view, float value) {
+							// 				view.setText(String.format(Locale.US, "%.02f%%", value));
+							// 		}
+							// }, 0, 1)
+							//
+							// .andAnimate(image)
+							// .rotation(0, 360)
+							//.pulse()
+
+
+
+			// new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+			// 		@Override
+			// 		public void run() {
+			// 				viewAnimator.cancel();
+			// 		}
+			// }, 4000);
+	}
 
 	@Kroll.method
 	public void deleteItem(String id) {
+			Log.d(LCAT, "deleteItem: ");
 
-			View v = mDragGridView.findViewById(5000+Integer.parseInt(id));
+			View v = mDragGridView.findViewById(Integer.parseInt(id));
 
 			if (v!=null){
 				int leftOffset = v.getLeft();
@@ -283,8 +558,94 @@ public class ViewProxy extends TiViewProxy
 
 				mDragGridView.removeItemAnimation(position);
 			}
+	}
+
+
+
+	@Kroll.method
+	public void stopEditing() {
+		 View deleteButton;
+		 View badgeView;
+		 View itemView;
+		isInEditMode = false;
+		mDragGridView.setEditMode(false);
+
+
+		for (int j = 0; j < animationsList.size(); j++) {
+				((ViewAnimator)(animationsList.get(j))).cancel();
+				//animation.cancel();
+		}
+		animationsList.clear();
+		Log.d(LCAT, "+++++++++++++++++++++++ AFTER  animationsList size: "+ animationsList.size());
+
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			deleteButton = (View)dataSourceList.get(i).get("delete_button");
+			badgeView = (View)dataSourceList.get(i).get("badge_view");
+			itemView = (View)dataSourceList.get(i).get("item_view");
+
+			deleteButton.setVisibility(View.INVISIBLE);
+			if (badgeView!=null){
+				badgeView.setVisibility(View.VISIBLE);
+			}
+			ViewAnimator.animate(itemView).rotation(0).duration(180).start();
+			//animationsList.add(ViewAnimator.animate(itemView).wobble().duration(720).repeatCount(1000).start());
+
+
+		}
+
+
+		Log.d(LCAT, "+++++++++++++++++++++++  animationsList size: "+ animationsList.size());
+
+		new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+				@Override
+				public void run() {
+
+
+
+				}
+		}, 200);
+
 
 	}
+
+
+
+	@Kroll.method
+	public void startEditing() {
+		View deleteButton;
+		View badgeView;
+		View itemView;
+		int modulo = 0;
+
+		mDragGridView.setEditMode(true);
+		isInEditMode = true;
+
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			itemView = (View)dataSourceList.get(i).get("item_view");
+			//ViewAnimator viewAnimator = ViewAnimator.animate(itemView).rotation(rotation).repeatMode(ViewAnimator.REVERSE).duration(180).repeatCount(1000).start();
+		//	animationsList.add(ViewAnimator.animate(itemView).wobble().duration(360).repeatCount(1000).start());
+
+			deleteButton = (View)dataSourceList.get(i).get("delete_button");
+			badgeView = (View)dataSourceList.get(i).get("badge_view");
+			deleteButton.setVisibility(View.VISIBLE);
+			if (badgeView!=null){
+				badgeView.setVisibility(View.INVISIBLE);
+			}
+
+			 modulo = i % 2;
+			 if (modulo > 0){
+			 	animateItem(itemView,-2);
+			 }
+			 else {
+			 	animateItem(itemView,2);
+			 }
+		}
+
+
+
+
+	}
+
 
 
 }

@@ -8,7 +8,11 @@
 #import <TitaniumKit/TiViewProxy.h>
 
 @interface DeMarcbenderSortablegridViewProxy : TiViewProxy {
+    UIImage *closeButtonImage;
+    UIImage *badgeImage;
 }
+- (UIImage *)deleteButtonImage;
+- (UIImage *)badgeViewImage;
 
 @end
 

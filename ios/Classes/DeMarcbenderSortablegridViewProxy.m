@@ -73,10 +73,43 @@ NSArray *griddashboardKeySequence;
   [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
+
+- (void)setDeleteButtonImage:(id)value
+{
+  closeButtonImage = [TiUtils image:value proxy:self];
+}
+
+- (UIImage *)deleteButtonImage
+{
+    if (closeButtonImage != nil){
+        return closeButtonImage;
+    }
+    else {
+        return nil;
+    }
+}
+
+- (UIImage *)badgeViewImage
+{
+    if (badgeImage != nil){
+        return badgeImage;
+    }
+    else {
+        return nil;
+    }
+}
+
+
+- (void)setBadgeViewImage:(id)value
+{
+  badgeImage = [TiUtils image:value proxy:self];
+}
+
+
 - (void)setData:(id)data
 {
   for (TiViewProxy *proxy in data) {
-    ENSURE_TYPE(proxy, DeMarcbenderSortablegridItemProxy)
+   // ENSURE_TYPE(proxy, DeMarcbenderSortablegridItemProxy)
         [self rememberProxy:proxy];
   }
 
