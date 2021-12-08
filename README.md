@@ -1,7 +1,7 @@
 # ti.sortablegrid (de.marcbender.sortablegrid)
 
 SortableGridView (like iOS Dashboard) for Titanium.
-
+(unfinisehd yet)
 
 ## Demo
 
