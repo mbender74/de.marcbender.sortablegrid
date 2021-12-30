@@ -9,7 +9,7 @@
     <dependency>
       <groupId>org.appcelerator</groupId>
       <artifactId>titanium</artifactId>
-      <version>10.1.0.GA</version>
+      <version>9.3.0</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>

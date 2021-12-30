@@ -6,29 +6,30 @@
  */
 
 #import "DeMarcbenderSortablegridViewProxy.h"
-#import "GridLauncherButton.h"
-#import "GridLauncherItem.h"
-#import "GridLauncherView.h"
-#import "DeMarcbenderSortablegridItemProxy.h"
 #import "DeMarcbenderSortablegridView.h"
+#import "DeMarcbenderSortablegridItemViewProxy.h"
 #import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiProxy.h>
 
-NSArray *griddashboardKeySequence;
 
 @implementation DeMarcbenderSortablegridViewProxy
 
-- (NSArray *)keySequence
+- (void)windowDidOpen
 {
-  if (griddashboardKeySequence == nil) {
-      griddashboardKeySequence = [[NSArray arrayWithObjects:@"rowCount", @"columnCount", nil] retain];
-  }
-  return griddashboardKeySequence;
+  [super windowDidOpen];
+  [self reposition];
+    
+    //NSLog(@"[WARN] in windowDidOpen");
+    [(DeMarcbenderSortablegridView *)[self view] initData];
 }
+
 
 - (id)init
 {
   if (self = [super init]) {
     [self setValue:[NSNumber numberWithBool:YES] forUndefinedKey:@"editable"];
+    canDelete = NO;
+    verticalSpacing = 0;
   }
   return self;
 }
@@ -48,30 +49,11 @@ NSArray *griddashboardKeySequence;
   [self makeViewPerformSelector:@selector(stopEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
 }
 
-//TODO: Remove when deprication is done.
-- (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
+- (void)initData:(id)args
 {
-  if ([type isEqual:@"click"]) {
-    DeMarcbenderSortablegridView *v = (DeMarcbenderSortablegridView *)[self view];
-    GridLauncherView *launcher = [v launcher];
-    if (launcher.editing) {
-      return;
-    }
-  }
-  [super fireEvent:type withObject:obj withSource:source propagate:propagate];
+  [self makeViewPerformSelector:@selector(initData) withObject:nil createIfNeeded:YES waitUntilDone:NO];
 }
 
-- (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString *)message;
-{
-  if ([type isEqual:@"click"]) {
-    DeMarcbenderSortablegridView *v = (DeMarcbenderSortablegridView *)[self view];
-    GridLauncherView *launcher = [v launcher];
-    if (launcher.editing) {
-      return;
-    }
-  }
-  [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
-}
 
 
 - (void)setDeleteButtonImage:(id)value
@@ -106,16 +88,67 @@ NSArray *griddashboardKeySequence;
 }
 
 
-- (void)setData:(id)data
+- (void)setColumnWidth:(id)value
 {
-  for (TiViewProxy *proxy in data) {
-   // ENSURE_TYPE(proxy, DeMarcbenderSortablegridItemProxy)
-        [self rememberProxy:proxy];
-  }
-
-  [self replaceValue:data forKey:@"data" notification:NO];
-  [self replaceValue:data forKey:@"viewData" notification:YES];
+  columnWidth = [TiUtils intValue:value];
+ // [[self ensureItem] setCanDelete:canDelete];
 }
+- (NSInteger)columnWidth
+{
+    return columnWidth;
+}
+
+
+- (id)setCurrentPage:(id)value
+{
+    [(DeMarcbenderSortablegridView *)[self view] setCurrentPageOfLauncher:[TiUtils intValue:value]];
+}
+
+- (id)currentPage
+{
+    return [(DeMarcbenderSortablegridView *)[self view] currentPageOfLauncher];
+}
+
+- (id)pageCount
+{
+    return [(DeMarcbenderSortablegridView *)[self view] pagesCount];
+}
+
+
+- (void)setVerticalSpacing:(id)value
+{
+    verticalSpacing = [TiUtils intValue:value];
+}
+- (int)verticalSpacing
+{
+    return verticalSpacing;
+}
+
+#pragma mark Public Methods
+
+
+- (void)insertItemAtIndex:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    
+    [(DeMarcbenderSortablegridView *)[self view] addItem:[args valueForKey:@"item"] atIndex:[TiUtils intValue:@"index" properties:args]];
+}
+
+
+
+- (void)deleteItemAtIndex:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+
+    
+    //NSLog(@"[INFO] deleteItemInData %i ",[TiUtils intValue:@"index" properties:args]);
+
+    
+    [(DeMarcbenderSortablegridView *)[self view] deleteItemAtIndex:[TiUtils intValue:@"index" properties:args]];
+}
+
+
+
 
 @end
 

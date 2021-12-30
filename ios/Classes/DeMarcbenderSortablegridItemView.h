@@ -6,10 +6,10 @@
  */
 
 #import <TitaniumKit/TiUIView.h>
+#import "TiUIViewProxy.h"
 
-@interface DeMarcbenderSortablegridItem : TiUIView {
+@interface DeMarcbenderSortablegridItemView : TiUIView {
 
-  @private
 }
 
 @end

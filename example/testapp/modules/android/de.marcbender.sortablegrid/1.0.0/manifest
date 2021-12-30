@@ -15,4 +15,4 @@ name: ti.sortablegrid
 moduleid: de.marcbender.sortablegrid
 guid: 10911739-be5e-4c81-af2e-a4cf07f475a2
 platform: android
-minsdk: 10.1.0.GA
+minsdk: 9.3.0 
