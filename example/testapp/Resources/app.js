@@ -193,7 +193,6 @@ gridView = sortableGridModule.createView({
 
 
 
-
 function createGridDashBoardViews(size){
 	var sortableViewData = [];
 	for (var i = 0; i < size; i++){
