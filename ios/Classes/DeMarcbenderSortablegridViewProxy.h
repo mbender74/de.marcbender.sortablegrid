@@ -7,6 +7,8 @@
 #import <TitaniumKit/TiViewProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUIWindowProxy.h>
 
 @interface DeMarcbenderSortablegridViewProxy : TiViewProxy  <TiProxyObserver> {
     UIImage *closeButtonImage;

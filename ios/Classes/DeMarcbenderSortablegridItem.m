@@ -16,6 +16,18 @@
     [super initializeState];
 }
 
+
+- (void)setTop_:(id)value
+{
+  // [self replaceValue:nil forKey:@"top" notification:NO];
+}
+
+- (void)setBottom_:(id)value
+{
+ // [self replaceValue:nil forKey:@"bottom" notification:NO];
+}
+
+
  
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {

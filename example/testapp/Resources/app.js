@@ -129,6 +129,10 @@ function getRandomColor() {
 var win = Ti.UI.createWindow({
 	backgroundColor: '#fff'
 });
+
+win.open();
+
+
 var btn = Ti.UI.createButton({title: "animate from 0", bottom: 50});
 var btn2 = Ti.UI.createButton({title: "set random value", bottom: 100});
 var btn3 = Ti.UI.createButton({title: "change track", bottom: 150});
@@ -165,9 +169,10 @@ gridView = sortableGridModule.createView({
 	right:0,
 	height:Ti.UI.FILL,
 	width:Ti.UI.FILL,
+	layout: "vertical",
 	lazyLoadingEnabled:true, // disables image loader when scrolling, enables when scrolling done
-	contentInsets:{top: 10, bottom:0, left:10,right:10},
-	scrollIndicatorInsets:{top: 0, bottom:10,left:0,right:0},
+	//contentInsets:{top: 10, bottom:0, left:10,right:10},
+	//scrollIndicatorInsets:{top: 0, bottom:0,left:0,right:0},
 	columnCount:3,
 	rowCount:5, // Android only
 	wobble:true, // wobble animation in edit mode
@@ -175,8 +180,8 @@ gridView = sortableGridModule.createView({
 	minVerticalSpacing:10,
 	showDeleteButton:true,
 	deleteButtonImage:deleteButtonImage,
-	itemsBadgeEnabled:false,
-	waterFallLayout:true,
+	itemsBadgeEnabled:true,
+	waterFallLayout:false,
 	pagingEnabled:true, // scroll will do paging instead of normal scrolling
 	pagerEnabled:true, // display page indicator
 	pagerFollowsBottomInset:false, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
@@ -184,7 +189,7 @@ gridView = sortableGridModule.createView({
 	currentPageIndicatorTintColor:'red',
 	showVerticalScrollIndicator: true,
 	showHorizontalScrollIndicator: true,
-	scrollType:'horizontal',
+	scrollType:'vertical',
 	disableBounce:false, // disable bouncing of gridview
 	backgroundColor:'#cdcdcd',
 	//data:[]
@@ -199,31 +204,16 @@ function createGridDashBoardViews(size){
 		if (!isAndroid){
 
 	   var v = sortableGridModule.createItem({
+		   top:10,
+		   bottom:0,
 			id:(i+1), // usefull,but not needed, if you will do something with the gridView.data, to identify your item view, the gridView will automaticly add a 'position' property the the item, that reflects the item positon in the gridView, updated each time you move, add, delete an item
-			height:generateRandomInteger(120,190),
-			width:generateRandomInteger(120,250), // a fixed height will be used as long it is smaller then the max possible width defined by (gridView.width / columnsCount), if width is set larger than that, Ti.UI.FILL will be set for the item width!!!
-			//width:Ti.UI.FILL,
-			// left:10, // align item left, if not set, the item is centered in the gridCell
-		  	// right:10, // align item right, if not set, the item is centered in the gridCell
-		  	bottom:10, // has no effect, will not be used, use subcontainer for this
-		  	top:10, // has no effect, will not be used, use subcontainer for this
-			center:{x:'50%',y:'50%'}, // has no effect, will not be used, use subcontainer for this
-			borderRadius: 6,
-			borderWith:4,
-			borderColor:'#11000000',
-			badge:true, // if item has a badge
-			badgeValue:generateRandomInteger(0,200), // badge value that will be shown, if 0, badge is not visible
-			canBeDeleted:false, // if item can be deleted by the user
-			canBeMoved:true, // it the item can be moved by the user, item will be moved anyway if other items that can be moved will change position
-			badgeTintColor:'#ccd3413d', // badge backgroundColor
-			backgroundColor:getRandomColor(),
-
-			viewShadowColor: '#000000', // viewShadow has no effect, use subcontainer views to archive this... see here in example -> contentContainerView
-		  	viewShadowOffset: {
-			   x: 2,
-			   y: 2
-		   	}, // viewShadow has no effect, use subcontainer views to archive this
-		   	viewShadowRadius: 4 // viewShadow has no effect, use subcontainer views to archive this
+			height:Ti.UI.SIZE,
+        width:Ti.UI.FILL,
+        badge:true,
+        canBeDeleted:true,
+        canBeMoved:true,
+		badgeValue:generateRandomInteger(0,200),
+		badgeTintColor:'#ccd3413d',
 	   });
 
 	   v.addEventListener("click",function(e){
@@ -258,10 +248,10 @@ function createGridDashBoardViews(size){
 	}
 
 	var contentContainerView = Ti.UI.createView({
-		left:10,
-		right:10,
-		top:10,
-		bottom:10,
+		left:0,
+		right:0,
+		top:0,
+		bottom:0,
 		width:Ti.UI.SIZE,
 		height:Ti.UI.SIZE,
 		backgroundColor:getRandomColor(),
@@ -277,7 +267,7 @@ function createGridDashBoardViews(size){
 		  text: 'Cell ' + (i+1),
 		  color: '#ffffff',
 		  width:Ti.UI.FILL,
-		  height:Ti.UI.FILL,
+		  height:100,
 		  left:30,
 		  right:30,
 		  bottom:30,
@@ -320,7 +310,6 @@ function createGridDashBoardViews(size){
 gridCells = createGridDashBoardViews(20);
 
 
-gridView.data = gridCells;
 
  gridView.addEventListener('itemsReordered', function(e) {
 		console.log("  ");
@@ -534,12 +523,22 @@ var setNewData = Ti.UI.createView({
 
 
 
+ gridView.data = gridCells;
 
-win.add(gridView);
+
+ var gridContainer = Ti.UI.createView({
+	height:Ti.UI.SIZE,
+	width:Ti.UI.FILL,
+	backgroundColor:'red',
+	layout: 'vertical',
+
+});
+gridContainer.add(gridView);
+win.add(gridContainer);
+
 
 
 win.add(editButton);
 win.add(addBadgeValue);
 win.add(setNewData);
 
-win.open();

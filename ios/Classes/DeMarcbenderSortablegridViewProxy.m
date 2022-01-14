@@ -20,6 +20,8 @@
 {
     self = [super init];
     if (self) {
+       // NSLog(@"[WARN] in init ");
+
     }
     return self;
 }
@@ -27,20 +29,48 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [super _initWithProperties:properties];
+  //  NSLog(@"[WARN] in _initWithProperties ");
+
 }
 
 
+- (void)viewDidAttach
+{
 
+ //   NSLog(@"[WARN] in viewDidAttach ");
+    [super viewDidAttach];
+    
+}
 
 - (void)windowDidOpen
 {
-    if (self){
-        [super windowDidOpen];
-        [self reposition];
-        [(DeMarcbenderSortablegridView *)[self view] initData];
-    }
+    [super windowDidOpen];
+  //  NSLog(@"[WARN] in windowDidOpen ");
+
+   
 }
 
+
+- (void)gainFocus
+{
+  //  NSLog(@"[WARN] in gainFocus ");
+
+    
+ //   NSLog(@"[WARN] dispatch after gainFocus ");
+       // [(DeMarcbenderSortablegridView *)[self view] initData];
+   //     NSLog(@"[WARN] after dispatch  gainFocus ");
+
+    
+/*    TiThreadPerformOnMainThread(
+        ^{
+
+        //[self reposition];
+        
+
+        },
+        NO);
+*/
+}
 
 - (NSArray *)keySequence
 {
@@ -48,6 +78,9 @@
     static NSArray *keySequence = nil;
     dispatch_once(&onceToken, ^{
         keySequence = [[NSArray alloc] initWithObjects:@"columnCount", @"minHorizontalSpacing", @"minVerticalSpacing", @"cellWidth", @"scrollIndicatorInsets",@"waterFallLayout",@"pagingEnabled",@"pagerEnabled",@"pagerFollowsBottomInset",@"scrollType",@"lazyLoadingEnabled",@"showVerticalScrollIndicator",@"showHorizontalScrollIndicator",@"disableBounce",@"pageIndicatorTintColor",@"currentPageIndicatorTintColor",@"itemsBadgeEnabled",@"showDeleteButton",@"deleteButtonImage",nil];
+        
+       // NSLog(@"[WARN] in keySequence ");
+
     });
     return keySequence;
 }
@@ -69,6 +102,8 @@
 
 - (void)initData:(id)args
 {
+    //NSLog(@"[WARN] in proxy initData ");
+
   [self makeViewPerformSelector:@selector(initData) withObject:nil createIfNeeded:YES waitUntilDone:NO];
 }
 
@@ -135,16 +170,7 @@
 }
 
 
-- (void)setData:(id)data
-{
-  for (DeMarcbenderSortablegridItemProxy *proxy in data) {
-    ENSURE_TYPE(proxy, DeMarcbenderSortablegridItemProxy)
-        [self rememberProxy:proxy];
-  }
 
-  [self replaceValue:data forKey:@"data" notification:NO];
-  [self replaceValue:data forKey:@"viewData" notification:YES];
-}
 
 
 - (void)setContentInsets:(id)args
