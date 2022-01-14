@@ -91,45 +91,45 @@ static  BOOL wobbleEnabled = NO;
 
 - (void)wobble
 {
-    
-    
-    if ( [(BMDragCellCollectionView *)[self superview] isEditMode] == YES){
-        if (!_cellWobbeling && !wobbleEnabled){
-            wobbleEnabled = YES;
-        }
-
-        
-        if (_cellWobbeling == NO && wobbleEnabled){
-            
-            isWobbeling = YES;
-            _cellWobbeling = YES;
-            
-           
-            if (_doesWobblesLeft){
-                _moveTransform = CGAffineTransformTranslate(_wobbleLeft, -1, -1);
-                _conCatTransform = CGAffineTransformConcat(_wobbleLeft, _moveTransform);
-                _startTransform = _wobbleRight;
-
+    if (_canBeDeleted == YES || _canBeMoved == YES){
+        if ( [(BMDragCellCollectionView *)[self superview] isEditMode] == YES){
+            if (!_cellWobbeling && !wobbleEnabled){
+                wobbleEnabled = YES;
             }
-            else {
-                _moveTransform = CGAffineTransformTranslate(_wobbleRight, -1, -1);
-                _conCatTransform = CGAffineTransformConcat(_wobbleRight, _moveTransform);
-                _startTransform = _wobbleLeft;
+
+            
+            if (_cellWobbeling == NO && wobbleEnabled){
+                
+                isWobbeling = YES;
+                _cellWobbeling = YES;
+                
+               
+                if (_doesWobblesLeft){
+                    _moveTransform = CGAffineTransformTranslate(_wobbleLeft, -1, -1);
+                    _conCatTransform = CGAffineTransformConcat(_wobbleLeft, _moveTransform);
+                    _startTransform = _wobbleRight;
+
+                }
+                else {
+                    _moveTransform = CGAffineTransformTranslate(_wobbleRight, -1, -1);
+                    _conCatTransform = CGAffineTransformConcat(_wobbleRight, _moveTransform);
+                    _startTransform = _wobbleLeft;
+                }
+                [self contentView].subviews.firstObject.transform = _startTransform;
+
+                
+               
+                    [UIView animateWithDuration:0.3
+                          delay:0
+                          options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat| UIViewAnimationOptionAllowUserInteraction
+                          animations:^{
+                        [self contentView].subviews.firstObject.transform = _conCatTransform;
+                          }
+                          completion:^(BOOL finished) {
+
+                    }];
+                
             }
-            [self contentView].subviews.firstObject.transform = _startTransform;
-
-            
-           
-                [UIView animateWithDuration:0.3
-                      delay:0
-                      options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat| UIViewAnimationOptionAllowUserInteraction
-                      animations:^{
-                    [self contentView].subviews.firstObject.transform = _conCatTransform;
-                      }
-                      completion:^(BOOL finished) {
-
-                }];
-            
         }
     }
 }

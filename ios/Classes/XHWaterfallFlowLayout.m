@@ -115,9 +115,9 @@
 
     itemwidth = ((contentWidth) - (self.minimumInteritemSpacing * (CGFloat)(self.columnCount - 1))) / (CGFloat)self.columnCount;
     
-    TiThreadPerformOnMainThread(^{
+   // TiThreadPerformOnMainThread(^{
         [self computeAttributesWithItemWidth:itemwidth];
-    },YES);
+   // },YES);
 
 }
 
@@ -374,6 +374,8 @@
 
 - (CGSize)collectionViewContentSize
 {
+    
+   
     [super collectionViewContentSize];
 
     if (scrolldirection == mkScrollVertical) {

@@ -7,31 +7,49 @@
 
 #import "DeMarcbenderSortablegridViewProxy.h"
 #import "DeMarcbenderSortablegridView.h"
-#import "DeMarcbenderSortablegridItemViewProxy.h"
-#import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/TiProxy.h>
+#import "DeMarcbenderSortablegridItemProxy.h"
 
+
+@interface DeMarcbenderSortablegridViewProxy ()
+@property (nonatomic, readwrite) DeMarcbenderSortablegridViewProxy *gridView;
+@end
 
 @implementation DeMarcbenderSortablegridViewProxy
 
-- (void)windowDidOpen
+- (id)init
 {
-  [super windowDidOpen];
-  [self reposition];
-    
-    //NSLog(@"[WARN] in windowDidOpen");
-    [(DeMarcbenderSortablegridView *)[self view] initData];
+    self = [super init];
+    if (self) {
+    }
+    return self;
+}
+
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [super _initWithProperties:properties];
 }
 
 
-- (id)init
+
+
+- (void)windowDidOpen
 {
-  if (self = [super init]) {
-    [self setValue:[NSNumber numberWithBool:YES] forUndefinedKey:@"editable"];
-    canDelete = NO;
-    verticalSpacing = 0;
-  }
-  return self;
+    if (self){
+        [super windowDidOpen];
+        [self reposition];
+        [(DeMarcbenderSortablegridView *)[self view] initData];
+    }
+}
+
+
+- (NSArray *)keySequence
+{
+    static dispatch_once_t onceToken;
+    static NSArray *keySequence = nil;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[NSArray alloc] initWithObjects:@"columnCount", @"minHorizontalSpacing", @"minVerticalSpacing", @"cellWidth", @"scrollIndicatorInsets",@"waterFallLayout",@"pagingEnabled",@"pagerEnabled",@"pagerFollowsBottomInset",@"scrollType",@"lazyLoadingEnabled",@"showVerticalScrollIndicator",@"showHorizontalScrollIndicator",@"disableBounce",@"pageIndicatorTintColor",@"currentPageIndicatorTintColor",@"itemsBadgeEnabled",@"showDeleteButton",@"deleteButtonImage",nil];
+    });
+    return keySequence;
 }
 
 - (NSString *)apiName
@@ -71,6 +89,7 @@
     }
 }
 
+/*
 - (UIImage *)badgeViewImage
 {
     if (badgeImage != nil){
@@ -86,17 +105,8 @@
 {
   badgeImage = [TiUtils image:value proxy:self];
 }
+*/
 
-
-- (void)setColumnWidth:(id)value
-{
-  columnWidth = [TiUtils intValue:value];
- // [[self ensureItem] setCanDelete:canDelete];
-}
-- (NSInteger)columnWidth
-{
-    return columnWidth;
-}
 
 
 - (id)setCurrentPage:(id)value
@@ -124,6 +134,26 @@
     return verticalSpacing;
 }
 
+
+- (void)setData:(id)data
+{
+  for (DeMarcbenderSortablegridItemProxy *proxy in data) {
+    ENSURE_TYPE(proxy, DeMarcbenderSortablegridItemProxy)
+        [self rememberProxy:proxy];
+  }
+
+  [self replaceValue:data forKey:@"data" notification:NO];
+  [self replaceValue:data forKey:@"viewData" notification:YES];
+}
+
+
+- (void)setContentInsets:(id)args
+{
+  ENSURE_UI_THREAD(setContentInsets, args);
+  [(DeMarcbenderSortablegridView *)[self view] setContentInsets:args];
+}
+
+
 #pragma mark Public Methods
 
 
@@ -131,7 +161,7 @@
 {
     ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
     
-    [(DeMarcbenderSortablegridView *)[self view] addItem:[args valueForKey:@"item"] atIndex:[TiUtils intValue:@"index" properties:args]];
+    [(DeMarcbenderSortablegridView *)[self view] addItem:(DeMarcbenderSortablegridItemProxy*)[args valueForKey:@"item"] atIndex:[TiUtils intValue:@"index" properties:args]];
 }
 
 
@@ -147,6 +177,22 @@
     [(DeMarcbenderSortablegridView *)[self view] deleteItemAtIndex:[TiUtils intValue:@"index" properties:args]];
 }
 
+
+
+- (void)scrollToItemAtIndex:(id)args
+{
+    ENSURE_ARG_COUNT(args, 2);
+
+    [(DeMarcbenderSortablegridView *)[self view] scrollToItemAtIndex:args];
+}
+
+
+-(void)scrollToBottom:(id)args
+{
+    //TiThreadPerformOnMainThread(^{
+        [(DeMarcbenderSortablegridView *)[self view] scrollToBottom:args];
+   // }, NO);
+}
 
 
 

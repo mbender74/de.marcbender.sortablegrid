@@ -5,70 +5,15 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "DeMarcbenderSortablegridView.h"
-#import "DeMarcbenderSortablegridViewProxy.h"
 #import <TitaniumKit/TiRect.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiDimension.h>
-#import <TitaniumKit/TiViewProxy.h>
+#import "ImageLoader.h"
+#import "DeMarcbenderSortablegridView.h"
 
 
 
 
-int const static kDirectionPanThreshold = 0;
-
-@implementation DirectionPanGestureRecognizer
-
-@synthesize direction = _direction;
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    
-
-    [super touchesMoved:touches withEvent:event];
-    if (self.state == UIGestureRecognizerStateFailed) return;
-    CGPoint nowPoint = [[touches anyObject] locationInView:self.view];
-    CGPoint prevPoint = [[touches anyObject] previousLocationInView:self.view];
-    _moveX += prevPoint.x - nowPoint.x;
-    _moveY += prevPoint.y - nowPoint.y;
-    if (!_drag) {
-
-        if (abs(_moveX) > kDirectionPanThreshold) {
-            if (_direction == DirectionPangestureRecognizerVertical) {
-
-                self.state = UIGestureRecognizerStateFailed;
-            }else {
-                _drag = YES;
-            }
-        }else if (abs(_moveY) > kDirectionPanThreshold) {
-            if (_direction == DirectionPanGestureRecognizerHorizontal) {
-
-                self.state = UIGestureRecognizerStateFailed;
-            }else {
-                _drag = YES;
-            }
-        }
-    }
-}
-
-- (void)reset {
-    [super reset];
-    _drag = NO;
-    _moveX = 0;
-    _moveY = 0;
-}
-
-@end
-
-
-
-static const CGFloat kGridDashboardViewDefaultRowCount = 0;
-static const CGFloat kGridDashboardViewDefaultColumnCount = 1;
-static const CGFloat kGridDefaultHorizonatalSpacing = 0;
-static const CGFloat kGridDefaultVerticalSpacing = 0;
-
-static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
-#define WIDTH  [[UIScreen mainScreen] bounds].size.width
-#define HEIGHT [[UIScreen mainScreen] bounds].size.height
 
 
 @interface TopAlignedCollectionViewFlowLayout : UICollectionViewFlowLayout {
@@ -77,13 +22,80 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 }
 @property (nonatomic, assign) ScrollDirection scrolldirection;
+@property (nonatomic, assign) BOOL pagingEnabled;
+@property (nonatomic, strong) UIDynamicAnimator *dynamicAnimator;
 
 //- (void)alignToTopForSameLineElements:(NSArray *)sameLineElements;
 
 @end
 
 @implementation TopAlignedCollectionViewFlowLayout
+
+-(id)init {
+    if (!(self = [super init])) return nil;
+    
+   // self.dynamicAnimator = [[UIDynamicAnimator alloc] initWithCollectionViewLayout:self];
+    
+    return self;
+}
 /*
+-(NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+{
+    return [self.dynamicAnimator itemsInRect:rect];
+}
+
+-(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [self.dynamicAnimator layoutAttributesForCellAtIndexPath:indexPath];
+}
+
+
+- (void)prepareLayout {
+    [super prepareLayout];
+
+    CGSize contentSize = self.collectionViewContentSize;
+    NSArray *items = [super layoutAttributesForElementsInRect:
+        CGRectMake(0.0f, 0.0f, contentSize.width, contentSize.height)];
+    if (self.dynamicAnimator.behaviors.count == 0) {
+        [items enumerateObjectsUsingBlock:^(id<UIDynamicItem> obj, NSUInteger idx, BOOL *stop) {
+            UIAttachmentBehavior *behaviour = [[UIAttachmentBehavior alloc] initWithItem:obj
+                                                                        attachedToAnchor:[obj center]];
+            
+            behaviour.length = 0.0f;
+            behaviour.damping = 0.9f;
+            behaviour.frequency = 0.9f;
+            
+            [self.dynamicAnimator addBehavior:behaviour];
+        }];
+    }
+}
+*/
+
+
+/*
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+    NSArray *attributes = [super layoutAttributesForElementsInRect:rect];
+
+    CGFloat leftMargin = self.sectionInset.left; //initalized to silence compiler, and actaully safer, but not planning to use.
+    CGFloat maxY = -1.0f;
+
+    //this loop assumes attributes are in IndexPath order
+    for (UICollectionViewLayoutAttributes *attribute in attributes) {
+        if (attribute.frame.origin.y >= maxY) {
+            leftMargin = self.sectionInset.left;
+        }
+
+        attribute.frame = CGRectMake(leftMargin, attribute.frame.origin.y, attribute.frame.size.width, attribute.frame.size.height);
+
+        leftMargin += attribute.frame.size.width + self.minimumInteritemSpacing;
+        maxY = MAX(CGRectGetMaxY(attribute.frame), maxY);
+    }
+
+    return attributes;
+}
+*/
+/*
+
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect;
 {
     NSArray *attrs = [super layoutAttributesForElementsInRect:rect];
@@ -130,31 +142,84 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 {
     CGSize size = [super collectionViewContentSize];
     if (self.scrolldirection == mkScrollVertical) {
-        NSInteger pagesCount = ceil(size.height / self.collectionView.frame.size.height);
-        if (pagesCount != lastPagesCount){
-            CGFloat contentHeight = (pagesCount * (self.collectionView.frame.size.height))-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom;
-            lastPagesCount = pagesCount;
+        if (self.pagingEnabled == YES){
+            NSInteger pagesCount = ceil(size.height / self.collectionView.frame.size.height);
+            if (pagesCount != lastPagesCount){
+                
+                CGFloat contentHeight;
+                
+                contentHeight = (pagesCount * (self.collectionView.frame.size.height))-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom;
+                lastPagesCount = pagesCount;
 
-            lastContentSize = CGSizeMake(self.collectionView.frame.size.width-self.collectionView.contentInset.left-self.collectionView.contentInset.right, contentHeight);
+                lastContentSize = CGSizeMake(self.collectionView.frame.size.width-self.collectionView.contentInset.left-self.collectionView.contentInset.right, contentHeight);
+            }
         }
+        else {
+            lastContentSize = size;
+        }
+        
         return lastContentSize;
     }
     else {
-
-        NSInteger pagesCount = ceil(size.width / self.collectionView.frame.size.width);
-        if (pagesCount != lastPagesCount){
-            CGFloat contentWidth = (pagesCount * (self.collectionView.frame.size.width))-self.collectionView.contentInset.left-self.collectionView.contentInset.right;
-            lastPagesCount = pagesCount;
-            lastContentSize = CGSizeMake(contentWidth, self.collectionView.frame.size.height-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom);
+        if (self.pagingEnabled == YES){
+            NSInteger pagesCount = ceil(size.width / self.collectionView.frame.size.width);
+            if (pagesCount != lastPagesCount){
+                CGFloat contentWidth = (pagesCount * (self.collectionView.frame.size.width))-self.collectionView.contentInset.left-self.collectionView.contentInset.right;
+                lastPagesCount = pagesCount;
+                lastContentSize = CGSizeMake(contentWidth, self.collectionView.frame.size.height-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom);
+            }
+        }
+        else {
+            lastContentSize = size;
         }
         return lastContentSize;
     }
 }
 
+/*
 
+-(BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+{
+    UIScrollView *scrollView = self.collectionView;
+    CGFloat delta = newBounds.origin.y - scrollView.bounds.origin.y;
+    
+    CGPoint touchLocation = [self.collectionView.panGestureRecognizer locationInView:self.collectionView];
+    
+    [self.dynamicAnimator.behaviors enumerateObjectsUsingBlock:^(UIAttachmentBehavior *springBehaviour, NSUInteger idx, BOOL *stop) {
+        CGFloat yDistanceFromTouch = fabs(touchLocation.y - springBehaviour.anchorPoint.y);
+        CGFloat xDistanceFromTouch = fabs(touchLocation.x - springBehaviour.anchorPoint.x);
+        CGFloat scrollResistance = (yDistanceFromTouch + xDistanceFromTouch) / 1500.0f;
+        UICollectionViewLayoutAttributes *item = [springBehaviour.items firstObject];
 
+        CGPoint center = item.center;
+        if (delta < 0) {
+            center.y += MAX(delta, delta*scrollResistance);
+        }
+        else {
+            center.y += MIN(delta, delta*scrollResistance);
+        }
+        item.center = center;
+        
+        [self.dynamicAnimator updateItemUsingCurrentState:item];
+    }];
+    
+    return NO;
+}
+*/
 
 @end
+
+
+
+
+static const CGFloat kGridDashboardViewDefaultRowCount = 0;
+static const CGFloat kGridDashboardViewDefaultColumnCount = 1;
+static const CGFloat kGridDefaultHorizonatalSpacing = 0;
+static const CGFloat kGridDefaultVerticalSpacing = 0;
+
+static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
+#define WIDTH  [[UIScreen mainScreen] bounds].size.width
+#define HEIGHT [[UIScreen mainScreen] bounds].size.height
 
 
 @implementation DeMarcbenderSortablegridView
@@ -166,46 +231,51 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
   [super dealloc];
 }
 
-- (void)initializeState
+
+- (id)init
 {
-    [super initializeState];
-
-    
-    if (self){
-        pagerEnabled = NO;
-        self.dataSourceArray = [NSMutableArray array];
-        editing = NO;
-        cellWidth = 0;
-        didScroll = NO;
-        pagingEnabled = NO;
-        cellData = [[NSMutableArray alloc] init];
-        badgeImage = nil;
-        [self pager];
-        [self addSubview:[self launcher]];
-        [launcher setEditMode:NO];
-        launcher.editMode = NO;
-        insetsCalcDone = NO;
-        _leftInset = 0;
-        _rightInset = 0;
-        _initDone = NO;
-        currentPage = -1;
-        numberOfPages = -1;
-        previousOffset = -1;
-        showVerticalScrollIndicator = NO;
-        showHorizontalScrollIndicator = NO;
-        if ([self pager] != nil){
-            [self addSubview:pager];
-        }
-      //  [self addSubview:hiddenScrollView];
-      //  [self sendSubviewToBack:hiddenScrollView];
-
-    }
-
-    [super initializeState];
+  self = [super init];
+  if (self != nil) {
+      columnCount = 1;
+      _columnsCount = 1;
+      _initDone = NO;
+      self.leftInset = 0;
+      self.rightInset = 0;
+      cellWidth = 0;
+      contentInsetsArgs = nil;
+      oldContentInsetBottomForPager = 0;
+      window = UIApplication.sharedApplication.windows.firstObject;
+      topSafeAreaPadding = window.safeAreaInsets.top;
+      bottomSafeAreaPadding = window.safeAreaInsets.bottom;
+      pagerEnabled = NO;
+      observerAdded = NO;
+      pagerFollowsBottomInset = NO;
+      self.dataSourceArray = [NSMutableArray array];
+      editing = NO;
+      didScroll = NO;
+      pagingEnabled = NO;
+      cellData = [[NSMutableArray alloc] init];
+      badgeImage = nil;
+      self.columnsCount = columnCount;
+      insetsCalcDone = NO;
+      insetsScroll = UIEdgeInsetsZero;
+      _leftInset = 0;
+      _rightInset = 0;
+      _initDone = NO;
+      currentPage = -1;
+      numberOfPages = -1;
+      previousOffset = -1;
+      showVerticalScrollIndicator = NO;
+      showHorizontalScrollIndicator = NO;
+      self.collectionViewScrollDirection = UICollectionViewScrollDirectionVertical;
+      scrollDirection = mkScrollVertical;
+  }
+  return self;
 }
 
 
 
+/*
 -(UIImage *)image:(UIImage*)image withMaskWithColor:(UIColor *)color
 {
     CGImageRef maskImage = image.CGImage;
@@ -229,49 +299,31 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     return coloredImage;
 }
 
-
+*/
 - (BMDragCellCollectionView *)launcher
 {
   if (launcher == nil) {
-      _initDone = NO;
-      self.leftInset = 0;
-      self.rightInset = 0;
-
-      cellWidth = [TiUtils floatValue:[self.proxy valueForKey:@"columnWidth"] def:0];
       showDeleteButton = [TiUtils boolValue:[self.proxy valueForKey:@"showDeleteButton"] def:NO];
       itemsBadgeEnabled = [TiUtils boolValue:[self.proxy valueForKey:@"itemsBadgeEnabled"] def:NO];
+
 
       
       horizontalSpacing = [TiUtils floatValue:[self.proxy valueForKey:@"minHorizontalSpacing"] def:kGridDefaultHorizonatalSpacing];
       verticalSpacing = [TiUtils floatValue:[self.proxy valueForKey:@"minVerticalSpacing"] def:kGridDefaultVerticalSpacing];
       
       
-      if (showDeleteButton == YES && horizontalSpacing <= 16 || itemsBadgeEnabled == YES && horizontalSpacing <= 16){
-          horizontalSpacing = 16;
-          [[self proxy] replaceValue:[NSNumber numberWithFloat:horizontalSpacing] forKey:@"minHorizontalSpacing" notification:NO];
+      if (showDeleteButton == YES && horizontalSpacing <= 20 || itemsBadgeEnabled == YES && horizontalSpacing <= 20){
+          horizontalSpacing = 20;
+          [self.proxy replaceValue:[NSNumber numberWithFloat:horizontalSpacing] forKey:@"minHorizontalSpacing" notification:NO];
       }
 
-      if (showDeleteButton == YES && verticalSpacing <= 16 || itemsBadgeEnabled == YES && verticalSpacing <= 16){
-          verticalSpacing = 16;
-          [[self proxy] replaceValue:[NSNumber numberWithFloat:verticalSpacing] forKey:@"minVerticalSpacing" notification:NO];
+      if (showDeleteButton == YES && verticalSpacing <= 10 || itemsBadgeEnabled == YES && verticalSpacing <= 10){
+          verticalSpacing = 10;
+          [self.proxy replaceValue:[NSNumber numberWithFloat:verticalSpacing] forKey:@"minVerticalSpacing" notification:NO];
       }
 
-     columnCount = [TiUtils floatValue:[self.proxy valueForKey:@"columnCount"] def:kGridDashboardViewDefaultColumnCount];
       
-      if ([self.proxy valueForKey:@"scrollType"]){
-          if ([[TiUtils stringValue:[self.proxy valueForKey:@"scrollType"]] isEqualToString:@"vertical"]){
-              self.collectionViewScrollDirection = UICollectionViewScrollDirectionVertical;
-              scrollDirection = mkScrollVertical;
-          }
-          else {
-              self.collectionViewScrollDirection = UICollectionViewScrollDirectionHorizontal;
-              scrollDirection = mkScrollHorizontal;
-          }
-      }
-      else {
-          self.collectionViewScrollDirection = UICollectionViewScrollDirectionVertical;
-          scrollDirection = mkScrollVertical;
-      }
+
 
       self.wobble = [TiUtils boolValue:[self.proxy valueForKey:@"wobble"] def:NO];
       
@@ -283,10 +335,10 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
           
           layout.minimumLineSpacing = verticalSpacing;
           layout.minimumInteritemSpacing = horizontalSpacing;
-          layout.estimatedItemSize = UICollectionViewFlowLayoutAutomaticSize;
+         // layout.estimatedItemSize = UICollectionViewFlowLayoutAutomaticSize;
           
           layout.direction = scrollDirection;
-          layout.columnCount = columnCount;
+          layout.columnCount = [self numberOfColumns];
           layout.showDeleteButton = showDeleteButton;
           launcher = [[BMDragCellCollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
           layout.dragCollectionView = launcher;
@@ -318,6 +370,11 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
           layout.scrolldirection = scrollDirection;
           layout.minimumLineSpacing = verticalSpacing;
           layout.minimumInteritemSpacing = horizontalSpacing;
+          layout.pagingEnabled = pagingEnabled;
+          
+       //   layout.estimatedItemSize = UICollectionViewFlowLayoutAutomaticSize;
+
+
           
           launcher = [[BMDragCellCollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
           
@@ -365,12 +422,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
       launcher.backgroundColor = [UIColor clearColor];
       [launcher longGesture].enabled = YES;
       
-      hiddenScrollView = [[UIScrollView alloc] init];
-      hiddenScrollView.hidden = YES;
-//      launcher.canCancelContentTouches  = YES;
 
-      launcher.delaysContentTouches = YES;
-      hiddenScrollView.delaysContentTouches = YES;
+      launcher.delaysContentTouches = NO;
       
       CGSize newContentSize = launcher.contentSize;
     //  hiddenScrollView.delegate = self;
@@ -378,19 +431,13 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
       if (scrollDirection == mkScrollVertical) {
 
           newContentSize.width = 0;
-          hiddenScrollView.contentSize = newContentSize;
 
           launcher.alwaysBounceVertical = YES;
           launcher.alwaysBounceHorizontal = NO;
-          hiddenScrollView.alwaysBounceVertical = YES;
-          hiddenScrollView.alwaysBounceHorizontal = NO;
       } else {
           newContentSize.height = 0;
-          hiddenScrollView.contentSize = newContentSize;
           launcher.alwaysBounceHorizontal = YES;
           launcher.alwaysBounceVertical = NO;
-          hiddenScrollView.alwaysBounceHorizontal = YES;
-          hiddenScrollView.alwaysBounceVertical = NO;
       }
     //  [hiddenScrollView addGestureRecognizer:directionPanGesture];
     //  hiddenScrollView.panGestureRecognizer.enabled = NO;
@@ -398,6 +445,23 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     //  [launcher addGestureRecognizer:[hiddenScrollView panGestureRecognizer]];
      // launcher.panGestureRecognizer.enabled = NO;
 
+      self.collectionView = (UICollectionView*)launcher;
+
+      if ([self.proxy valueForKey:@"scrollIndicatorInsets"]){
+              [self setScrollIndicatorInsets_:[self.proxy valueForKey:@"scrollIndicatorInsets"] withObject:nil];
+      }
+
+      
+      if (contentInsetsArgs != nil || [self.proxy valueForKey:@"contentInsets"]){
+          if ([self.proxy valueForKey:@"contentInsets"]){
+              [self setContentInsets_:[self.proxy valueForKey:@"contentInsets"]];
+          }
+          else {
+              [self setContentInsets_:contentInsetsArgs];
+          }
+      }
+      
+      [self addSubview:launcher];
 
   }
   return launcher;
@@ -409,49 +473,116 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 }
 
 
+- (CGFloat)numberOfColumns
+{
+  return columnCount;
+}
+
+- (void)setColumnCount_:(id)value
+{
+    columnCount = [TiUtils floatValue:value];
+}
+
+- (void)setScrollType_:(id)value
+{
+    if ([[TiUtils stringValue:value] isEqualToString:@"vertical"]){
+        self.collectionViewScrollDirection = UICollectionViewScrollDirectionVertical;
+        scrollDirection = mkScrollVertical;
+    }
+    else {
+        self.collectionViewScrollDirection = UICollectionViewScrollDirectionHorizontal;
+        scrollDirection = mkScrollHorizontal;
+    }
+}
+
+
+
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     if (!CGRectIsEmpty(bounds)) {
-       // NSLog(@"[ERROR] frameSizeChanged  ");
 
-        CGRect contentFrame = bounds;
-        
-        contentFrame.size.width = bounds.size.width - 2;
-        contentFrame.origin.x = contentFrame.origin.x + 1;
-        
-        if (pagerEnabled == YES){
-            [TiUtils setView:launcher positionRect:contentFrame];
-            pager.frame = CGRectMake(0, contentFrame.size.height-25, contentFrame.size.width, 25);
+        [TiUtils setView:launcher positionRect:bounds];
+
+        if (pagerEnabled == YES) {
+
+            [self pager];
+            
+            if (pagerFollowsBottomInset == YES){
+                topSafeAreaPadding = window.safeAreaInsets.top;
+                bottomSafeAreaPadding = window.safeAreaInsets.bottom;
+                
+                
+                
+                if (frame.origin.y < 0 && launcher.contentInset.top > 0){
+                    
+                    pager.frame = CGRectMake(0,bounds.origin.y + frame.size.height - bottomSafeAreaPadding - launcher.contentInset.bottom - 25, bounds.size.width, 25);
+                    oldContentInsetBottomForPager = launcher.contentInset.bottom-25;
+                }
+                else {
+                    pager.frame = CGRectMake(0, bounds.origin.y + bounds.size.height - launcher.contentInset.bottom - 25, bounds.size.width, 25);
+                    oldContentInsetBottomForPager = launcher.contentInset.bottom-25;
+                }
+                
+                if (observerAdded == NO){
+                    observerAdded = YES;
+                    [launcher addObserver:self forKeyPath:@"contentInset" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+                }
+                
+            }
+            else {
+                
+                if (frame.origin.y < 0 && launcher.contentInset.top > 0){
+
+                    pager.frame = CGRectMake(0,bounds.origin.y + frame.size.height - bottomSafeAreaPadding - launcher.contentInset.bottom - 25, bounds.size.width, 25);
+                }
+                else {
+                    pager.frame = CGRectMake(0, bounds.size.height-25, bounds.size.width, 25);
+                }
+            }
+
             pager.backgroundColor = [UIColor clearColor];
+
+            [self addSubview:pager];
+
+            [self bringSubviewToFront:pager];
         }
-        else {
-            [TiUtils setView:launcher positionRect:contentFrame];
-        }
+        
         cellWidth = [self calcMaxCellWidth];
 
     }
     [super frameSizeChanged:frame bounds:bounds];
+
 }
+
+
+- (void)setPagerFollowsBottomInset_:(id)value
+{
+    pagerFollowsBottomInset = [TiUtils boolValue:value];
+  //[hiddenScrollView setBounces:![TiUtils boolValue:value]];
+}
+
 
 - (void)setDisableBounce_:(id)value
 {
-  [launcher setBounces:![TiUtils boolValue:value]];
+  [[self launcher] setBounces:![TiUtils boolValue:value]];
   //[hiddenScrollView setBounces:![TiUtils boolValue:value]];
 }
 
 
     
-- (void)setData_:(id)args
+- (void)setViewData_:(id)args
 {
+    //[self launcher];
 
+    ENSURE_TYPE(args, NSArray);
+
+    
     if (_initDone == YES){
     
-
-        
         [self.dataSource[0] removeAllObjects];
 
         [launcher reloadData];
-        launcher.alpha = 0.0;
+        //launcher.alpha = 0.0;
        // [cellData removeAllObjects];
 
         NSMutableArray *tempCellData = [NSMutableArray array];
@@ -466,12 +597,11 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
                 int positionIndex = 0;
 
-                for (DeMarcbenderSortablegridItemViewProxy *proxy in args) {
+                for (DeMarcbenderSortablegridItemProxy *proxy in args) {
+                    ENSURE_TYPE(proxy, DeMarcbenderSortablegridItemProxy)
+                    [self.proxy rememberProxy:proxy];
 
                     [proxy replaceValue:[NSNumber numberWithInt:positionIndex] forKey:@"position" notification:NO];
-                    [self.proxy rememberProxy:proxy];
-                    [proxy windowWillOpen];
-                    [proxy windowDidOpen];
                     [tempCellData addObject:proxy];
                     
                     positionIndex ++;
@@ -492,25 +622,25 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
     }
     else {
-        launcher.alpha = 0.0;
+                    if (launcher != nil){
+                        [self.dataSource[0] removeAllObjects];
+
+                        [launcher reloadData];
+
+                        // launcher.alpha = 0.0;
+                    }
                     int positionIndex = 0;
-                    for (DeMarcbenderSortablegridItemViewProxy *proxy in args) {
-                        TiThreadPerformOnMainThread(^{
+                    for (DeMarcbenderSortablegridItemProxy *proxy in args) {
+                        ENSURE_TYPE(proxy, DeMarcbenderSortablegridItemProxy)
+                        [self.proxy rememberProxy:proxy];
 
                         [proxy replaceValue:[NSNumber numberWithInt:positionIndex] forKey:@"position" notification:NO];
 
-                        
-                            [proxy windowWillOpen];
-                            [proxy windowDidOpen];
-                        },
-                            YES);
-                        
                         [cellData addObject:proxy];
 
                         positionIndex ++;
                     }
        // [self pushWithGroup:1 sizeObj:nil itemsCount:(int)cellData.count];
-
     }
     
 }
@@ -533,14 +663,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 - (void)setPagingEnabled_:(id)args
 {
   ENSURE_TYPE(args, NSNumber);
+  pagingEnabled = [TiUtils boolValue:args def:NO];
 
-  if (launcher != nil) {
-  //  [launcher setPagingEnabled:[args boolValue]];
-    pagingEnabled = [args boolValue];
-      
-    //[launcher scrollView].pagingEnabled = YES;
-  }
-  [[self proxy] replaceValue:args forKey:@"pagingEnabled" notification:NO];
 }
 
 
@@ -549,11 +673,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 {
   ENSURE_TYPE(args, NSNumber);
 
-  if (launcher != nil) {
-    //[launcher setPagerEnabled:[args boolValue]];
-   // [launcher pager].hidden = [args boolValue];
-  }
-  [[self proxy] replaceValue:args forKey:@"pagerEnabled" notification:NO];
+    pagerEnabled = [args boolValue];
 }
 
 
@@ -562,7 +682,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
   ENSURE_TYPE(args, NSNumber);
     showHorizontalScrollIndicator = [args boolValue];
 
-  if (launcher != nil) {
+  if ([self launcher] != nil) {
     [launcher setShowsHorizontalScrollIndicator:showHorizontalScrollIndicator];
     launcher.showsHorizontalScrollIndicator = showHorizontalScrollIndicator;
   }
@@ -584,7 +704,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 {
   ENSURE_TYPE(args, NSNumber);
     showVerticalScrollIndicator = [args boolValue];
-  if (launcher != nil) {
+  if ([self launcher] != nil) {
     [launcher setShowsVerticalScrollIndicator:showVerticalScrollIndicator];
     launcher.showsVerticalScrollIndicator = showVerticalScrollIndicator;
   }
@@ -602,12 +722,16 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
   [[self proxy] replaceValue:args forKey:@"editable" notification:NO];
 }
 
+- (BOOL)isLazyLoadingEnabled
+{
+    return [TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES];
+}
+
 
 - (UIPageControl *)pager
 {
     
-    if ([TiUtils boolValue:[self.proxy valueForKey:@"pagerEnabled"] def:NO] == YES){
-        pagerEnabled = YES;
+    if (pagerEnabled == YES){
         pager = [[UIPageControl alloc] init];
         //pager.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
         [pager addTarget:self action:@selector(pageChanged) forControlEvents:UIControlEventValueChanged];
@@ -619,7 +743,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             pager.currentPageIndicatorTintColor = [[TiUtils colorValue:[self.proxy valueForKey:@"currentPageIndicatorTintColor"]] _color];
         }
         
-       // [pager addObserver:self forKeyPath:@"currentPage" options:NSKeyValueObservingOptionOld context:NULL];
+       
     }
     
     if (pager != nil){
@@ -632,6 +756,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 - (void)initData
 {
+    
+    [self launcher];
+    
+    [launcher setEditMode:NO];
+    launcher.editMode = NO;
+    
     [self pushWithGroup:1 sizeObj:nil itemsCount:(int)cellData.count];
 }
 
@@ -658,20 +788,25 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
                 for (int index = 0; index < [self.dataSource[0] count] ; index++) {
                     
                     NSIndexPath *thisIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
-                    if (showDeleteButton == YES){
+                    
+                    DeMarcbenderSortablegridItemProxy *thisProxy = (DeMarcbenderSortablegridItemProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
+
+                    BOOL canBeDeleted = [TiUtils boolValue:[thisProxy valueForUndefinedKey:@"canBeDeleted"] def:YES];
+                    BOOL hasBadge = [TiUtils boolValue:[thisProxy valueForUndefinedKey:@"badge"] def:NO];
+                    CGFloat badgeValue = [TiUtils floatValue:[thisProxy valueForKey:@"badgeValue"] def:0];
+
+                    if (showDeleteButton == YES && canBeDeleted == YES){
                         [(UIButton*)self.dataSource[0][thisIndexPath.item][@"closebutton"] setHidden:NO];
                     }
                     
                     
                     if (itemsBadgeEnabled == YES){
-                        [(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:NO];
+                        if (hasBadge == YES && badgeValue > 0){
+                            [(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:NO];
+                        }
                     }
                     
                     [(UIView*)self.dataSource[0][thisIndexPath.item][@"cellview"] subviews].firstObject.userInteractionEnabled = NO;
-
-                  //  if (self.wobble == YES){
-                  //      [self.dataSource[0][thisIndexPath.item][@"cell"] performSelector:@selector(wobble)];
-                  //  }
                 }
             
             
@@ -689,25 +824,35 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 - (void)stopEditing
 {
-    [UIView performWithoutAnimation: ^ {
+   // [UIView performWithoutAnimation: ^ {
         
         NSMutableArray *tempCellData = [NSMutableArray array];
 
         
         for (int index = 0; index < [self.dataSource[0] count] ; index++) {
             NSIndexPath *thisIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
-            if (showDeleteButton == YES){
+            DeMarcbenderSortablegridItemProxy *thisProxy = (DeMarcbenderSortablegridItemProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
+
+            BOOL canBeDeleted = [TiUtils boolValue:[thisProxy valueForUndefinedKey:@"canBeDeleted"] def:YES];
+            BOOL hasBadge = [TiUtils boolValue:[thisProxy valueForUndefinedKey:@"badge"] def:NO];
+            CGFloat badgeValue = [TiUtils floatValue:[thisProxy valueForKey:@"badgeValue"] def:0];
+
+            
+            if (showDeleteButton == YES && canBeDeleted == YES){
                 [(UIButton*)self.dataSource[0][thisIndexPath.item][@"closebutton"] setHidden:YES];
             }
             
             if (itemsBadgeEnabled == YES){
-                [(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:YES];
+                
+                if (hasBadge == YES && badgeValue > 0){
+                    [(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:NO];
+                }
+                
+                //[(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:YES];
             }
 
             [(UIView*)self.dataSource[0][thisIndexPath.item][@"cellview"] subviews].firstObject.userInteractionEnabled = YES;
 
-            
-            DeMarcbenderSortablegridItemViewProxy *thisProxy = (DeMarcbenderSortablegridItemViewProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
             [thisProxy replaceValue:[NSNumber numberWithInt:index] forKey:@"position" notification:NO];
             [self.proxy rememberProxy:thisProxy];
 
@@ -725,7 +870,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             [launcher.visibleCells  makeObjectsPerformSelector:@selector(stopWobbleUser)];
         }
 
-    }];
+   // }];
     if ([self.proxy _hasListeners:@"editingEnd"]) {
         [[self proxy] fireEvent:@"editingEnd" withObject:nil];
     }
@@ -735,16 +880,16 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 - (UIButton *)createCloseButton
 {
-    UIImage *image;
+    UIButton *cbutton = [UIButton buttonWithType:UIButtonTypeCustom];
+
     if ( [(DeMarcbenderSortablegridViewProxy *)[self proxy] deleteButtonImage] != nil) {
-        image = [(DeMarcbenderSortablegridViewProxy *)[self proxy] deleteButtonImage];
+        UIImage *image = [(DeMarcbenderSortablegridViewProxy *)[self proxy] deleteButtonImage];
+        [cbutton setImage:image forState:UIControlStateNormal];
     }
     else {
-        image = [UIImage imageNamed:@"closeButton.png"];
+        cbutton.backgroundColor = [UIColor redColor];
     }
-    UIButton *cbutton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [cbutton setImage:image forState:UIControlStateNormal];
-    [cbutton.layer setCornerRadius:15];
+    [cbutton.layer setCornerRadius:17];
     cbutton.frame = CGRectMake(0, 0, 34, 34);
     [cbutton setHidden:YES];
     return [cbutton retain];
@@ -756,20 +901,19 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 -(CGFloat)calcMaxCellWidth {
     CGFloat maxCellWidth = 0;
     CGFloat spacingToUser = 0;
-    //NSLog(@"[ERROR] columnCount: %i ",(int)columnCount);
 
-    maxCellWidth = floorf( ((launcher.frame.size.width - launcher.contentInset.left - launcher.contentInset.right) - (horizontalSpacing * (columnCount - 1)) ) / columnCount);
+    maxCellWidth = floorf( ((launcher.frame.size.width - launcher.contentInset.left - launcher.contentInset.right) - (horizontalSpacing * ([self numberOfColumns] - 1)) ) / [self numberOfColumns]);
     
     if (insetsCalcDone == NO){
         CGFloat totalCellWidth = 0;
         
         if (cellWidth <= 0){
-            totalCellWidth = maxCellWidth * columnCount;
+            totalCellWidth = maxCellWidth * [self numberOfColumns];
             //NSLog(@"[ERROR] totalCellWidth: %f ",totalCellWidth);
 
         }
         else if (cellWidth > maxCellWidth){
-            totalCellWidth = maxCellWidth * columnCount;
+            totalCellWidth = maxCellWidth * [self numberOfColumns];
 
             //NSLog(@"[ERROR] totalCellWidth2: %f ",totalCellWidth);
 
@@ -778,10 +922,10 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             
             if (cellWidth < maxCellWidth){
                 
-                totalCellWidth = cellWidth * columnCount;
+                totalCellWidth = cellWidth * [self numberOfColumns];
             }
             else {
-                totalCellWidth = maxCellWidth * columnCount;
+                totalCellWidth = maxCellWidth * [self numberOfColumns];
             }
             
            // NSLog(@"[ERROR] totalCellWidth3: %f ",totalCellWidth);
@@ -790,7 +934,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
         }
         
 
-        CGFloat totalSpacingWidth = (horizontalSpacing * (columnCount - 1));
+        CGFloat totalSpacingWidth = (horizontalSpacing * ([self numberOfColumns] - 1));
 
         if ((totalCellWidth + totalSpacingWidth) < (launcher.frame.size.width)){
             
@@ -822,7 +966,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
 }
 
-
+/*
 - (UIImage *)badgeButtonImage
 {
     if (badgeImage != nil){
@@ -833,33 +977,61 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
     
 }
+*/
 
 
--(void)addItem:(DeMarcbenderSortablegridItemViewProxy*)item atIndex:(int)index
+-(void)addItem:(DeMarcbenderSortablegridItemProxy*)item atIndex:(NSInteger)index
 {
+
     NSMutableArray *dataSource = [NSMutableArray array];
 
     if ([self.dataSource count] == 0){
+        
+        
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:0];
-        [dataSource addObject:[self createItem:item atIndex:0]];
-    
+        [dataSource addObject:[self createItem:item atIndex:index]];
+        BOOL hasBadge = [TiUtils boolValue:[item valueForUndefinedKey:@"badge"] def:NO];
+        BOOL canBeDeleted = [TiUtils boolValue:[item valueForUndefinedKey:@"canBeDeleted"] def:YES];
+
+        
+
         [self.dataSourceArray addObject:dataSource];
         self.dataSource = [self.dataSourceArray mutableCopy];
+
+        if (showDeleteButton == YES && editing == YES && canBeDeleted==YES){
+            [(UIButton*)self.dataSource[0][indexPath.item][@"closebutton"] setHidden:NO];
+        }
+        
+        if (itemsBadgeEnabled == YES && hasBadge==YES){
+            CGFloat badgeValue = [TiUtils floatValue:[item valueForKey:@"badgeValue"] def:0];
+            if (badgeValue > 0){
+                [(UIButton*)self.dataSource[0][indexPath.item][@"badge"] setHidden:NO];
+            }
+        }
+
         [launcher _updateSourceData];
         [launcher insertItemsAtIndexPaths:@[indexPath]];
     }
     else {
+
       //  [launcher performBatchUpdates:^{
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
         NSMutableArray *array = [self.dataSource mutableCopy];
         [array[0] insertObject:[self createItem:item atIndex:index] atIndex:indexPath.item];
         
-        if (showDeleteButton == YES && editing == YES){
+        BOOL hasBadge = [TiUtils boolValue:[item valueForUndefinedKey:@"badge"] def:NO];
+        BOOL canBeDeleted = [TiUtils boolValue:[item valueForUndefinedKey:@"canBeDeleted"] def:YES];
+
+        
+        if (showDeleteButton == YES && editing == YES && canBeDeleted==YES){
             [(UIButton*)array[0][indexPath.item][@"closebutton"] setHidden:NO];
         }
         
-        if (itemsBadgeEnabled == YES){
-            [(UIButton*)array[0][indexPath.item][@"badge"] setHidden:NO];
+        if (itemsBadgeEnabled == YES && hasBadge==YES){
+            CGFloat badgeValue = [TiUtils floatValue:[item valueForKey:@"badgeValue"] def:0];
+            if (badgeValue > 0){
+                [(UIButton*)array[0][indexPath.item][@"badge"] setHidden:NO];
+            }
         }
 
         
@@ -868,13 +1040,13 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
         [launcher insertItemsAtIndexPaths:@[indexPath]];
 
 
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+        //  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             NSMutableArray *tempCellData = [NSMutableArray array];
-
 
              for (int index = 0; index < [self.dataSource[0] count] ; index++) {
                  NSIndexPath *thisIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
-                 DeMarcbenderSortablegridItemViewProxy *thisProxy = (DeMarcbenderSortablegridItemViewProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
+                 DeMarcbenderSortablegridItemProxy *thisProxy = (DeMarcbenderSortablegridItemProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
                  [thisProxy replaceValue:[NSNumber numberWithInt:index] forKey:@"position" notification:NO];
                  [self.proxy rememberProxy:thisProxy];
 
@@ -889,7 +1061,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
                     @"itemId": [NSNumber numberWithInt:(int)indexPath.item]
                 }];
             }
-        });
+       // });
         
         
         
@@ -911,53 +1083,115 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 
--(NSObject *)createItem:(DeMarcbenderSortablegridItemViewProxy*)item atIndex:(int)index
+
+
+
+
+-(NSObject *)createItem:(DeMarcbenderSortablegridItemProxy*)item atIndex:(NSInteger)index
 {
-    DeMarcbenderSortablegridItemViewProxy *cellItemProxy = item;
+    DeMarcbenderSortablegridItemProxy *cellItemProxy = item;
     [cellItemProxy windowWillOpen];
-    [cellItemProxy replaceValue:[NSNumber numberWithInt:index] forKey:@"position" notification:NO];
+    cellItemProxy.parentVisible = YES;
+    [cellItemProxy refreshSize];
+    [cellItemProxy willChangeSize];
+    [cellItemProxy layoutChildren:NO];
+  
+    
+    BOOL cellContentEqualCellSize = YES;
+    
+    CGSize cellSize;
+
+    id heightValue = [cellItemProxy valueForKey:@"height"];
+    id widthValue = [cellItemProxy valueForKey:@"width"];
+
+    TiDimension height = [TiUtils dimensionValue:heightValue];
+    TiDimension width = [TiUtils dimensionValue:widthValue];
+
+
+    if (TiDimensionIsDip(height)) {
+        //cellSize = CGSizeMake(width.value,height.value);
+        #ifndef TI_USE_AUTOLAYOUT
+            if (TiDimensionIsAutoFill(width) || TiDimensionIsUndefined(width)) {
+                [cellItemProxy layoutProperties]->width = TiDimensionAutoFill;
+            }
+            else {
+                if (TiDimensionIsDip(width)) {
+                    if (cellWidth > width.value){
+                        [cellItemProxy layoutProperties]->width = width;
+                    }
+                    else {
+                        [cellItemProxy layoutProperties]->width = TiDimensionAutoFill;
+                    }
+                }
+                else {
+                    [cellItemProxy layoutProperties]->width = TiDimensionAutoSize;
+                }
+            }
+        #endif
+        cellSize = CGSizeMake(cellWidth,height.value);
+    }
+    else if (TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height) || TiDimensionIsAutoFill(height)) {
+              #ifndef TI_USE_AUTOLAYOUT
+                  [cellItemProxy layoutProperties]->height = TiDimensionAutoSize;
+                    if (TiDimensionIsAutoFill(width) || TiDimensionIsUndefined(width)) {
+                        [cellItemProxy layoutProperties]->width = TiDimensionAutoFill;
+                    }
+                    else {
+                        cellContentEqualCellSize = NO;
+                        if (TiDimensionIsDip(width)) {
+                            if (cellWidth > width.value){
+                                [cellItemProxy layoutProperties]->width = width;
+                            }
+                            else {
+                                [cellItemProxy layoutProperties]->width = TiDimensionAutoFill;
+                            }
+                        }
+                        else {
+                            [cellItemProxy layoutProperties]->width = TiDimensionAutoSize;
+                        }
+                    }
+              #endif
+            cellSize = CGSizeMake(cellWidth, [cellItemProxy minimumParentHeightForSize:CGSizeMake(cellWidth, launcher.frame.size.height)]);
+    }
+        
+        
+    
+    
+    [cellItemProxy replaceValue:[NSNumber numberWithInteger:index] forKey:@"position" notification:NO];
     [self.proxy rememberProxy:cellItemProxy];
 
     UIView *cellView = [cellItemProxy view];
     UIButton *closeButton = nil;
     closeButton = [self createCloseButton];
+    closeButton.tag = index;
     
-    [cellItemProxy layoutChildrenIfNeeded];
-    [cellItemProxy windowDidOpen];
+    UIView *cellViewContainer = [[UIView alloc] init];
+    [cellViewContainer setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+    cellViewContainer.translatesAutoresizingMaskIntoConstraints = YES;
+
+    cellViewContainer.frame = cellView.bounds;
+    
+    
+    BOOL canBeDeleted = [TiUtils boolValue:[cellItemProxy valueForUndefinedKey:@"canBeDeleted"] def:YES];
+    BOOL canBeMoved = [TiUtils boolValue:[cellItemProxy valueForUndefinedKey:@"canBeMoved"] def:YES];
 
     
-    
-    BOOL hasBadge = [TiUtils boolValue:[cellItemProxy valueForKey:@"badge"] def:NO];
+    BOOL hasBadge = [TiUtils boolValue:[(TiViewProxy*)cellItemProxy valueForUndefinedKey:@"badge"] def:NO];
     CGFloat badgeValue = [TiUtils floatValue:[cellItemProxy valueForKey:@"badgeValue"] def:0];
     
-    if (badgeImage == nil){
-        if ( [(DeMarcbenderSortablegridViewProxy *)[self proxy] badgeViewImage] != nil) {
-            badgeImage = [(DeMarcbenderSortablegridViewProxy *)[self proxy] badgeViewImage];
-        }
-        else {
-            badgeImage = [UIImage imageNamed:@"closeButton.png"];
-        }
-    }
     UIButton *badge = [UIButton buttonWithType:UIButtonTypeCustom];
-
-    if (stretchImage == nil){
-        stretchImage = [badgeImage stretchableImageWithLeftCapWidth:badgeImage.size.width/2 topCapHeight:badgeImage.size.height/2];
-    }
-    
-    if ([cellItemProxy valueForKey:@"badgeImage"] && [cellItemProxy valueForKey:@"badgeTintColor"]) {
-        UIImage *tintetedImage =  [self image:[TiUtils image:[cellItemProxy valueForKey:@"badgeImage"] proxy:cellItemProxy] withMaskWithColor:[[TiUtils colorValue:[cellItemProxy valueForKey:@"badgeTintColor"]] _color]];
-        
-        UIImage *tintetedStretchImage = [tintetedImage stretchableImageWithLeftCapWidth:tintetedImage.size.width/2 topCapHeight:tintetedImage.size.height/2];
-                        
-        [badge setBackgroundImage:tintetedStretchImage forState:UIControlStateNormal];
-    }
-    else {
-        [badge setBackgroundImage:stretchImage forState:UIControlStateNormal];
-    }
     badge.frame = CGRectMake(0, 0, 28, 28);
+    [badge.layer setCornerRadius:14];
+
     badge.titleLabel.font = [UIFont boldSystemFontOfSize:12];
     badge.userInteractionEnabled = NO;
     badge.clipsToBounds = NO;
+    if ([cellItemProxy valueForKey:@"badgeTintColor"]){
+        badge.backgroundColor = [[TiUtils colorValue:[cellItemProxy valueForKey:@"badgeTintColor"]] _color];
+    }
+    else {
+        badge.backgroundColor = [UIColor redColor];
+    }
 
     NSInteger value = badgeValue;
     NSString *title = [NSString stringWithFormat:@"%ld", (long)value];
@@ -969,25 +1203,49 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     } else {
       badge.frame = CGRectMake(0, 0, 38, 28);
     }
-    [badge setTitle:NSLocalizedString(title, title) forState:UIControlStateNormal];
-   
-    if (value <= 0){
-        badge.hidden = YES;
-    }
+    [badge setTitle:title forState:UIControlStateNormal];
+  
 
-    UIView *cellViewContainer = [[UIView alloc] init];
 
-    CGSize cellSize = CGSizeMake(cellWidth, cellView.bounds.size.height);
     CGRect cellFrame = cellView.bounds;
-    cellFrame.size.width = cellSize.width;
-    cellFrame.size.height = cellSize.height;
-    CGRect newCellViewContainerFrame = cellFrame;
-    cellViewContainer.frame = newCellViewContainerFrame;
+    CGFloat cellOriginX;
+    
+    if (cellContentEqualCellSize == NO){
+        
+        CGFloat newWidth = [cellItemProxy minimumParentWidthForSize:CGSizeMake(cellWidth, launcher.frame.size.height)];
+        
+        if (newWidth > cellWidth){
+            cellFrame.size.width = cellWidth - 40 - launcher.contentInset.left;
+            
+            cellFrame.size.height = [cellItemProxy minimumParentHeightForSize:CGSizeMake(cellFrame.size.width, launcher.frame.size.height)];
+            
+        }
+        else {
+            cellFrame.size.width = newWidth;
+            cellFrame.size.height = cellSize.height;
+        }
+        
+        if (  (TiDimensionIsUndefined([cellItemProxy layoutProperties]->left)) ){
+            cellFrame.origin.x = (cellWidth - cellFrame.size.width);
+            cellOriginX = (cellWidth - cellFrame.size.width);
+        }
 
+        else {
+            cellOriginX = cellFrame.origin.x;
+        }
+        
+    }
+    else {
+        cellFrame.size.width = cellSize.width;
+        cellFrame.size.height = cellSize.height;
+        cellOriginX = cellFrame.origin.x;
+    }
     
     [cellViewContainer addSubview:cellView];
 
-    cellView.frame = cellFrame;
+    cellViewContainer.clipsToBounds = NO;
+    cellViewContainer.layer.masksToBounds = NO;
+    cellViewContainer.frame = cellFrame;
     cellViewContainer.layer.cornerRadius = cellView.layer.cornerRadius;
 
     closeButton.hidden = YES;
@@ -995,41 +1253,41 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     [closeButton addTarget:self action:@selector(closeButtonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
 
     [cellViewContainer addSubview:closeButton];
-    
+    badge.hidden = YES;
+
    
     if (value > 99) {
-        badge.frame = CGRectMake(cellViewContainer.bounds.origin.x+cellViewContainer.bounds.size.width-(badge.bounds.size.width/1.3)-3, cellViewContainer.bounds.origin.y-(badge.bounds.size.height/4), badge.bounds.size.width, badge.bounds.size.height);
+        badge.frame = CGRectMake(cellViewContainer.bounds.origin.x+cellViewContainer.frame.size.width-(badge.bounds.size.width/1.3)-3, cellViewContainer.bounds.origin.y-(badge.bounds.size.height/4), badge.bounds.size.width, badge.bounds.size.height);
     }
     else {
-        badge.frame = CGRectMake(cellViewContainer.bounds.origin.x+cellViewContainer.bounds.size.width-(badge.bounds.size.width/1.3), cellViewContainer.bounds.origin.y-(badge.bounds.size.height/4), badge.bounds.size.width, badge.bounds.size.height);
+        badge.frame = CGRectMake(cellViewContainer.bounds.origin.x+cellViewContainer.frame.size.width-(badge.bounds.size.width/1.3), cellViewContainer.bounds.origin.y-(badge.bounds.size.height/4), badge.bounds.size.width, badge.bounds.size.height);
     }
     
-    [cellViewContainer addSubview:badge];
-    badge.clipsToBounds = NO;
-    if (itemsBadgeEnabled == NO){
-        badge.hidden = YES;
-    }
-    
-    
-    [cellItemProxy _addBadgeButton:badge];
-   
 
-    return @{@"color" : [UIColor clearColor],
-             @"id" : [NSNumber numberWithInt:index],
+    if (itemsBadgeEnabled == YES && hasBadge == YES){
+        if (value > 0) {
+            badge.hidden = NO;
+        }
+    }
+  
+    [cellViewContainer addSubview:badge];
+
+    [cellItemProxy _addBadgeButton:badge];
+
+    [cellItemProxy windowDidOpen];
+
+    
+    return @{@"id" : [NSNumber numberWithInteger:index],
+             @"canBeDeleted" : [NSNumber numberWithInt:canBeDeleted],
+             @"canBeMoved" : [NSNumber numberWithInt:canBeMoved],
              @"showdeletebutton" : [NSNumber numberWithInt:showDeleteButton],
              @"closebutton" : closeButton,
              @"badge" : badge,
              @"cellview" : cellViewContainer,
-            // @"cell" : cell,
+             @"cellOriginX" : [NSNumber numberWithFloat:cellOriginX],
              @"cellItemProxy" : cellItemProxy,
-             @"size" :[NSValue valueWithCGSize:CGSizeMake(cellViewContainer.bounds.size.width, cellViewContainer.bounds.size.height)]};
+             @"size" :[NSValue valueWithCGSize:CGSizeMake(cellWidth,cellViewContainer.frame.size.height)]};
 }
-
-
-
-
-
-
 
 
 -(void)pushWithGroup:(int)group sizeObj:(NSValue *)sizeObj itemsCount:(int)count {
@@ -1061,23 +1319,15 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
 
     [launcher reloadData];
-    [UIView animateWithDuration:0.25
+    /*[UIView animateWithDuration:0.25
              delay: 0.0
              options: UIViewAnimationOptionCurveEaseInOut
              animations:^{
                 launcher.alpha = 1.0;
             } completion:^(BOOL finished) {
     }];
-
-
-   // NSLog(@"[ERROR] pushVCWithArray  ");
-  //  [TiUtils setView:launcher positionRect:self.bounds];
-    
-    
-  //  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-  //      [self pagerInit:launcher];
-  //  });
-    
+    */
+  //  launcher.alpha = 1.0;
 }
 
 
@@ -1092,22 +1342,28 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     correctedPageNumber = correctedPageNumber + 1;
     realCurrentPage = correctedPageNumber;
 
-    if ([self.proxy _hasListeners:@"pageChanged"]) {
-    NSMutableDictionary *event = [NSMutableDictionary dictionary];
-    [event setObject:[NSNumber numberWithInt:correctedPageNumber] forKey:@"pageNo"];
-    [self.proxy fireEvent:@"pageChanged" withObject:event propagate:NO];
-  }
+    
+    if (oldPage != realCurrentPage){
+        if ([self.proxy _hasListeners:@"pageChanged"]) {
+            NSMutableDictionary *event = [NSMutableDictionary dictionary];
+            [event setObject:[NSNumber numberWithInt:correctedPageNumber] forKey:@"pageNo"];
+            [self.proxy fireEvent:@"pageChanged" withObject:event propagate:NO];
+        }
+    }
+    oldPage = realCurrentPage;
+
 }
 
 - (void)didChangeNumberOfPages:(int)numOfPages;
 {
   if ([self.proxy _hasListeners:@"pageCountChanged"]) {
-    numberOfPages = numOfPages;
-    NSMutableDictionary *event = [NSMutableDictionary dictionary];
-    [event setObject:[NSNumber numberWithInt:numOfPages] forKey:@"pageCount"];
-    [self.proxy fireEvent:@"pageCountChanged" withObject:event propagate:NO];
+          NSMutableDictionary *event = [NSMutableDictionary dictionary];
+          [event setObject:[NSNumber numberWithInt:(numOfPages+1)] forKey:@"pageCount"];
+          [self.proxy fireEvent:@"pageCountChanged" withObject:event propagate:NO];
   }
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+   // numberOfPages = numOfPages;
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self updatePagerWithContentOffset:launcher.contentOffset];
     });
 }
@@ -1118,27 +1374,26 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     UIView *senderButton = (UIButton*) sender;
 
     NSIndexPath *indexPath = [launcher indexPathForCell: (UICollectionViewCell *)[[[senderButton superview] superview] superview]];
-   // [self.dataSource[0] removeObjectAtIndex:indexPath.item];
     inDeletingItem = YES;
     deletedItemId = (int)senderButton.tag;
-
-//    [launcher deleteItemAtIndexPath:(NSIndexPath *)indexPath];
-
     [self deleteItemAtIndex:(int)indexPath.item];
-    
-//    [cellData removeObjectAtIndex:senderButton.tag];
-
-//    [[self proxy] replaceValue:cellData forKey:@"data" notification:NO];
-   
-    
 }
 
 - (void)setScrollIndicatorInsets_:(id)value withObject:(id)props
 {
-  UIEdgeInsets insets = [TiUtils contentInsets:value];
-  BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+  insetsScroll = [TiUtils contentInsets:value];
+    
+  BOOL animated = NO;
+    
+  if (props != nil){
+      animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+  }
+    
+  
   void (^setInset)(void) = ^{
-    [launcher setScrollIndicatorInsets:insets];
+      if (launcher != nil){
+          [launcher setScrollIndicatorInsets:insetsScroll];
+      }
   };
   if (animated) {
     double duration = [TiUtils doubleValue:@"duration" properties:props def:300] / 1000;
@@ -1150,24 +1405,159 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 
-- (void)setContentInsets_:(id)value withObject:(id)props
+
+
+- (void)scrollToItemAtIndex:(id)args
 {
-  UIEdgeInsets insets = [TiUtils contentInsets:value];
-  BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
-  void (^setInset)(void) = ^{
-    [launcher setContentInset:insets];
-  };
-  if (animated) {
-    double duration = [TiUtils doubleValue:@"duration" properties:props def:300] / 1000;
-    [UIView animateWithDuration:duration animations:setInset];
+        ENSURE_ARG_COUNT(args, 2);
+        NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
+        NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
+        UICollectionViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:properties def:UICollectionViewScrollPositionBottom];
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        //TiThreadPerformOnMainThread(^{
+            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:0];
+            [launcher scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
+        //}, [NSThread isMainThread]);
+}
+
+- (void)setContentInsets:(id)args
+{
+    contentInsetsArgs = args;
+    [self setContentInsets_:args];
+}
+
+
+- (void)setContentInsets_:(id)args
+{
+  ENSURE_UI_THREAD(setContentInsets_, args);
+  contentInsetsArgs = args;
+  id arg1;
+  id arg2;
+  if ([args isKindOfClass:[NSDictionary class]]) {
+    arg1 = args;
+    arg2 = [NSDictionary dictionary];
   } else {
-    setInset();
+    arg1 = [args objectAtIndex:0];
+    arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
   }
+  [self setContentInset:arg1 withObject:arg2];
 }
 
 
 
--(void)isertItemAtIndex:(int)index item:(DeMarcbenderSortablegridItemViewProxy *)object
+-(void)setContentInset:(id)value withObject:(id)props
+{
+
+    insets = [TiUtils contentInsets:value];
+    
+    if (insets.left > 0 && launcher.contentInset.left > 0){
+        insets.left = (insets.left > launcher.contentInset.left) ? insets.left : launcher.contentInset.left;
+    }
+    else {
+        if (insets.left > 0){
+            insets.left = (insets.left > (horizontalSpacing/2)) ? insets.left : (horizontalSpacing/2);
+        }
+        else {
+            insets.left = launcher.contentInset.left;
+        }
+    }
+    if (insets.right > 0 && launcher.contentInset.right > 0){
+        insets.right = (insets.right > launcher.contentInset.right) ? insets.right : launcher.contentInset.right;
+    }
+    else {
+        if (insets.right > 0){
+            insets.right = (insets.right > (horizontalSpacing/2)) ? insets.right : (horizontalSpacing/2);
+        }
+        else {
+            insets.right = launcher.contentInset.right;
+        }
+    }
+
+   // self.contentInsets = value;
+    
+    int newoffset = [TiUtils intValue:@"newoffset" properties:props def:0];
+
+    int safeArea = [TiUtils intValue:@"safearea" properties:props def:0];
+
+    BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+    BOOL nobottom = [TiUtils boolValue:@"nobottom" properties:props def:NO];
+    BOOL noOffset = [TiUtils boolValue:@"noOffset" properties:props def:NO];
+
+    
+    void (^setInset)(void) = ^{
+                
+        CGFloat topInset = insets.top + (verticalSpacing/2);
+        CGFloat bottomInset = insets.bottom + (verticalSpacing/2);
+        CGFloat leftInset = insets.left;
+        CGFloat rightInset = insets.right;
+
+        if (launcher != nil){
+            [[self launcher] setContentInset:insets];
+            [[self launcher] setScrollIndicatorInsets:insetsScroll];
+        }
+        
+        NSMutableDictionary *contentDictionary = [[NSMutableDictionary alloc]init];
+        [contentDictionary setValue:[NSNumber numberWithFloat:topInset] forKey:@"top"];
+        [contentDictionary setValue:[NSNumber numberWithFloat:bottomInset] forKey:@"bottom"];
+        [contentDictionary setValue:[NSNumber numberWithFloat:leftInset] forKey:@"left"];
+        [contentDictionary setValue:[NSNumber numberWithFloat:rightInset] forKey:@"right"];
+        
+        
+        [self.proxy replaceValue:contentDictionary
+                    forKey:@"contentInsets"
+              notification:NO];
+        
+        if (noOffset == NO){
+            if (nobottom == NO){
+                
+               // TiThreadPerformOnMainThread(^{
+
+                    CGSize svContentSize = [self launcher].contentSize;
+                    CGSize svBoundSize = [self launcher].bounds.size;
+                    CGFloat svBottomInsets = [self launcher].contentInset.bottom;
+                    CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets + safeArea;
+                    CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
+                    CGPoint newOffset = CGPointMake(launcher.contentOffset.x, bottomHeight);
+                  //  NSLog(@"[ERROR] setContentInset  ");
+                    if (launcher != nil){
+                        [[self launcher] setContentOffset:newOffset];
+                    }
+              //  }, [NSThread isMainThread]);
+
+            }
+            if (newoffset != 0){
+              //  TiThreadPerformOnMainThread(^{
+                    CGSize svContentSize = [self launcher].contentSize;
+                    CGSize svBoundSize = [self launcher].bounds.size;
+                    CGFloat svBottomInsets = [self launcher].contentInset.bottom;
+                    CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets + safeArea;
+                    CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
+
+                    CGPoint newOffset = CGPointMake(launcher.contentOffset.x, newoffset);
+                    if (launcher != nil){
+                        [[self launcher] setContentOffset:newOffset];
+                    }
+               // }, [NSThread isMainThread]);
+
+            }
+        }
+
+    };
+    if (animated) {
+        double duration = [TiUtils doubleValue:@"duration" properties:props def:180]/1000;
+        [UIView animateWithDuration:duration animations:setInset];
+    }
+    else {
+        setInset();
+    }
+}
+
+
+
+
+
+
+-(void)isertItemAtIndex:(int)index item:(DeMarcbenderSortablegridItemProxy *)object
 {
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
     
@@ -1176,12 +1566,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 }
 
 
--(void)deleteItemAtIndex:(int)index
+-(void)deleteItemAtIndex:(NSInteger)index
 {
-    
-    
-   // [launcher performBatchUpdates:^{
-        
     
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
     NSMutableArray *array = [self.dataSource mutableCopy];
@@ -1189,16 +1575,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     self.dataSource = [array mutableCopy];
     [launcher deleteItemsAtIndexPaths:@[indexPath]];
     
-    
-    
-   // if (inDeletingItem == YES) {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSMutableArray *tempCellData = [NSMutableArray array];
 
 
          for (int index = 0; index < [self.dataSource[0] count] ; index++) {
              NSIndexPath *thisIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
-             DeMarcbenderSortablegridItemViewProxy *thisProxy = (DeMarcbenderSortablegridItemViewProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
+             DeMarcbenderSortablegridItemProxy *thisProxy = (DeMarcbenderSortablegridItemProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
              [thisProxy replaceValue:[NSNumber numberWithInt:index] forKey:@"position" notification:NO];
              [self.proxy rememberProxy:thisProxy];
 
@@ -1213,29 +1595,6 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
                 @"itemId": [NSNumber numberWithInt:(int)indexPath.item]
             }];
         }
-    });
-    
-
-    //    inDeletingItem = NO;
-    //    deletedItemId = -1;
-   // }
-    
-    
- //   } completion:^(BOOL finished) {
-    
-        /*
-    [UIView performWithoutAnimation: ^ {
-            if (editing == YES && _wobble == YES){
-                [launcher.visibleCells makeObjectsPerformSelector:@selector(stopWobble)];
-            }
-            [launcher reloadItemsAtIndexPaths:[launcher indexPathsForVisibleItems]];
-            
-        }];
-         */
- //   }];
-  //  if (editing == YES && _wobble == YES){
-  //      [launcher.visibleCells makeObjectsPerformSelector:@selector(wobble)];
-  //  }
 
 }
 
@@ -1255,14 +1614,16 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
     BMDragCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+
     cell.translatesAutoresizingMaskIntoConstraints = NO;
-    [[cell contentView] setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-    
+
     NSInteger id = [TiUtils intValue:_dataSource[indexPath.section][indexPath.item][@"id"]];
     cell.cellId = id;
-    cell.columnCount = columnCount;
-    [(UIButton *)_dataSource[indexPath.section][indexPath.item][@"closebutton"] setTag:id];
+    cell.columnCount = [self numberOfColumns];
     
+    
+    BOOL canBeDeleted = [TiUtils boolValue:_dataSource[indexPath.section][indexPath.item][@"canBeDeleted"]];
+    BOOL canBeMoved = [TiUtils boolValue:_dataSource[indexPath.section][indexPath.item][@"canBeMoved"]];
 
     if ([cell contentView].subviews.count > 0){
         NSArray *viewsToRemove = [cell contentView].subviews;
@@ -1270,10 +1631,15 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             [v removeFromSuperview];
         }
     }
+    [cell contentView].frame = cell.bounds;
 
-    [[cell contentView] addSubview:(UIView *)_dataSource[indexPath.section][indexPath.item][@"cellview"]];
-    [cell contentView].subviews.firstObject.frame = cell.bounds;
+    UIView *content = (UIView *)_dataSource[indexPath.section][indexPath.item][@"cellview"];
+    
+    [[cell contentView] addSubview:content];
 
+    cell.canBeDeleted = canBeDeleted;
+    cell.canBeMoved = canBeMoved;
+    
     return cell;
 }
 
@@ -1289,7 +1655,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
         NSMutableArray *tempCellData = [NSMutableArray array];
         for (int index = 0; index < [self.dataSource[0] count] ; index++) {
              NSIndexPath *thisIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
-             DeMarcbenderSortablegridItemViewProxy *thisProxy = (DeMarcbenderSortablegridItemViewProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
+             DeMarcbenderSortablegridItemProxy *thisProxy = (DeMarcbenderSortablegridItemProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
              [thisProxy replaceValue:[NSNumber numberWithInt:index] forKey:@"position" notification:NO];
              [self.proxy rememberProxy:thisProxy];
 
@@ -1301,17 +1667,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 -(void)dragCellCollectionViewDidEndDrag:(BMDragCellCollectionView *)dragCellCollectionView {
-    //dispatch_async(dispatch_get_main_queue(), ^{
-
-  //  TiThreadPerformOnMainThread(
-  //   ^{
-        // [cellData removeAllObjects];
         NSMutableArray *tempCellData = [NSMutableArray array];
 
     
          for (int index = 0; index < [self.dataSource[0] count] ; index++) {
              NSIndexPath *thisIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
-             DeMarcbenderSortablegridItemViewProxy *thisProxy = (DeMarcbenderSortablegridItemViewProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
+             DeMarcbenderSortablegridItemProxy *thisProxy = (DeMarcbenderSortablegridItemProxy*)self.dataSource[0][thisIndexPath.item][@"cellItemProxy"];
              [thisProxy replaceValue:[NSNumber numberWithInt:index] forKey:@"position" notification:NO];
              [self.proxy rememberProxy:thisProxy];
 
@@ -1324,17 +1685,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
          if ([self.proxy _hasListeners:@"itemsReordered"]) {
              [[self proxy] fireEvent:@"itemsReordered" withObject:nil];
          }
-
-  //   },NO);
-   // [launcher reloadData];
-
-   // });
 }
 
 
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-
+    
     CGSize cellSizeForItem = [self.dataSource[indexPath.section][indexPath.item][@"size"] CGSizeValue];
     
     return cellSizeForItem;
@@ -1394,6 +1750,16 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     CGFloat ratio = (CGFloat)(arc4random() % 10)/10;
     return ratio;
 }
+
+
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+}
+
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
@@ -1464,30 +1830,88 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 
+-(void)scrollToBottom:(id)props
+{
+    /*
+     * Calculate the bottom height & width and, sets the offset from the
+     * content view’s origin that corresponds to the receiver’s origin.
+     */
+    
+    BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+
+    
+    [UIView performWithoutAnimation:^{
+        CGSize svContentSize = [self launcher].contentSize;
+        CGSize svBoundSize = [self launcher].bounds.size;
+        CGFloat svBottomInsets = [self launcher].contentInset.bottom;
+        
+        CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets + 34;
+        CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
+        
+        CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
+        [[self launcher] setContentOffset:newOffset animated:NO];
+    }];
+}
+
+
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
+
 }
 
 
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-
-
+    if (!decelerate) {
+        if ([self isLazyLoadingEnabled]) {
+            [[ImageLoader sharedLoader] resume];
+        }
+    }
 }
 
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self updatePagerWithContentOffset:launcher.contentOffset];
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+
+    if (pagerEnabled == YES){
+        [self updatePagerWithContentOffset:launcher.contentOffset];
+    }
+    [self fireScrollEvent:launcher];
 }
+
+
+
+- (NSDictionary *)eventObjectForScrollView:(UIScrollView *)scrollView
+{
+  return [NSDictionary dictionaryWithObjectsAndKeys:
+                       [TiUtils pointToDictionary:scrollView.contentOffset], @"contentOffset",
+                       [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+                       nil];
+}
+
+- (void)fireScrollEvent:(UIScrollView *)scrollView
+{
+
+  if ([self.proxy _hasListeners:@"scroll"]) {
+
+    [self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollView:scrollView]];
+  }
+}
+
+
+
 
 - (void)pageChanged
 {
-    
-    
-    if (pagingEnabled == YES){
-        
         
         if (scrollDirection == mkScrollHorizontal){
             float pageWidth = launcher.frame.size.width; // width + space
@@ -1537,13 +1961,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             
             [launcher setContentOffset:CGPointMake(launcher.contentOffset.x, newTargetOffset) animated:NO];
         }
-        
-        
-    }
-    if ([self respondsToSelector:@selector(didChangePage:)]) {
-          [self didChangePage:[NSNumber numberWithInteger:pager.currentPage]];
-    }
 
+        if ([self respondsToSelector:@selector(didChangePage:)]) {
+            if (pager != nil){
+                [self didChangePage:[NSNumber numberWithInteger:pager.currentPage]];
+            }
+        }
 }
 
 
@@ -1698,6 +2121,25 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary  *)change context:(void *)context
+{
+    if (pagerFollowsBottomInset == YES && pagerEnabled == YES){
+        if (oldContentInsetBottomForPager != (launcher.contentInset.bottom-25)){
+            
+            if (self.frame.origin.y < 0 && launcher.contentInset.top > 0){
+                CGFloat diff = self.frame.origin.y;
+                diff = (0 - diff);
+                pager.frame = CGRectMake(0,self.bounds.origin.y + self.frame.size.height - bottomSafeAreaPadding - launcher.contentInset.bottom - 25, self.bounds.size.width, 25);
+                oldContentInsetBottomForPager = launcher.contentInset.bottom-25;
+            }
+            else {
+                pager.frame = CGRectMake(0, self.bounds.size.height - launcher.contentInset.bottom - 25, self.bounds.size.width, 25);
+                oldContentInsetBottomForPager = launcher.contentInset.bottom-25;
+            }
+            
+        }
+    }
+}
 
 
 /*

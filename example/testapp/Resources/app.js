@@ -22,7 +22,7 @@ var isEditable = false;
 function generateRandomInteger(min, max) {
 	return Math.floor(min + Math.random()*(max - min))
   }
-  
+
 
 function createRemoveButtonImage(){
 	var removeImageButtonContainer = Ti.UI.createView({
@@ -74,7 +74,7 @@ function createBadgeImage(){
 
 
 function createRemoveButton(parent){
-		
+
 	var removeButtonContainer = Ti.UI.createView({
 		parentCell:(parent) ? parent : undefined,
 		width: 30,
@@ -102,14 +102,14 @@ function createRemoveButton(parent){
 			removeImageButton.opacity = 0.8;
 			removeImageButton.color = 'red';
 		});
-	
+
 		removeButtonContainer.addEventListener('touchend', function(e){
-			removeImageButton.opacity = 1.0;		
-			removeImageButton.color = 'rgba(63, 69, 81)';	
+			removeImageButton.opacity = 1.0;
+			removeImageButton.color = 'rgba(63, 69, 81)';
 		});
-	
+
 		removeButtonContainer.addEventListener('touchcancel', function(e){
-			removeImageButton.opacity = 1.0;		
+			removeImageButton.opacity = 1.0;
 			removeImageButton.color = 'rgba(63, 69, 81)';
 		});
 	}
@@ -153,39 +153,42 @@ var lbl = Ti.UI.createLabel({
 
 
 
-   
+
 var deleteButtonImage = createRemoveButton().toImage(null,true);
 
 
 
 gridView = sortableGridModule.createView({
-	// height:Ti.UI.FILL,
-	// width:Ti.UI.FILL,
-	top:50,
+	top:100,
 	bottom:100,
 	left:0,
 	right:0,
+	height:Ti.UI.FILL,
+	width:Ti.UI.FILL,
+	lazyLoadingEnabled:true, // disables image loader when scrolling, enables when scrolling done
+	contentInsets:{top: 10, bottom:0, left:10,right:10},
+	scrollIndicatorInsets:{top: 0, bottom:10,left:0,right:0},
 	columnCount:3,
 	rowCount:5, // Android only
-	wobble:true,
+	wobble:true, // wobble animation in edit mode
+	minHorizontalSpacing:10,
+	minVerticalSpacing:10,
+	showDeleteButton:true,
 	deleteButtonImage:deleteButtonImage,
-	badgeViewImage:badgeImage,
-	columnWidth:0, // if 0 or not set, columnWidth is calculated by sortableView.width and columnsCount -- if smaller than max possible width (of sortableView.width) the cells are centered in the view, if larger than possible the cells will be resized based on spacings and columnsCount
-	minHorizontalSpacing:0,
-	minVerticalSpacing:0,
-	showDeleteButton:false,
-	itemsBadgeEnabled:true,
+	itemsBadgeEnabled:false,
 	waterFallLayout:true,
-	pagingEnabled:true,
-	pagerEnabled:true,
+	pagingEnabled:true, // scroll will do paging instead of normal scrolling
+	pagerEnabled:true, // display page indicator
+	pagerFollowsBottomInset:false, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
 	pageIndicatorTintColor:'#dddddd',
 	currentPageIndicatorTintColor:'red',
-	showVerticalScrollIndicator: false,
-	showHorizontalScrollIndicator: false,
+	showVerticalScrollIndicator: true,
+	showHorizontalScrollIndicator: true,
 	scrollType:'horizontal',
-	disableBounce:false,
-	backgroundColor:'#cdcdcd'
-})
+	disableBounce:false, // disable bouncing of gridview
+	backgroundColor:'#cdcdcd',
+	//data:[]
+});
 
 
 
@@ -196,77 +199,90 @@ function createGridDashBoardViews(size){
 	for (var i = 0; i < size; i++){
 		if (!isAndroid){
 
-	   var v = sortableGridModule.createItemView({
-			id:(i+1),
-		//    height:Ti.UI.FILL,
-		//    width:Ti.UI.FILL,
-		  // opacity:0.5,
-		  top:0,
-			bottom:0,
-			left:0,
-			right:0,
-			height:generateRandomInteger(120,120),
-			width:generateRandomInteger(120,120),
- 
-		  borderRadius: 0,
-		  borderWith:4,
-		  borderColor:'#11000000',
-		  badge:true,
-		  badgeValue:generateRandomInteger(0,200),
-		 // badgeTintColor:getRandomColor(),
-		  badgeTintColor:'#ccd3413d',
-		  badgeImage:createBadgeImage(),
-		  backgroundColor:getRandomColor(),
-		//   viewShadowColor: '#000000',
-		//   viewShadowOffset: {
-		//        x: 0,
-		//        y: 0
-		//    },
-		//    viewShadowRadius: 4,
+	   var v = sortableGridModule.createItem({
+			id:(i+1), // usefull,but not needed, if you will do something with the gridView.data, to identify your item view, the gridView will automaticly add a 'position' property the the item, that reflects the item positon in the gridView, updated each time you move, add, delete an item
+			height:generateRandomInteger(120,190),
+			width:generateRandomInteger(120,250), // a fixed height will be used as long it is smaller then the max possible width defined by (gridView.width / columnsCount), if width is set larger than that, Ti.UI.FILL will be set for the item width!!!
+			//width:Ti.UI.FILL,
+			// left:10, // align item left, if not set, the item is centered in the gridCell
+		  	// right:10, // align item right, if not set, the item is centered in the gridCell
+		  	bottom:10, // has no effect, will not be used, use subcontainer for this
+		  	top:10, // has no effect, will not be used, use subcontainer for this
+			center:{x:'50%',y:'50%'}, // has no effect, will not be used, use subcontainer for this
+			borderRadius: 6,
+			borderWith:4,
+			borderColor:'#11000000',
+			badge:true, // if item has a badge
+			badgeValue:generateRandomInteger(0,200), // badge value that will be shown, if 0, badge is not visible
+			canBeDeleted:false, // if item can be deleted by the user
+			canBeMoved:true, // it the item can be moved by the user, item will be moved anyway if other items that can be moved will change position
+			badgeTintColor:'#ccd3413d', // badge backgroundColor
+			backgroundColor:getRandomColor(),
+
+			viewShadowColor: '#000000', // viewShadow has no effect, use subcontainer views to archive this... see here in example -> contentContainerView
+		  	viewShadowOffset: {
+			   x: 2,
+			   y: 2
+		   	}, // viewShadow has no effect, use subcontainer views to archive this
+		   	viewShadowRadius: 4 // viewShadow has no effect, use subcontainer views to archive this
 	   });
 
 	   v.addEventListener("click",function(e){
-		console.log("this.position:"+(this.position+1));
-			//gridView.deleteItemAtIndex({index:this.position});
+			 	console.log("this.position:"+(this.position+1));
+				//gridView.deleteItemAtIndex({index:this.position});
 	   });
 	   v.addEventListener('touchstart', function(e){
-		this.opacity = 0.7;
-	  });
-	
+			 this.opacity = 0.7;
+	   });
+
 	  v.addEventListener('touchend', function(e){
-		this.opacity = 1.0;
+			this.opacity = 1.0;
 	  });
-	
+
 	  v.addEventListener('touchcancel', function(e){
-		this.opacity = 1.0;                 
+			this.opacity = 1.0;
 	  });
-	
+
 	}
 	else {
 		var v = Ti.UI.createView({
 			id:(i+1),
-		//    height:Ti.UI.FILL,
-		//    width:Ti.UI.FILL,
-		  // opacity:0.5,
-		   height:generateRandomInteger(120,220),
-		   width:generateRandomInteger(120,180),
+		  height:generateRandomInteger(120,220),
+		  width:generateRandomInteger(120,180),
 			top:0,
 			left:0,
 			right:0,
 			bottom:0,
-		//  borderRadius: 14,
-		 // borderWith:1,
-		 // borderColor:'#ccffffff',
-		  //badge:1,
 		  backgroundColor:getRandomColor()
 	   });
 
 	}
-	   v.add(Ti.UI.createLabel({
+
+	var contentContainerView = Ti.UI.createView({
+		left:10,
+		right:10,
+		top:10,
+		bottom:10,
+		width:Ti.UI.SIZE,
+		height:Ti.UI.SIZE,
+		backgroundColor:getRandomColor(),
+		viewShadowColor: '#000000',
+		  	viewShadowOffset: {
+			   x: 2,
+			   y: 2
+		   	},
+		   	viewShadowRadius: 4
+	});
+
+	contentContainerView.add(Ti.UI.createLabel({
 		  text: 'Cell ' + (i+1),
 		  color: '#ffffff',
-		  width:Ti.UI.SIZE,
-		  height:Ti.UI.SIZE,
+		  width:Ti.UI.FILL,
+		  height:Ti.UI.FILL,
+		  left:30,
+		  right:30,
+		  bottom:30,
+		  top:30,
 		  textAlign:Ti.UI.TEXT_ALIGNMENT_CENTER,
 		  font: {
 			  fontFamily : 'Arial',
@@ -279,30 +295,15 @@ function createGridDashBoardViews(size){
 			  x: 1,
 			  y: 1
 		  },
-		  //backgroundColor:getRandomColor()
+		  backgroundColor:getRandomColor()
 		}));
+		v.add(contentContainerView);
 
 		if (!isAndroid){
-			// var item = sortableGridModule.createItem({
-			// 			//height:Ti.UI.FILL,
-			// 			//width:Ti.UI.FILL,
-			// 			borderRadius: 8,
-			// 			backgroundColor:getRandomColor(),
-			// 			badge:1,
-			// });
-			// item.add(v);	
-			sortableViewData.push(v);	
-		
+			sortableViewData.push(v);
 		}
 		else {
-			// var removeButton = createRemoveButton(v);
-
-			// removeButton.addEventListener("click",function(e){
-			// 	gridView.deleteItem(this.parentCell.id);
-			// });
-			// v.add(removeButton);
-			sortableViewData.push(v);	
-
+			sortableViewData.push(v);
 		}
 
 	}
@@ -377,37 +378,24 @@ gridView.data = gridCells;
   });
 
   editButton.addEventListener('touchcancel', function(e){
-	this.opacity = 1.0;                 
+	this.opacity = 1.0;
   });
 
  function addItemAtIndex(index){
-	var v = sortableGridModule.createItemView({
+	var v = sortableGridModule.createItem({
 		id:(index+1),
-	//    height:Ti.UI.FILL,
-	//    width:Ti.UI.FILL,
-	  // opacity:0.5,
-	  top:0,
-		bottom:0,
-		left:0,
-		right:0,
 		height:generateRandomInteger(120,210),
-		width:generateRandomInteger(120,120),
-
+//		width:generateRandomInteger(120,120),
+		width:Ti.UI.FILL,
+		canBeDeleted:true,
+		canBeMoved:true,
 	  borderRadius: 0,
 	  borderWith:4,
 	  borderColor:'#11000000',
 	  badge:true,
 	  badgeValue:generateRandomInteger(0,200),
-	 // badgeTintColor:getRandomColor(),
 	  badgeTintColor:'#ccd3413d',
-	  badgeImage:createBadgeImage(),
-	  backgroundColor:getRandomColor(),
-	//   viewShadowColor: '#000000',
-	//   viewShadowOffset: {
-	// 	   x: 0,
-	// 	   y: 0
-	//    },
-	//    viewShadowRadius: 4,
+	  backgroundColor:getRandomColor()
    });
 
 	v.addEventListener("click",function(e){
@@ -418,15 +406,15 @@ gridView.data = gridCells;
 	v.addEventListener('touchstart', function(e){
 		this.opacity = 0.7;
 	  });
-	
+
 	  v.addEventListener('touchend', function(e){
 		this.opacity = 1.0;
 	  });
-	
+
 	  v.addEventListener('touchcancel', function(e){
-		this.opacity = 1.0;                 
+		this.opacity = 1.0;
 	  });
-	
+
 
 	  v.add(Ti.UI.createLabel({
 		text: 'Cell ' + (index+1),
@@ -453,14 +441,6 @@ gridView.data = gridCells;
 
 
 
-
-
-
-
-
-
-
-
  var addBadgeValue = Ti.UI.createView({
 	bottom:30,
 	height:40,
@@ -481,7 +461,7 @@ gridView.data = gridCells;
   });
 
   addBadgeValue.addEventListener('touchcancel', function(e){
-	this.opacity = 1.0;                 
+	this.opacity = 1.0;
   });
 
 
@@ -490,7 +470,7 @@ gridView.data = gridCells;
 
 	var newItem = addItemAtIndex((gridView.data.length));
 	gridView.insertItemAtIndex({item:newItem,index:generateRandomInteger(0,gridView.data.length)});
-	
+
 
  });
 
@@ -502,8 +482,8 @@ gridView.data = gridCells;
 	  } else {
 		isEditable = true;
 
-		gridView.showDeleteButton = !(gridView.showDeleteButton);
-		gridView.itemsBadgeEnabled = !(gridView.itemsBadgeEnabled);
+		//gridView.showDeleteButton = !(gridView.showDeleteButton);
+		//gridView.itemsBadgeEnabled = !(gridView.itemsBadgeEnabled);
 
 		gridView.startEditing();
 	}
@@ -517,7 +497,7 @@ editButton.addEventListener('touchstart', function(e){
   });
 
   editButton.addEventListener('touchcancel', function(e){
-	this.opacity = 1.0;                 
+	this.opacity = 1.0;
   });
 
 
@@ -532,8 +512,6 @@ var setNewData = Ti.UI.createView({
 	backgroundColor:getRandomColor()
  });
  setNewData.addEventListener("click",function(e){
-//	gridCells = null;
-	//gridCells = createGridDashBoardViews(generateRandomInteger(10,120));
 
 	console.log("gridView.data length" + gridView.data.length);
 	console.log("gridCells length" + gridCells.length);
@@ -549,8 +527,8 @@ var setNewData = Ti.UI.createView({
 	});
 
 	setTimeout(function() {
-		gridView.data = gridCells;           
-	},2000);
+		gridView.data = gridCells;
+	},1000);
 
 
  });
@@ -566,4 +544,3 @@ win.add(addBadgeValue);
 win.add(setNewData);
 
 win.open();
-//gridView.initData();

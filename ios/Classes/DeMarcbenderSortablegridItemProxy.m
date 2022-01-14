@@ -5,14 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "DeMarcbenderSortablegridItemViewProxy.h"
+#import "DeMarcbenderSortablegridItemProxy.h"
 #import "DeMarcbenderSortablegridView.h"
 
 #import <TitaniumKit/TiUtils.h>
 #import "TiColor.h"
 #import "TiRect.h"
 
-@implementation DeMarcbenderSortablegridItemViewProxy
+@implementation DeMarcbenderSortablegridItemProxy
 
 - (id)init
 {
@@ -40,11 +40,46 @@
   return @"de.marcbender.sortablegridItem";
 }
 
+
+- (void)setViewShadowColor:(id)value
+{
+    [self replaceValue:nil forKey:@"viewShadowColor" notification:NO];
+}
+
+- (void)setViewShadowOffset:(id)value
+{
+    [self replaceValue:nil forKey:@"viewShadowOffset" notification:NO];
+}
+
+- (void)setViewShadowRadius:(id)value
+{
+    [self replaceValue:nil forKey:@"viewShadowRadius" notification:NO];
+}
+
+- (void)setCenter:(id)value
+{
+    [self replaceValue:nil forKey:@"center" notification:NO];
+}
+
+- (void)setTop:(id)value
+{
+   [self replaceValue:nil forKey:@"top" notification:NO];
+}
+
+- (void)setBottom:(id)value
+{
+  [self replaceValue:nil forKey:@"bottom" notification:NO];
+}
+
+
 - (void)setBadgeValue:(id)value
 {
     NSInteger badgeValue = [TiUtils intValue:value];
     badgevalue = badgeValue;
+    BOOL hasBadge = [TiUtils boolValue:[self valueForUndefinedKey:@"badge"] def:NO];
 
+    
+    
     if (badgeButton != nil){
         NSString *title = [NSString stringWithFormat:@"%ld", (long)badgeValue];
         if (badgeValue > 99) {
@@ -66,14 +101,12 @@
             }
         }
         [badgeButton setTitle:NSLocalizedString(title, title) forState:UIControlStateNormal];
-        if (badgeValue <= 0){
-            badgeButton.hidden = YES;
-        }
-        else {
+        if (badgeValue > 0 && hasBadge==YES){
             badgeButton.hidden = NO;
         }
         badgevalue = badgeValue;
     }
+     
     
 }
 
@@ -92,32 +125,6 @@
 {
     [self setBadgeValue:value];
 }
-
-
--(UIImage *)image:(UIImage*)image withMaskWithColor:(UIColor *)color
-{
-    CGImageRef maskImage = image.CGImage;
-    CGFloat width = image.size.width;
-    CGFloat height = image.size.height;
-    CGRect bounds = CGRectMake(0,0,width,height);
-
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, width, height, 8, 0, colorSpace, kCGImageAlphaPremultipliedLast);
-    CGContextClipToMask(bitmapContext, bounds, maskImage);
-    CGContextSetFillColorWithColor(bitmapContext, color.CGColor);
-    CGContextFillRect(bitmapContext, bounds);
-
-    CGImageRef cImage = CGBitmapContextCreateImage(bitmapContext);
-    UIImage *coloredImage = [UIImage imageWithCGImage:cImage];
-
-    CGContextRelease(bitmapContext);
-    CGColorSpaceRelease(colorSpace);
-    CGImageRelease(cImage);
-
-    return coloredImage;
-}
-
-
 
 @end
 

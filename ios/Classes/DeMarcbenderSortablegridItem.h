@@ -6,11 +6,14 @@
  */
 
 #import <TitaniumKit/TiUIView.h>
+#import "TiViewProxy.h"
 #import "TiUIViewProxy.h"
+#import "DeMarcbenderSortablegridItemProxy.h"
 
-@interface DeMarcbenderSortablegridItemView : TiUIView {
+@interface DeMarcbenderSortablegridItem : TiUIView {
 
 }
+@property (nonatomic, assign) UIView *contentView;
 
 @end
 

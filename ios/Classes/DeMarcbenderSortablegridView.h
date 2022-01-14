@@ -4,32 +4,21 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiUIViewProxy.h>
 #import <TitaniumKit/TiUIView.h>
 #import "BMDragCellCollectionView.h"
 #import "BMDragCollectionViewCell.h"
 #import "XHWaterfallFlowLayout.h"
-#import "DeMarcbenderSortablegridItemViewProxy.h"
-#import <UIKit/UIGestureRecognizerSubclass.h>
+#import "DeMarcbenderSortablegridViewProxy.h"
+#import "DeMarcbenderSortablegridItemProxy.h"
 
 
-typedef enum {
-    DirectionPangestureRecognizerVertical,
-    DirectionPanGestureRecognizerHorizontal
-} DirectionPangestureRecognizerDirection;
-
-@interface DirectionPanGestureRecognizer : UIPanGestureRecognizer {
-    BOOL _drag;
-    int _moveX;
-    int _moveY;
-    DirectionPangestureRecognizerDirection _direction;
-}
-
-@property (nonatomic, assign) DirectionPangestureRecognizerDirection direction;
-
-@end
-
-@interface DeMarcbenderSortablegridView : TiUIView <XHWaterfallFlowLayoutDelegate, UIScrollViewDelegate, BMDragCellCollectionViewDelegate,BMDragCollectionViewDataSource> {
+@interface DeMarcbenderSortablegridView : TiUIView <LayoutAutosizing, XHWaterfallFlowLayoutDelegate, UIScrollViewDelegate, BMDragCellCollectionViewDelegate,BMDragCollectionViewDataSource> {
+    CGFloat bottomSafeAreaPadding;
+    CGFloat topSafeAreaPadding;
+    UIWindow *window;
+    CGFloat oldContentInsetBottomForPager;
   UIImage *deleteButtonImage;
   UIImage *badgeImage;
   CGFloat previousOffset;
@@ -40,6 +29,8 @@ typedef enum {
   CGFloat horizontalSpacing;
   CGFloat verticalSpacing;
   UIScrollView *scrollView;
+  BOOL pagerFollowsBottomInset;
+  BOOL observerAdded;
   BOOL showDeleteButton;
   BOOL showVerticalScrollIndicator;
   BOOL showHorizontalScrollIndicator;
@@ -53,6 +44,7 @@ typedef enum {
   UIPageControl *pager;
   NSInteger numberOfPages;
   NSInteger currentPage;
+  NSInteger oldPage;
   int realCurrentPage;
   ScrollDirection scrollDirection;
   NSMutableArray *cellData;
@@ -63,11 +55,16 @@ typedef enum {
   BMDragCellCollectionView *launcher;
   XHWaterfallFlowLayout *waterfallLayout;
   UIScrollView *hiddenScrollView;
+  UIEdgeInsets insets;
+  UIEdgeInsets insetsScroll;
+  id contentInsetsArgs;
 }
 @property (strong, nonatomic) NSMutableArray *dataSource;
 @property (nonatomic, assign) UICollectionViewScrollDirection collectionViewScrollDirection;
 @property (strong, nonatomic) NSMutableArray *dataSourceArray;
+@property (nonatomic, assign) UICollectionView *collectionView;
 
+@property (nonatomic, assign) CGFloat columnsCount;
 
 @property (nonatomic, assign) CGFloat leftInset;
 @property (nonatomic, assign) CGFloat rightInset;
@@ -83,8 +80,12 @@ typedef enum {
 @property (nonatomic, assign) UIEdgeInsets sectionInset;
 
 - (BMDragCellCollectionView *)launcher;
-- (void)deleteItemAtIndex:(int)index;
-- (void)addItem:(DeMarcbenderSortablegridItemViewProxy*)item atIndex:(int)index;
+- (void)deleteItemAtIndex:(NSInteger)index;
+- (void)addItem:(DeMarcbenderSortablegridItemProxy*)item atIndex:(NSInteger)index;
+- (void)scrollToItemAtIndex:(id)args;
+-(void)setContentInset:(id)value withObject:(id)props;
+- (void)setContentInsets:(id)args;
+-(void)scrollToBottom:(id)props;
 - (void)startEditing;
 - (void)stopEditing;
 - (void)initData;
@@ -96,7 +97,7 @@ typedef enum {
 -(void)setCurrentPageOfLauncher:(int)newPage;
 - (id)dataStore;
 
-- (UIImage *)badgeButtonImage;
+//- (UIImage *)badgeButtonImage;
 
 @end
 

@@ -28,24 +28,18 @@
 		24DE9E1211C5FE74003F90F6 /* DeMarcbenderSortablegridModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* DeMarcbenderSortablegridModuleAssets.m */; };
 		2C07CD1F2769654A0002D8F0 /* BMDragCellCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C07CD1D2769654A0002D8F0 /* BMDragCellCollectionView.m */; };
 		2C07CD202769654A0002D8F0 /* BMDragCellCollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C07CD1E2769654A0002D8F0 /* BMDragCellCollectionView.h */; };
-		2C07CD2D27697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C07CD2927697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.h */; };
-		2C07CD2E27697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C07CD2A27697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.m */; };
-		2C07CD2F27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C07CD2B27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.m */; };
-		2C07CD3027697F2E0002D8F0 /* ARCollectionViewMasonryLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C07CD2C27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.h */; };
 		2C07CD33276982C20002D8F0 /* BMDragCollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C07CD31276982C20002D8F0 /* BMDragCollectionViewCell.h */; };
 		2C07CD34276982C20002D8F0 /* BMDragCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C07CD32276982C20002D8F0 /* BMDragCollectionViewCell.m */; };
-		2C393A0F276D0CB300886884 /* QTDragGestureInCollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C393A0D276D0CB200886884 /* QTDragGestureInCollectionView.h */; };
-		2C393A10276D0CB300886884 /* QTDragGestureInCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C393A0E276D0CB200886884 /* QTDragGestureInCollectionView.m */; };
 		2C393A18276D25E500886884 /* XHWaterfallFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C393A16276D25E500886884 /* XHWaterfallFlowLayout.h */; };
 		2C393A19276D25E500886884 /* XHWaterfallFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C393A17276D25E500886884 /* XHWaterfallFlowLayout.m */; };
 		2C9928F227595203000DEFDD /* DeMarcbenderSortablegridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9928EA27595203000DEFDD /* DeMarcbenderSortablegridView.m */; };
 		2C9928F327595203000DEFDD /* DeMarcbenderSortablegridView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C9928EB27595203000DEFDD /* DeMarcbenderSortablegridView.h */; };
 		2C9928F727595203000DEFDD /* DeMarcbenderSortablegridViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9928EF27595203000DEFDD /* DeMarcbenderSortablegridViewProxy.m */; };
 		2C9928F827595203000DEFDD /* DeMarcbenderSortablegridViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C9928F027595203000DEFDD /* DeMarcbenderSortablegridViewProxy.h */; };
-		2CB10A51276FA51D00714E70 /* DeMarcbenderSortablegridItemViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10A4D276FA51C00714E70 /* DeMarcbenderSortablegridItemViewProxy.h */; };
-		2CB10A52276FA51D00714E70 /* DeMarcbenderSortablegridItemViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10A4E276FA51C00714E70 /* DeMarcbenderSortablegridItemViewProxy.m */; };
-		2CB10A53276FA51D00714E70 /* DeMarcbenderSortablegridItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10A4F276FA51C00714E70 /* DeMarcbenderSortablegridItemView.m */; };
-		2CB10A54276FA51D00714E70 /* DeMarcbenderSortablegridItemView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10A50276FA51C00714E70 /* DeMarcbenderSortablegridItemView.h */; };
+		2CB10A51276FA51D00714E70 /* DeMarcbenderSortablegridItemProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10A4D276FA51C00714E70 /* DeMarcbenderSortablegridItemProxy.h */; };
+		2CB10A52276FA51D00714E70 /* DeMarcbenderSortablegridItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10A4E276FA51C00714E70 /* DeMarcbenderSortablegridItemProxy.m */; };
+		2CB10A53276FA51D00714E70 /* DeMarcbenderSortablegridItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10A4F276FA51C00714E70 /* DeMarcbenderSortablegridItem.m */; };
+		2CB10A54276FA51D00714E70 /* DeMarcbenderSortablegridItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10A50276FA51C00714E70 /* DeMarcbenderSortablegridItem.h */; };
 		AA747D9F0F9514B9006C5449 /* DeMarcbenderSortablegrid_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* DeMarcbenderSortablegrid_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		B11E042C241AC5C100EFA7DC /* TitaniumKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B11E042B241AC5C100EFA7DC /* TitaniumKit.xcframework */; };
@@ -69,24 +63,18 @@
 		24DE9E1011C5FE74003F90F6 /* DeMarcbenderSortablegridModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcbenderSortablegridModuleAssets.m; path = Classes/DeMarcbenderSortablegridModuleAssets.m; sourceTree = "<group>"; };
 		2C07CD1D2769654A0002D8F0 /* BMDragCellCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BMDragCellCollectionView.m; path = Classes/BMDragCellCollectionView.m; sourceTree = "<group>"; };
 		2C07CD1E2769654A0002D8F0 /* BMDragCellCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BMDragCellCollectionView.h; path = Classes/BMDragCellCollectionView.h; sourceTree = "<group>"; };
-		2C07CD2927697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _ARCollectionViewMasonryAttributesGrid.h; path = Classes/_ARCollectionViewMasonryAttributesGrid.h; sourceTree = "<group>"; };
-		2C07CD2A27697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _ARCollectionViewMasonryAttributesGrid.m; path = Classes/_ARCollectionViewMasonryAttributesGrid.m; sourceTree = "<group>"; };
-		2C07CD2B27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ARCollectionViewMasonryLayout.m; path = Classes/ARCollectionViewMasonryLayout.m; sourceTree = "<group>"; };
-		2C07CD2C27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ARCollectionViewMasonryLayout.h; path = Classes/ARCollectionViewMasonryLayout.h; sourceTree = "<group>"; };
 		2C07CD31276982C20002D8F0 /* BMDragCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BMDragCollectionViewCell.h; path = Classes/BMDragCollectionViewCell.h; sourceTree = "<group>"; };
 		2C07CD32276982C20002D8F0 /* BMDragCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BMDragCollectionViewCell.m; path = Classes/BMDragCollectionViewCell.m; sourceTree = "<group>"; };
-		2C393A0D276D0CB200886884 /* QTDragGestureInCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QTDragGestureInCollectionView.h; path = "../../Downloads/drag-gesture-on-collectionview-or-tableview-master/QTDragGestureInCollectionView.h"; sourceTree = "<group>"; };
-		2C393A0E276D0CB200886884 /* QTDragGestureInCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QTDragGestureInCollectionView.m; path = "../../Downloads/drag-gesture-on-collectionview-or-tableview-master/QTDragGestureInCollectionView.m"; sourceTree = "<group>"; };
 		2C393A16276D25E500886884 /* XHWaterfallFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XHWaterfallFlowLayout.h; path = Classes/XHWaterfallFlowLayout.h; sourceTree = "<group>"; };
 		2C393A17276D25E500886884 /* XHWaterfallFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XHWaterfallFlowLayout.m; path = Classes/XHWaterfallFlowLayout.m; sourceTree = "<group>"; };
 		2C9928EA27595203000DEFDD /* DeMarcbenderSortablegridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcbenderSortablegridView.m; path = Classes/DeMarcbenderSortablegridView.m; sourceTree = "<group>"; };
 		2C9928EB27595203000DEFDD /* DeMarcbenderSortablegridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcbenderSortablegridView.h; path = Classes/DeMarcbenderSortablegridView.h; sourceTree = "<group>"; };
 		2C9928EF27595203000DEFDD /* DeMarcbenderSortablegridViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcbenderSortablegridViewProxy.m; path = Classes/DeMarcbenderSortablegridViewProxy.m; sourceTree = "<group>"; };
 		2C9928F027595203000DEFDD /* DeMarcbenderSortablegridViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcbenderSortablegridViewProxy.h; path = Classes/DeMarcbenderSortablegridViewProxy.h; sourceTree = "<group>"; };
-		2CB10A4D276FA51C00714E70 /* DeMarcbenderSortablegridItemViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcbenderSortablegridItemViewProxy.h; path = Classes/DeMarcbenderSortablegridItemViewProxy.h; sourceTree = "<group>"; };
-		2CB10A4E276FA51C00714E70 /* DeMarcbenderSortablegridItemViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcbenderSortablegridItemViewProxy.m; path = Classes/DeMarcbenderSortablegridItemViewProxy.m; sourceTree = "<group>"; };
-		2CB10A4F276FA51C00714E70 /* DeMarcbenderSortablegridItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcbenderSortablegridItemView.m; path = Classes/DeMarcbenderSortablegridItemView.m; sourceTree = "<group>"; };
-		2CB10A50276FA51C00714E70 /* DeMarcbenderSortablegridItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcbenderSortablegridItemView.h; path = Classes/DeMarcbenderSortablegridItemView.h; sourceTree = "<group>"; };
+		2CB10A4D276FA51C00714E70 /* DeMarcbenderSortablegridItemProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcbenderSortablegridItemProxy.h; path = Classes/DeMarcbenderSortablegridItemProxy.h; sourceTree = "<group>"; };
+		2CB10A4E276FA51C00714E70 /* DeMarcbenderSortablegridItemProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcbenderSortablegridItemProxy.m; path = Classes/DeMarcbenderSortablegridItemProxy.m; sourceTree = "<group>"; };
+		2CB10A4F276FA51C00714E70 /* DeMarcbenderSortablegridItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcbenderSortablegridItem.m; path = Classes/DeMarcbenderSortablegridItem.m; sourceTree = "<group>"; };
+		2CB10A50276FA51C00714E70 /* DeMarcbenderSortablegridItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcbenderSortablegridItem.h; path = Classes/DeMarcbenderSortablegridItem.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* DeMarcbenderSortablegrid_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeMarcbenderSortablegrid_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		B11E042B241AC5C100EFA7DC /* TitaniumKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = TitaniumKit.xcframework; path = "$(TITANIUM_SDK)/iphone/Frameworks/TitaniumKit.xcframework"; sourceTree = "<group>"; };
@@ -138,19 +126,13 @@
 			isa = PBXGroup;
 			children = (
 				2C393A16276D25E500886884 /* XHWaterfallFlowLayout.h */,
-				2CB10A50276FA51C00714E70 /* DeMarcbenderSortablegridItemView.h */,
-				2CB10A4F276FA51C00714E70 /* DeMarcbenderSortablegridItemView.m */,
-				2CB10A4D276FA51C00714E70 /* DeMarcbenderSortablegridItemViewProxy.h */,
-				2CB10A4E276FA51C00714E70 /* DeMarcbenderSortablegridItemViewProxy.m */,
+				2CB10A50276FA51C00714E70 /* DeMarcbenderSortablegridItem.h */,
+				2CB10A4F276FA51C00714E70 /* DeMarcbenderSortablegridItem.m */,
+				2CB10A4D276FA51C00714E70 /* DeMarcbenderSortablegridItemProxy.h */,
+				2CB10A4E276FA51C00714E70 /* DeMarcbenderSortablegridItemProxy.m */,
 				2C393A17276D25E500886884 /* XHWaterfallFlowLayout.m */,
-				2C393A0D276D0CB200886884 /* QTDragGestureInCollectionView.h */,
-				2C393A0E276D0CB200886884 /* QTDragGestureInCollectionView.m */,
 				2C07CD31276982C20002D8F0 /* BMDragCollectionViewCell.h */,
 				2C07CD32276982C20002D8F0 /* BMDragCollectionViewCell.m */,
-				2C07CD2927697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.h */,
-				2C07CD2A27697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.m */,
-				2C07CD2C27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.h */,
-				2C07CD2B27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.m */,
 				2C07CD1E2769654A0002D8F0 /* BMDragCellCollectionView.h */,
 				2C07CD1D2769654A0002D8F0 /* BMDragCellCollectionView.m */,
 				24DE9E0F11C5FE74003F90F6 /* DeMarcbenderSortablegridModuleAssets.h */,
@@ -181,19 +163,16 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CB10A54276FA51D00714E70 /* DeMarcbenderSortablegridItemView.h in Headers */,
+				2CB10A54276FA51D00714E70 /* DeMarcbenderSortablegridItem.h in Headers */,
 				AA747D9F0F9514B9006C5449 /* DeMarcbenderSortablegrid_Prefix.pch in Headers */,
-				2C07CD2D27697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.h in Headers */,
 				2C9928F327595203000DEFDD /* DeMarcbenderSortablegridView.h in Headers */,
 				24DD6CF91134B3F500162E58 /* DeMarcbenderSortablegridModule.h in Headers */,
 				2C393A18276D25E500886884 /* XHWaterfallFlowLayout.h in Headers */,
 				2C9928F827595203000DEFDD /* DeMarcbenderSortablegridViewProxy.h in Headers */,
 				2C07CD33276982C20002D8F0 /* BMDragCollectionViewCell.h in Headers */,
 				2C07CD202769654A0002D8F0 /* BMDragCellCollectionView.h in Headers */,
-				2CB10A51276FA51D00714E70 /* DeMarcbenderSortablegridItemViewProxy.h in Headers */,
-				2C393A0F276D0CB300886884 /* QTDragGestureInCollectionView.h in Headers */,
+				2CB10A51276FA51D00714E70 /* DeMarcbenderSortablegridItemProxy.h in Headers */,
 				24DE9E1111C5FE74003F90F6 /* DeMarcbenderSortablegridModuleAssets.h in Headers */,
-				2C07CD3027697F2E0002D8F0 /* ARCollectionViewMasonryLayout.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,15 +247,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C07CD2E27697F2E0002D8F0 /* _ARCollectionViewMasonryAttributesGrid.m in Sources */,
 				24DD6CFA1134B3F500162E58 /* DeMarcbenderSortablegridModule.m in Sources */,
 				2C9928F227595203000DEFDD /* DeMarcbenderSortablegridView.m in Sources */,
 				2C07CD1F2769654A0002D8F0 /* BMDragCellCollectionView.m in Sources */,
 				2C393A19276D25E500886884 /* XHWaterfallFlowLayout.m in Sources */,
-				2C393A10276D0CB300886884 /* QTDragGestureInCollectionView.m in Sources */,
-				2CB10A53276FA51D00714E70 /* DeMarcbenderSortablegridItemView.m in Sources */,
-				2CB10A52276FA51D00714E70 /* DeMarcbenderSortablegridItemViewProxy.m in Sources */,
-				2C07CD2F27697F2E0002D8F0 /* ARCollectionViewMasonryLayout.m in Sources */,
+				2CB10A53276FA51D00714E70 /* DeMarcbenderSortablegridItem.m in Sources */,
+				2CB10A52276FA51D00714E70 /* DeMarcbenderSortablegridItemProxy.m in Sources */,
 				24DE9E1211C5FE74003F90F6 /* DeMarcbenderSortablegridModuleAssets.m in Sources */,
 				2C07CD34276982C20002D8F0 /* BMDragCollectionViewCell.m in Sources */,
 				2C9928F727595203000DEFDD /* DeMarcbenderSortablegridViewProxy.m in Sources */,
@@ -319,7 +295,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -364,7 +340,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
@@ -383,7 +359,7 @@
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
@@ -435,7 +411,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -447,6 +423,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -459,7 +436,7 @@
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
@@ -508,12 +485,13 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = de.marcbender.sortablegrid;
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;

@@ -7,9 +7,9 @@
 
 #import <TitaniumKit/TiViewProxy.h>
 #import "TiUIViewProxy.h"
-#import "DeMarcbenderSortablegridItemView.h"
+#import "DeMarcbenderSortablegridItem.h"
 
-@interface DeMarcbenderSortablegridItemViewProxy : TiViewProxy <TiProxyObserver> {
+@interface DeMarcbenderSortablegridItemProxy : TiViewProxy <TiProxyObserver> {
     TiDimension poWidth;
     TiDimension poHeight;
     UIButton *badgeButton;

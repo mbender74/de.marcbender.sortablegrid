@@ -430,8 +430,18 @@
     }
 
     _currentIndexPath = index;
-    self.oldPoint = [self cellForItemAtIndexPath:_currentIndexPath].center;
+    
+    UICollectionViewCell *cell = [self cellForItemAtIndexPath:_currentIndexPath];
+    
+   // self.oldPoint = [self cellForItemAtIndexPath:_currentIndexPath].center;
 
+    
+    
+    self.oldPoint =  CGPointMake(cell.center.x - (cell.frame.size.width/2) + [cell contentView].subviews.firstObject.frame.origin.x + ([cell contentView].subviews.firstObject.frame.size.width / 2) +4,cell.center.y - (cell.frame.size.height/2) + ([cell contentView].subviews.firstObject.frame.size.height / 2) +4);
+
+    
+    
+    
     [self _updateSourceData];
 
     [self moveItemAtIndexPath:_oldIndexPath toIndexPath:_currentIndexPath];
@@ -454,208 +464,230 @@
         point = [longGesture locationInView:self];
         orgPoint = point;
         
-       // NSLog(@"[ERROR] handlelongGesture %f %f: ",point.x, point.y);
-
-        
         NSIndexPath *indexPath = [self indexPathForItemAtPoint:point];
 
-        switch (longGesture.state) {
-            case UIGestureRecognizerStateBegan: {
-                self.userInteractionEnabled = NO;
-                if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionView:beganDragAtPoint:indexPath:)]) {
-                    [self.delegate dragCellCollectionView:self beganDragAtPoint:point indexPath:indexPath];
-                }
-
-                _oldIndexPath = indexPath;
-                
-                if (_oldIndexPath == nil) {
-                    self.longGesture.enabled = NO;
-                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                        if (_canDrag) {
-                            self.longGesture.enabled = YES;
+        
+        
+                switch (longGesture.state) {
+                    case UIGestureRecognizerStateBegan: {
+                        self.userInteractionEnabled = NO;
+                        if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionView:beganDragAtPoint:indexPath:)]) {
+                            [self.delegate dragCellCollectionView:self beganDragAtPoint:point indexPath:indexPath];
                         }
-                    });
-                    break;
-                }
-                if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionViewShouldBeginMove:indexPath:)]) {
-                    if (![self.delegate dragCellCollectionViewShouldBeginMove:self indexPath:_oldIndexPath]) {
-                        _oldIndexPath = nil;
-                        self.longGesture.enabled = NO;
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                            if (_canDrag) {
-                                self.longGesture.enabled = YES;
+
+                        _oldIndexPath = indexPath;
+                        
+                        if (_oldIndexPath == nil) {
+                            self.longGesture.enabled = NO;
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                if (_canDrag) {
+                                    self.longGesture.enabled = YES;
+                                }
+                            });
+                            break;
+                        }
+                        if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionViewShouldBeginMove:indexPath:)]) {
+                            if (![self.delegate dragCellCollectionViewShouldBeginMove:self indexPath:_oldIndexPath]) {
+                                _oldIndexPath = nil;
+                                self.longGesture.enabled = NO;
+                                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                    if (_canDrag) {
+                                        self.longGesture.enabled = YES;
+                                    }
+                                });
+                                break;
                             }
-                        });
-                        break;
-                    }
-                }
-                self.isEndDrag = NO;
-                UICollectionViewCell *cell = [self cellForItemAtIndexPath:_oldIndexPath];
-                self.oldPoint = cell.center;
-            
-                
-                CGRect newCellFrame = cell.frame;
-                
-                
-                _snapedView = [[[cell contentView].subviews.firstObject.subviews objectAtIndex:0] snapshotViewAfterScreenUpdates:NO];
-                
-                newCellFrame.size = [[cell contentView].subviews.firstObject.subviews objectAtIndex:0].frame.size;
-                newCellFrame.origin.x = newCellFrame.origin.x + 4;
-                newCellFrame.origin.y = newCellFrame.origin.y + 4;
+                        }
+                        UICollectionViewCell *cell = [self cellForItemAtIndexPath:_oldIndexPath];
+                        
+                        BMDragCollectionViewCell *thisCell = (BMDragCollectionViewCell*)cell;
 
-                CGFloat shadowRadius = 8;
-                
-                _snapedView.frame = newCellFrame;
-                _snapedView.layer.cornerRadius = [cell contentView].subviews.firstObject.layer.cornerRadius;
-                _snapedView.clipsToBounds = NO;
-                _snapedView.backgroundColor = [UIColor clearColor];
-                _snapedView.layer.masksToBounds = NO;
-                _snapedView.layer.shadowOffset = CGSizeMake(0,0);
-                _snapedView.layer.shadowRadius = 0;
-                _snapedView.layer.shadowColor = [UIColor blackColor].CGColor;
-                _snapedView.layer.shadowOpacity = 1.0;
+                        if (thisCell.canBeMoved == YES){
+                                self.isEndDrag = NO;
 
-                [self addSubview:_snapedView];
-    //            CGPoint currentPoint = point;
-                CGPoint currentPoint = CGPointMake(cell.center.x+4, cell.center.y+4);
-                _snapedView.center = currentPoint;
-                cell.hidden = YES;
+                                self.oldPoint = cell.center;
+                                
+                                CGRect newCellFrame = cell.frame;
+                                
+                                
+                                _snapedView = [[[cell contentView].subviews.firstObject.subviews objectAtIndex:0] snapshotViewAfterScreenUpdates:NO];
+                                
+                                newCellFrame.size = [[cell contentView].subviews.firstObject.subviews objectAtIndex:0].frame.size;
+                                newCellFrame.origin.x = newCellFrame.origin.x + 4;
+                                newCellFrame.origin.y = newCellFrame.origin.y + 4;
 
-                [UIView animateWithDuration:0.25
-                          delay: 0.0
-                          options: UIViewAnimationOptionCurveEaseInOut
-                          animations:^{
-                    _snapedView.center = currentPoint;
-                   // _snapedView.layer.shadowOpacity = 1.0;
-                    _snapedView.layer.shadowRadius = shadowRadius;
+                                CGFloat shadowRadius = 8;
+                                
+                                _snapedView.frame = newCellFrame;
+                                _snapedView.layer.cornerRadius = [cell contentView].subviews.firstObject.layer.cornerRadius;
+                                _snapedView.clipsToBounds = NO;
+                                _snapedView.backgroundColor = [UIColor clearColor];
+                                _snapedView.layer.masksToBounds = NO;
+                                _snapedView.layer.shadowOffset = CGSizeMake(0,0);
+                                _snapedView.layer.shadowRadius = 0;
+                                _snapedView.layer.shadowColor = [UIColor blackColor].CGColor;
+                                _snapedView.layer.shadowOpacity = 1.0;
 
-                    _snapedView.transform = CGAffineTransformMakeScale(_dragZoomScale, _dragZoomScale);
-                    _snapedView.alpha = _dragCellAlpha;
-                } completion:^(BOOL finished) {
-                    point = currentPoint;
-                    [self _setEdgeTimer];
-                }];
-                
-            }
-                break;
-            case UIGestureRecognizerStateChanged: {
+                                [self addSubview:_snapedView];
+                    //            CGPoint currentPoint = point;
+                                
+                                CGPoint currentPoint = CGPointMake(cell.center.x - (cell.frame.size.width/2) + [cell contentView].subviews.firstObject.frame.origin.x + ([cell contentView].subviews.firstObject.frame.size.width / 2),cell.center.y - (cell.frame.size.height/2) + ([cell contentView].subviews.firstObject.frame.size.height / 2) - 6);
+                                
+                               // CGPoint currentPoint = CGPointMake(cell.center.x+4, cell.center.y+4);
+                                _snapedView.center = currentPoint;
+                                cell.hidden = YES;
 
-                if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionView:changedDragAtPoint:indexPath:)]) {
-                    [self.delegate dragCellCollectionView:self changedDragAtPoint:point indexPath:indexPath];
-                }
-                //point = CGPointMake(_snapedView.center.x, _snapedView.center.y);
+                                [UIView animateWithDuration:0.25
+                                          delay: 0.0
+                                          options: UIViewAnimationOptionCurveEaseInOut
+                                          animations:^{
+                                    _snapedView.center = currentPoint;
+                                   // _snapedView.layer.shadowOpacity = 1.0;
+                                    _snapedView.layer.shadowRadius = shadowRadius;
 
-                if (!CGPointEqualToPoint(point,orgPoint)){
-               
-                    _lastPoint = point;
-                    [UIView animateWithDuration:0.25 animations:^{
-                        _snapedView.center = _lastPoint;
-                    }];
-                }
-                else {
-                    _lastPoint = point;
-                    [UIView animateWithDuration:0.016 animations:^{
-                        _snapedView.center = _lastPoint;
-                    }];
+                                    _snapedView.transform = CGAffineTransformMakeScale(_dragZoomScale, _dragZoomScale);
+                                    _snapedView.alpha = _dragCellAlpha;
+                                } completion:^(BOOL finished) {
+                                    point = currentPoint;
+                                    [self _setEdgeTimer];
+                                }];
+                        }
+                        else {
+                            _snapedView = nil;
+                            self.isEndDrag = YES;
+                            self.oldIndexPath = nil;
+                            self.userInteractionEnabled = YES;
 
-                }
-                
-                NSIndexPath *index = [self _firstNearlyIndexPath];
-                
-                if (!index) {
-                    break;
-                }
-                
-                if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionViewShouldBeginExchange:sourceIndexPath:toIndexPath:)]) {
-                    if (![self.delegate dragCellCollectionViewShouldBeginExchange:self sourceIndexPath:_oldIndexPath toIndexPath:index]) {
-                        break;
-                    }
-                }
-                
-
-                
-                _currentIndexPath = index;
-                self.oldPoint = [self cellForItemAtIndexPath:_currentIndexPath].center;
-                
- 
-                
-                [self _updateSourceData];
-
-                [self moveItemAtIndexPath:_oldIndexPath toIndexPath:_currentIndexPath];
-                _oldIndexPath = _currentIndexPath;
-
-               // [ self  reloadItemsAtIndexPaths: @[_oldIndexPath]];
-
- 
-
-
-                //if (_editMode == YES && _wobbleEnabled == YES){
-                   // [self.visibleCells  makeObjectsPerformSelector:@selector(wobble)];
-              //  }
-                
-                break;
-            }
-                break;
-            default: {
-                self.userInteractionEnabled = YES;
-                if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionView:endedDragAtPoint:indexPath:)]) {
-                    [self.delegate dragCellCollectionView:self endedDragAtPoint:point indexPath:indexPath];
-                }
-
-                if (self.delegate
-                    && [self.delegate respondsToSelector:@selector(dragCellCollectionView:endedDragAutomaticOperationAtPoint:section:indexPath:)]) {
-                    NSInteger section = -1;
-                    NSInteger sec = [self.dataSource numberOfSectionsInCollectionView:self];
-                    for (NSInteger i = 0; i < sec; i++) {
-                        if (CGRectContainsPoint([self BMDragCellCollectionView_rectForSection:i], point)) {
-                            section = i;
                             break;
                         }
                     }
-                    if (![self.delegate dragCellCollectionView:self endedDragAutomaticOperationAtPoint:point section:section indexPath:indexPath]) {
-                        return;
+                        break;
+                    case UIGestureRecognizerStateChanged: {
+
+                        
+                        if (_snapedView != nil){
+                        
+                        if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionView:changedDragAtPoint:indexPath:)]) {
+                            [self.delegate dragCellCollectionView:self changedDragAtPoint:point indexPath:indexPath];
+                        }
+                        //point = CGPointMake(_snapedView.center.x, _snapedView.center.y);
+
+                        if (!CGPointEqualToPoint(point,orgPoint)){
+                       
+                            _lastPoint = point;
+                            [UIView animateWithDuration:0.25 animations:^{
+                                _snapedView.center = _lastPoint;
+                            }];
+                        }
+                        else {
+                            _lastPoint = point;
+                            [UIView animateWithDuration:0.016 animations:^{
+                                _snapedView.center = _lastPoint;
+                            }];
+
+                        }
+                        
+                        NSIndexPath *index = [self _firstNearlyIndexPath];
+                        
+                        if (!index) {
+                            break;
+                        }
+                        
+                        if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionViewShouldBeginExchange:sourceIndexPath:toIndexPath:)]) {
+                            if (![self.delegate dragCellCollectionViewShouldBeginExchange:self sourceIndexPath:_oldIndexPath toIndexPath:index]) {
+                                break;
+                            }
+                        }
+                        
+
+                        
+                        _currentIndexPath = index;
+                        self.oldPoint = [self cellForItemAtIndexPath:_currentIndexPath].center;
+                        
+                        
+                        [self _updateSourceData];
+
+                        [self moveItemAtIndexPath:_oldIndexPath toIndexPath:_currentIndexPath];
+                        _oldIndexPath = _currentIndexPath;
+
+                       // [ self  reloadItemsAtIndexPaths: @[_oldIndexPath]];
+
+
+                        //if (_editMode == YES && _wobbleEnabled == YES){
+                           // [self.visibleCells  makeObjectsPerformSelector:@selector(wobble)];
+                      //  }
+                        }
+                        break;
                     }
+                        break;
+                    default: {
+                        
+                        if (_snapedView != nil){
+                            
+                        
+                        
+                        self.userInteractionEnabled = YES;
+                        if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionView:endedDragAtPoint:indexPath:)]) {
+                            [self.delegate dragCellCollectionView:self endedDragAtPoint:point indexPath:indexPath];
+                        }
+
+                        if (self.delegate
+                            && [self.delegate respondsToSelector:@selector(dragCellCollectionView:endedDragAutomaticOperationAtPoint:section:indexPath:)]) {
+                            NSInteger section = -1;
+                            NSInteger sec = [self.dataSource numberOfSectionsInCollectionView:self];
+                            for (NSInteger i = 0; i < sec; i++) {
+                                if (CGRectContainsPoint([self BMDragCellCollectionView_rectForSection:i], point)) {
+                                    section = i;
+                                    break;
+                                }
+                            }
+                            if (![self.delegate dragCellCollectionView:self endedDragAutomaticOperationAtPoint:point section:section indexPath:indexPath]) {
+                                return;
+                            }
+                        }
+
+                        if (!self.oldIndexPath) {
+                            return;
+                        }
+
+                        UICollectionViewCell *cell = [self cellForItemAtIndexPath:_oldIndexPath];
+
+                        self.userInteractionEnabled = NO;
+                        self.isEndDrag = YES;
+                        [UIView animateWithDuration:0.25
+                                         delay: 0.0
+                                         options: UIViewAnimationOptionCurveEaseInOut
+                                         animations:^{
+                            if (!cell) {
+                                _snapedView.center = _oldPoint;
+                            } else {
+         //                       _snapedView.center = cell.center;
+                                _snapedView.center = CGPointMake(cell.center.x - (cell.frame.size.width/2) + [cell contentView].subviews.firstObject.frame.origin.x + ([cell contentView].subviews.firstObject.frame.size.width / 2) ,cell.center.y - (cell.frame.size.height/2) + ([cell contentView].subviews.firstObject.frame.size.height / 2) +4);
+
+                            }
+                            _snapedView.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
+                           // _snapedView.alpha = 0.0;
+                           // _snapedView.layer.shadowOpacity = 0.0;
+                            _snapedView.layer.shadowRadius = 0;
+
+                        } completion:^(BOOL finished) {
+                            [_snapedView removeFromSuperview];
+
+                            cell.hidden = NO;
+
+                            self.userInteractionEnabled = YES;
+                            if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionViewDidEndDrag:)]) {
+                                [self.delegate dragCellCollectionViewDidEndDrag:self];
+                            }
+
+
+                        }];
+                        self.oldIndexPath = nil;
+                        [self _stopEdgeTimer];
+                        }
+                    }
+                        break;
                 }
-
-                if (!self.oldIndexPath) {
-                    return;
-                }
-
-                UICollectionViewCell *cell = [self cellForItemAtIndexPath:_oldIndexPath];
-                
-                self.userInteractionEnabled = NO;
-                self.isEndDrag = YES;
-                [UIView animateWithDuration:0.25
-                                 delay: 0.0
-                                 options: UIViewAnimationOptionCurveEaseInOut
-                                 animations:^{
-                    if (!cell) {
-                        _snapedView.center = _oldPoint;
-                    } else {
-                        _snapedView.center = cell.center;
-                    }
-                    _snapedView.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
-                   // _snapedView.alpha = 0.0;
-                   // _snapedView.layer.shadowOpacity = 0.0;
-                    _snapedView.layer.shadowRadius = 0;
-
-                } completion:^(BOOL finished) {
-                    [_snapedView removeFromSuperview];
-
-                    cell.hidden = NO;
-                                  
-                    self.userInteractionEnabled = YES;
-                    if (self.delegate && [self.delegate respondsToSelector:@selector(dragCellCollectionViewDidEndDrag:)]) {
-                        [self.delegate dragCellCollectionViewDidEndDrag:self];
-                    }
-
-
-                }];
-                self.oldIndexPath = nil;
-                [self _stopEdgeTimer];
-            }
-                break;
-        }
         
     }
 
@@ -701,7 +733,12 @@
         if (!cell) {
             _snapedView.center = _oldPoint;
         } else {
-            _snapedView.center = cell.center;
+//            _snapedView.center = cell.center;
+            
+            
+            _snapedView.center =  CGPointMake(cell.center.x - (cell.frame.size.width/2) + [cell contentView].subviews.firstObject.frame.origin.x + ([cell contentView].subviews.firstObject.frame.size.width / 2),cell.center.y - (cell.frame.size.height/2) + ([cell contentView].subviews.firstObject.frame.size.height / 2) +4);
+
+            
         }
         _snapedView.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
        // _snapedView.alpha = 0.0;

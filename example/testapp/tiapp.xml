@@ -15,6 +15,7 @@
 	<property name="ti.ui.defaultunit" type="string">dp</property>
 	<property name="run-on-main-thread" type="bool">true</property>
 	<ios>
+	    <min-ios-ver>12</min-ios-ver>
 		<enable-launch-screen-storyboard>true</enable-launch-screen-storyboard>
 		<use-app-thinning>true</use-app-thinning>
 		<plist>
