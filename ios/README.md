@@ -4,6 +4,7 @@ This is a skeleton Titanium iOS module project. Modules can be used to extend
 the functionality of Titanium by providing additional native code that is compiled 
 into your application at build time and can expose certain APIs into JavaScript.
 
+
 ## Naming
 
 Choose a unique module id for your module. We usually stick to a naming convention 
