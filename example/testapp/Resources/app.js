@@ -179,7 +179,7 @@ gridView = sortableGridModule.createView({
 	minHorizontalSpacing:10,
 	minVerticalSpacing:10,
 	showDeleteButton:true,
-	deleteButtonImage:deleteButtonImage,
+	deleteButtonImage:deleteButtonImage,  // this should be an image, this demo function that will create the image works only after the view is loaded (because of toImage() function), you can also set the property "deleteButtonImage" after the view did focus with: gridView.deleteButtonImage = yourImage;  
 	itemsBadgeEnabled:true,
 	waterFallLayout:false,
 	pagingEnabled:true, // scroll will do paging instead of normal scrolling
