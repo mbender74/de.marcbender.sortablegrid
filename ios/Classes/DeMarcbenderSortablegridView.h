@@ -24,6 +24,7 @@
   CGFloat previousOffset;
   CGFloat columnCount;
   CGFloat rowCount;
+  CGFloat dragItemShadowOpacity;
   CGPoint oldContentOffset;
   CGFloat correctedHorizontalSpacing;
   CGFloat horizontalSpacing;
@@ -39,7 +40,9 @@
   BOOL didScroll;
   BOOL itemsBadgeEnabled;
   BOOL pagerEnabled;
+  BOOL scrollToBottomAfterSetData;
   BOOL pagingEnabled;
+  BOOL canScroll;
   BOOL insetsCalcDone;
   UIPageControl *pager;
   NSInteger numberOfPages;
@@ -90,7 +93,7 @@
 - (void)stopEditing;
 - (void)initData;
 - (CGFloat)cellWidth;
-
+- (CGFloat)dragItemShadowOpacity;
 - (void)itemsReordered;
 - (id)currentPageOfLauncher;
 - (id)pagesCount;

@@ -21,7 +21,7 @@
     self = [super init];
     if (self) {
        // NSLog(@"[WARN] in init ");
-
+        initiated = NO;
     }
     return self;
 }
@@ -31,6 +31,16 @@
     [super _initWithProperties:properties];
   //  NSLog(@"[WARN] in _initWithProperties ");
 
+}
+- (void)_destroy
+{
+  [super _destroy];
+}
+
+- (void)dealloc
+{
+  initiated = NO;
+  [super dealloc];
 }
 
 
@@ -46,30 +56,23 @@
 {
     [super windowDidOpen];
   //  NSLog(@"[WARN] in windowDidOpen ");
-
-   
 }
+
+
+- (void)windowDidClose
+{
+    [super windowDidClose];
+  //  NSLog(@"[WARN] in windowDidOpen ");
+}
+
 
 
 - (void)gainFocus
 {
-  //  NSLog(@"[WARN] in gainFocus ");
-
-    
- //   NSLog(@"[WARN] dispatch after gainFocus ");
-       // [(DeMarcbenderSortablegridView *)[self view] initData];
-   //     NSLog(@"[WARN] after dispatch  gainFocus ");
-
-    
-/*    TiThreadPerformOnMainThread(
-        ^{
-
-        //[self reposition];
-        
-
-        },
-        NO);
-*/
+    if (initiated == NO){
+        initiated = YES;
+        [(DeMarcbenderSortablegridView *)[self view] initData];
+    }
 }
 
 - (NSArray *)keySequence
@@ -77,7 +80,7 @@
     static dispatch_once_t onceToken;
     static NSArray *keySequence = nil;
     dispatch_once(&onceToken, ^{
-        keySequence = [[NSArray alloc] initWithObjects:@"columnCount", @"minHorizontalSpacing", @"minVerticalSpacing", @"cellWidth", @"scrollIndicatorInsets",@"waterFallLayout",@"pagingEnabled",@"pagerEnabled",@"pagerFollowsBottomInset",@"scrollType",@"lazyLoadingEnabled",@"showVerticalScrollIndicator",@"showHorizontalScrollIndicator",@"disableBounce",@"pageIndicatorTintColor",@"currentPageIndicatorTintColor",@"itemsBadgeEnabled",@"showDeleteButton",@"deleteButtonImage",nil];
+        keySequence = [[NSArray alloc] initWithObjects:@"scrollToBottomAfterSetData",@"columnCount", @"minHorizontalSpacing", @"minVerticalSpacing", @"cellWidth", @"scrollIndicatorInsets",@"waterFallLayout",@"pagingEnabled",@"pagerEnabled",@"pagerFollowsBottomInset",@"scrollType",@"lazyLoadingEnabled",@"showVerticalScrollIndicator",@"showHorizontalScrollIndicator",@"disableBounce",@"pageIndicatorTintColor",@"currentPageIndicatorTintColor",@"itemsBadgeEnabled",@"showDeleteButton",@"deleteButtonImage",nil];
         
        // NSLog(@"[WARN] in keySequence ");
 

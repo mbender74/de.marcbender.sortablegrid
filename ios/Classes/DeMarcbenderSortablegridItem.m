@@ -31,7 +31,8 @@
  
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    
+    self.clipsToBounds = NO;
+
 
    // self.contentView.frame = bounds;
    // [super frameSizeChanged:frame bounds:bounds];

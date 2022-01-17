@@ -241,10 +241,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 - (void)dealloc
 {
   launcher.delegate = nil;
-  [launcher removeObserver:self forKeyPath:@"contentInset"];
   observerAdded = NO;
-  RELEASE_TO_NIL(launcher);
-  RELEASE_TO_NIL(self);
+  launcher = nil;
   [super dealloc];
 }
 
@@ -252,6 +250,9 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 - (id)init
 {
   self = [super init];
+      dragItemShadowOpacity = 1.0;
+      canScroll = YES;
+      scrollToBottomAfterSetData = NO;
       columnCount = 1;
       _columnsCount = 1;
       _initDone = NO;
@@ -457,7 +458,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
           [launcher setCollectionViewLayout:layout animated:NO];
 
       }
-      
+      launcher.dragItemShadowOpacity = dragItemShadowOpacity;
+      launcher.scrollEnabled = canScroll;
       launcher.delegate = self;
       launcher.dataSource = self;
       [launcher setWobbleEnabled:self.wobble];
@@ -648,9 +650,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     
     if (_initDone == YES){
     
-        [self.dataSource[0] removeAllObjects];
 
-        [launcher reloadData];
+        //[launcher reloadData];
         //launcher.alpha = 0.0;
        // [cellData removeAllObjects];
         currentPage = 0;
@@ -684,8 +685,6 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
                 }
            // },YES);
-            [self.dataSourceArray removeAllObjects];
-            [self.dataSource removeAllObjects];
             cellData = [tempCellData mutableCopy];
             
           //  NSLog(@"[ERROR] set Data init Done  ");
@@ -713,7 +712,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
                         // launcher.alpha = 0.0;
                     //}
         
-        TiThreadPerformOnMainThread(^{
+      //  TiThreadPerformOnMainThread(^{
 
           //  NSLog(@"[ERROR] before set Data init NOT Done  ");
 
@@ -732,22 +731,17 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
           //  NSLog(@"[ERROR] after set Data init NOT Done  ");
 
             
-            [self launcher];
             
           //  NSLog(@"[ERROR] after laucher setup  ");
 
-            
-            [launcher setEditMode:NO];
-            launcher.editMode = NO;
-
           //  NSLog(@"[ERROR] before initData  ");
 
-            [self initData];
+            //[self initData];
 
           //  NSLog(@"[ERROR] after initData  ");
 
-        },
-        NO);
+     //   },
+    //    NO);
        // [self pushWithGroup:1 sizeObj:nil itemsCount:(int)cellData.count];
     }
     
@@ -768,11 +762,44 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 }
 
 
+- (void)setScrollToBottomAfterSetData_:(id)args
+{
+  ENSURE_TYPE(args, NSNumber);
+    scrollToBottomAfterSetData = [TiUtils boolValue:args def:NO];
+}
+
+
+
 - (void)setPagingEnabled_:(id)args
 {
   ENSURE_TYPE(args, NSNumber);
   pagingEnabled = [TiUtils boolValue:args def:NO];
+    if (launcher != nil){
+        launcher.pagingEnabled = pagingEnabled;
+    }
+}
 
+- (void)setScrollEnabled_:(id)args
+{
+  ENSURE_TYPE(args, NSNumber);
+  canScroll = [TiUtils boolValue:args def:YES];
+    if (launcher != nil){
+        launcher.scrollEnabled = canScroll;
+    }
+}
+
+
+- (void)setDragItemShadowOpacity_:(id)args
+{
+    dragItemShadowOpacity = [args floatValue];
+    if (launcher != nil){
+        launcher.dragItemShadowOpacity = dragItemShadowOpacity;
+    }
+}
+
+- (CGFloat)dragItemShadowOpacity
+{
+    return dragItemShadowOpacity;
 }
 
 
@@ -866,7 +893,9 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 {
     //NSLog(@"[WARN] in initData ");
     
-    
+    [self launcher];
+    [launcher setEditMode:NO];
+    launcher.editMode = NO;
     [self pushWithGroup:1 sizeObj:nil itemsCount:(int)cellData.count];
 }
 
@@ -1352,6 +1381,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
     
     [cellViewContainer addSubview:cellView];
+    cellView.clipsToBounds = NO;
+    cellView.layer.masksToBounds = NO;
 
     cellViewContainer.clipsToBounds = NO;
     cellViewContainer.layer.masksToBounds = NO;
@@ -1402,6 +1433,13 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 -(void)pushWithGroup:(int)group sizeObj:(NSValue *)sizeObj itemsCount:(int)count {
     int arc = group;
+    if (_initDone == YES){
+       // [self.dataSource[0] removeAllObjects];
+
+        [self.dataSourceArray removeAllObjects];
+        //[self.dataSource removeAllObjects];
+    }
+    
     while (arc--) {
         NSMutableArray *dataSource = [NSMutableArray array];
         
@@ -1417,11 +1455,17 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 - (void)pushVCWithArray:(NSArray *)array {
 
+    //  [launcher performBatchUpdates:^{
+
     
+   // }completion:^(BOOL finished) {
+
+    //   }];
     
-    self.dataSource = [array mutableCopy];
 
     if (_initDone == NO){
+        self.dataSource = [array mutableCopy];
+
        // NSLog(@"[WARN] pushVCWithArray  initDone == NO");
 
        // dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), //dispatch_get_main_queue(), ^{
@@ -1434,10 +1478,35 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
                 waterfallLayout.sDelegate = self;
 
                 [waterfallLayout doPrepareLayout];
+                if (scrollToBottomAfterSetData == YES){
+                    //TiThreadPerformOnMainThread(^{
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 
+                        NSUInteger itemIndex = ([self.dataSource[0] count]-1);
+
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:0];
+                        UICollectionViewScrollPosition scrollPosition = UICollectionViewScrollPositionBottom;
+
+                        [launcher scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:NO];
+                    //}, [NSThread isMainThread]);
+                    });
+                }
             }
             else {
                 [launcher reloadData];
+                if (scrollToBottomAfterSetData == YES){
+                    //TiThreadPerformOnMainThread(^{
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+
+                        NSUInteger itemIndex = ([self.dataSource[0] count]-1);
+
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:0];
+                        UICollectionViewScrollPosition scrollPosition = UICollectionViewScrollPositionBottom;
+
+                        [launcher scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:NO];
+                    //}, [NSThread isMainThread]);
+                    });
+                }
             }
             
             //if (_initDone == NO){
@@ -1448,8 +1517,28 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
     else {
       //  NSLog(@"[WARN] pushVCWithArray  initDone == YES");
+        TiThreadPerformOnMainThread(^{
 
-        [launcher reloadData];
+        [launcher performBatchUpdates:^{
+            self.dataSource = [array mutableCopy];
+            [launcher reloadSections:[NSIndexSet indexSetWithIndex:0]];
+            if (scrollToBottomAfterSetData == YES){
+                //TiThreadPerformOnMainThread(^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+
+                    NSUInteger itemIndex = ([self.dataSource[0] count]-1);
+
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:0];
+                    UICollectionViewScrollPosition scrollPosition = UICollectionViewScrollPositionBottom;
+
+                    [launcher scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:NO];
+                //}, [NSThread isMainThread]);
+                });
+            }
+        }completion:^(BOOL finished) {
+        }];
+        },
+         NO);
     }
 
     
@@ -1806,6 +1895,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
         }
     }
     [cell contentView].frame = cell.bounds;
+    [cell contentView].clipsToBounds = NO;
+    cell.clipsToBounds = NO;
 
     UIView *content = (UIView *)_dataSource[indexPath.section][indexPath.item][@"cellview"];
     

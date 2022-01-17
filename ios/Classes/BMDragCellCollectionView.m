@@ -526,7 +526,7 @@
                                 _snapedView.layer.shadowOffset = CGSizeMake(0,0);
                                 _snapedView.layer.shadowRadius = 0;
                                 _snapedView.layer.shadowColor = [UIColor blackColor].CGColor;
-                                _snapedView.layer.shadowOpacity = 1.0;
+                                _snapedView.layer.shadowOpacity = self.dragItemShadowOpacity;
 
                                 [self addSubview:_snapedView];
                     //            CGPoint currentPoint = point;

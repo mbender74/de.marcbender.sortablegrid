@@ -181,6 +181,8 @@ typedef NS_ENUM(NSUInteger, BMDragCellCollectionViewScrollDirection) {
 @property (nonatomic, assign, getter=isEditMode) BOOL editMode;
 @property (nonatomic, assign, getter=isWobbleEnabled) BOOL wobbleEnabled;
 @property (nonatomic, assign) CGFloat dragSpeed;
+@property (nonatomic, assign) CGFloat dragItemShadowOpacity;
+
 @property (nonatomic, assign) NSInteger pageCount;
 
 

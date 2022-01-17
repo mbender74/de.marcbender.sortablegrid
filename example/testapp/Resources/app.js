@@ -130,6 +130,12 @@ var win = Ti.UI.createWindow({
 	backgroundColor: '#fff'
 });
 
+
+var win2 = Ti.UI.createWindow({
+	backgroundColor: '#fff'
+});
+
+
 win.open();
 
 
@@ -171,8 +177,8 @@ gridView = sortableGridModule.createView({
 	width:Ti.UI.FILL,
 	layout: "vertical",
 	lazyLoadingEnabled:true, // disables image loader when scrolling, enables when scrolling done
-	//contentInsets:{top: 10, bottom:0, left:10,right:10},
-	//scrollIndicatorInsets:{top: 0, bottom:0,left:0,right:0},
+	contentInsets:{top: 10, bottom:20, left:10,right:10},
+	scrollIndicatorInsets:{top: 0, bottom:0,left:0,right:0},
 	columnCount:3,
 	rowCount:5, // Android only
 	wobble:true, // wobble animation in edit mode
@@ -181,7 +187,7 @@ gridView = sortableGridModule.createView({
 	showDeleteButton:true,
 	deleteButtonImage:deleteButtonImage,  // this should be an image, this demo function that will create the image works only after the view is loaded (because of toImage() function), you can also set the property "deleteButtonImage" after the view did focus with: gridView.deleteButtonImage = yourImage;  
 	itemsBadgeEnabled:true,
-	waterFallLayout:false,
+	waterFallLayout:true,
 	pagingEnabled:true, // scroll will do paging instead of normal scrolling
 	pagerEnabled:true, // display page indicator
 	pagerFollowsBottomInset:false, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
@@ -475,6 +481,8 @@ gridCells = createGridDashBoardViews(20);
 
 		gridView.startEditing();
 	}
+
+
 });
 editButton.addEventListener('touchstart', function(e){
 	this.opacity = 0.7;
