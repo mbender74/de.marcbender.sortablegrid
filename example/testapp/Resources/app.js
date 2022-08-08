@@ -166,7 +166,12 @@ var lbl = Ti.UI.createLabel({
 
 var deleteButtonImage = createRemoveButton().toImage(null,true);
 
-
+var refreshControl = Ti.UI.createRefreshControl({ tintColor: 'red' });
+refreshControl.addEventListener('refreshstart', () => {
+	setTimeout(() => {
+		refreshControl.endRefreshing();
+	}, 2000);
+});
 
 gridView = sortableGridModule.createView({
 	top:100,
@@ -198,6 +203,7 @@ gridView = sortableGridModule.createView({
 	scrollType:'vertical',
 	disableBounce:false, // disable bouncing of gridview
 	backgroundColor:'#cdcdcd',
+	refreshControl
 	//data:[]
 });
 
