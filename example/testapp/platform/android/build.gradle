@@ -1,9 +1,0 @@
-repositories {
-	maven { url 'https://jitpack.io' }
-}
-android {
-  packagingOptions {
-      exclude 'META-INF/*'
- }
-}
-android.buildTypes.debug.debuggable false

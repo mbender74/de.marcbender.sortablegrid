@@ -7,11 +7,11 @@ iOS -> minimum iOS version supported is 12.0 !!!
 
 ## Demo
 
-<img src="./assets/sortablegrid-demo.gif" width="600" alt="Example" />
+<img src="./sortablegrid-demo.gif" width="600" alt="Example" />
 
 ## Demo 1.2.0 (iOS only for at the moment)
 
-<img src="./assets/sortablegrid-demo-new.gif" width="320" alt="Example iOS new" />
+<img src="./sortablegrid-demo-new.gif" width="320" alt="Example iOS new" />
 
 
 

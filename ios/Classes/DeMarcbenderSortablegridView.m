@@ -5,16 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#define USE_TI_UIREFRESHCONTROL
+
 #import <TitaniumKit/TiRect.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiDimension.h>
 #import "ImageLoader.h"
 #import "DeMarcbenderSortablegridView.h"
-
-
-
-
-
+#ifdef USE_TI_UIREFRESHCONTROL
+#import "TiUIRefreshControlProxy.h"
+#endif
 
 @interface TopAlignedCollectionViewFlowLayout : UICollectionViewFlowLayout {
     NSInteger lastPagesCount;
@@ -236,7 +236,11 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 #define HEIGHT [[UIScreen mainScreen] bounds].size.height
 
 
-@implementation DeMarcbenderSortablegridView
+@implementation DeMarcbenderSortablegridView {
+#ifdef USE_TI_UIREFRESHCONTROL
+    TiUIRefreshControlProxy* _refreshControl;
+#endif
+}
 
 - (void)dealloc
 {
@@ -518,6 +522,20 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 - (CGFloat)numberOfColumns
 {
   return columnCount;
+}
+
+- (void)setRefreshControl_:(id)refreshControl
+{
+#ifdef USE_TI_UIREFRESHCONTROL
+    ENSURE_SINGLE_ARG_OR_NIL(refreshControl, TiUIRefreshControlProxy);
+
+    [[self proxy] replaceValue:refreshControl forKey:@"refreshControl" notification:NO];
+
+    if (refreshControl != nil) {
+        _refreshControl = refreshControl;
+        self.collectionView.refreshControl = _refreshControl.control;
+    }
+#endif
 }
 
 - (void)setColumnCount_:(id)value
