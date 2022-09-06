@@ -278,7 +278,7 @@
     
     
     if (scrolldirection == mkScrollVertical) {
-        self.pagesCount = ceil(self.contentHeight / self.collectionView.frame.size.height);
+        self.pagesCount = self.contentHeight / self.collectionView.frame.size.height;
     }
 
     
@@ -379,7 +379,7 @@
     [super collectionViewContentSize];
 
     if (scrolldirection == mkScrollVertical) {
-        CGFloat contentHeight = (self.pagesCount * (self.collectionView.frame.size.height))-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom;
+        CGFloat contentHeight = ceil(self.pagesCount * self.collectionView.frame.size.height)-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom;
         if (contentHeight <= CGRectGetHeight(self.collectionView.frame)) {
             contentHeight = CGRectGetHeight(self.collectionView.frame) + 1;
         }
