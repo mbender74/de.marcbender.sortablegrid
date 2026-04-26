@@ -182,7 +182,7 @@ gridView = sortableGridModule.createView({
 	width:Ti.UI.FILL,
 	layout: "vertical",
 	lazyLoadingEnabled:true, // disables image loader when scrolling, enables when scrolling done
-	contentInsets:{top: 20, bottom:20, left:10,right:10},
+	contentInsets:{top: 10, bottom:20, left:10,right:10},
 	scrollIndicatorInsets:{top: 10, bottom:10,left:0,right:0},
 	columnCount:3,
 	rowCount:5, // Android only
@@ -193,7 +193,7 @@ gridView = sortableGridModule.createView({
 	deleteButtonImage:deleteButtonImage,  // this should be an image, this demo function that will create the image works only after the view is loaded (because of toImage() function), you can also set the property "deleteButtonImage" after the view did focus with: gridView.deleteButtonImage = yourImage;  
 	itemsBadgeEnabled:true,
 	waterFallLayout:true,
-	pagingEnabled:true, // scroll will do paging instead of normal scrolling
+	pagingEnabled:false, // scroll will do paging instead of normal scrolling
 	pagerEnabled:true, // display page indicator
 	pagerFollowsBottomInset:false, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
 	pageIndicatorTintColor:'#dddddd',
@@ -318,7 +318,7 @@ function createGridDashBoardViews(size){
 
 
 
-gridCells = createGridDashBoardViews(40);
+gridCells = createGridDashBoardViews(20);
 
 
 
@@ -356,6 +356,30 @@ gridCells = createGridDashBoardViews(40);
   gridView.addEventListener('pageChanged', function(e) {
 	console.log("pageChangedEvent: "+e.pageNo);
   });
+
+
+
+// ---- Delete item button ----
+var deleteItemButton = Ti.UI.createView({
+	bottom: 10,
+	left: 130,
+	height: 40,
+	width: 40,
+	borderRadius: 6,
+	borderWidth: 2,
+	borderColor: '#ccffffff',
+	backgroundColor: getRandomColor()
+});
+
+deleteItemButton.addEventListener('touchstart', function () { this.opacity = 0.7; });
+deleteItemButton.addEventListener('touchend', function () { this.opacity = 1.0; });
+deleteItemButton.addEventListener('touchcancel', function () { this.opacity = 1.0; });
+
+deleteItemButton.addEventListener('click', function () {
+	if (gridView.data.length > 0) {
+		gridView.deleteItemAtIndex({index:0});
+	}
+});
 
 
 
@@ -399,8 +423,6 @@ gridCells = createGridDashBoardViews(40);
 
 	v.addEventListener("click",function(e){
 		console.log("this.position:"+(this.position+1));
-
-		//gridView.deleteItemAtIndex({index:this.position});
 	});
 	v.addEventListener('touchstart', function(e){
 		this.opacity = 0.7;
@@ -440,7 +462,7 @@ gridCells = createGridDashBoardViews(40);
 
 
 
- var addBadgeValue = Ti.UI.createView({
+ var addItemButton = Ti.UI.createView({
 	bottom:30,
 	height:40,
 	width:40,
@@ -451,20 +473,20 @@ gridCells = createGridDashBoardViews(40);
 	backgroundColor:getRandomColor()
  });
 
- addBadgeValue.addEventListener('touchstart', function(e){
+ addItemButton.addEventListener('touchstart', function(e){
 	this.opacity = 0.7;
   });
 
-  addBadgeValue.addEventListener('touchend', function(e){
+  addItemButton.addEventListener('touchend', function(e){
 	this.opacity = 1.0;
   });
 
-  addBadgeValue.addEventListener('touchcancel', function(e){
+  addItemButton.addEventListener('touchcancel', function(e){
 	this.opacity = 1.0;
   });
 
 
- addBadgeValue.addEventListener("click",function(e){
+ addItemButton.addEventListener("click",function(e){
 	//gridView.data[0].badgeValue = generateRandomInteger(0,120);
 
 	var newItem = addItemAtIndex((gridView.data.length));
@@ -502,7 +524,7 @@ editButton.addEventListener('touchstart', function(e){
   });
 
 
-var setNewData = Ti.UI.createView({
+var setNewDataButton = Ti.UI.createView({
 	bottom:30,
 	height:40,
 	width:40,
@@ -512,7 +534,7 @@ var setNewData = Ti.UI.createView({
 	borderColor:'#ccffffff',
 	backgroundColor:getRandomColor()
  });
- setNewData.addEventListener("click",function(e){
+ setNewDataButton.addEventListener("click",function(e){
 
 	console.log("gridView.data length" + gridView.data.length);
 	console.log("gridCells length" + gridCells.length);
@@ -534,7 +556,25 @@ var setNewData = Ti.UI.createView({
 
  });
 
+// ---- Scroll to bottom button ----
+var scrollToBottomButton = Ti.UI.createView({
+	bottom: 10,
+	right: 130,
+	height: 40,
+	width: 40,
+	borderRadius: 6,
+	borderWidth: 2,
+	borderColor: '#ccffffff',
+	backgroundColor: getRandomColor()
+});
 
+scrollToBottomButton.addEventListener('touchstart', function () { this.opacity = 0.7; });
+scrollToBottomButton.addEventListener('touchend', function () { this.opacity = 1.0; });
+scrollToBottomButton.addEventListener('touchcancel', function () { this.opacity = 1.0; });
+
+scrollToBottomButton.addEventListener('click', function () {
+	gridView.scrollToItemAtIndex(gridView.data.length - 1);
+});
 
  gridView.data = gridCells;
 
@@ -551,7 +591,18 @@ win.add(gridContainer);
 
 
 
+// ---- Add button labels ----
+editButton.add(Ti.UI.createLabel({ text: '✏', color: '#fff', font: { fontSize: 18 } }));
+addItemButton.add(Ti.UI.createLabel({ text: '+', color: '#fff', font: { fontSize: 22, fontWeight: 'bold' } }));
+deleteItemButton.add(Ti.UI.createLabel({ text: '−', color: '#fff', font: { fontSize: 22, fontWeight: 'bold' } }));
+setNewDataButton.add(Ti.UI.createLabel({ text: '↻', color: '#fff', font: { fontSize: 18 } }));
+// toggleBadgeButton.add(Ti.UI.createLabel({ text: '🛇', color: '#fff', font: { fontSize: 16 } }));
+scrollToBottomButton.add(Ti.UI.createLabel({ text: '↓', color: '#fff', font: { fontSize: 22, fontWeight: 'bold' } }));
+
+
 win.add(editButton);
-win.add(addBadgeValue);
-win.add(setNewData);
+win.add(addItemButton);
+win.add(deleteItemButton);
+win.add(scrollToBottomButton);
+win.add(setNewDataButton);
 
