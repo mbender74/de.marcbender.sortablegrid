@@ -122,10 +122,10 @@
 }
 
 - (void)computeAttributesWithItemWidth:(CGFloat)itemWidth {
-    
+
   //  NSLog(@"[WARN] in computeAttributesWithItemWidth");
 
-    
+
     self.pagesCount = 1;
     self.contentWidth = 0;
     self.contentHeight = 0;
@@ -133,7 +133,11 @@
     if (self.showDeleteButton == NO){
         topInset = self.sectionInset.top;
     }
-    
+
+    // Free previously allocated memory before reallocating
+    if (columnHeight) free(columnHeight);
+    if (columnItemCount) free(columnItemCount);
+
     columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
     columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
     
@@ -221,6 +225,10 @@
                     
                     self.pagesCount = self.pagesCount + 1;
 
+                    // Free old column data before reallocating for new page
+                    if (columnHeight) free(columnHeight);
+                    if (columnItemCount) free(columnItemCount);
+
                     columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
                     columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
 
@@ -284,8 +292,10 @@
     
         
     self.layoutAttributesArray = attributesArray.copy;
-   // NSLog(@" ");
- //   NSLog(@"[WARN] computeAttributesWithItemWidth DONE");
+
+    // Free allocated memory to prevent leaks on subsequent calls
+    if (columnHeight) { free(columnHeight); columnHeight = NULL; }
+    if (columnItemCount) { free(columnItemCount); columnItemCount = NULL; }
 
 
 }

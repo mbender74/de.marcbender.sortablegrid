@@ -1044,7 +1044,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     [cbutton.layer setCornerRadius:17];
     cbutton.frame = CGRectMake(0, 0, 34, 34);
     [cbutton setHidden:YES];
-    return [cbutton retain];
+    return cbutton;
 }
 
 
@@ -2165,10 +2165,31 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
         [[ImageLoader sharedLoader] suspend];
     }
 
-    //if (pagerEnabled == YES){
-        [self updatePagerWithContentOffset:launcher.contentOffset];
-    //}
-    [self fireScrollEvent:launcher];
+    // Throttle JS scroll events to ~30fps to reduce bridge overhead
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (now - lastScrollEventTime >= 0.033) {
+        lastScrollEventTime = now;
+        [self fireScrollEvent:launcher];
+    }
+
+    // Update pager only when page actually changes
+    NSInteger newPage;
+    if (scrollDirection == mkScrollHorizontal) {
+        CGFloat pageWidth = launcher.frame.size.width;
+        newPage = floor((launcher.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+    } else {
+        CGFloat pageWidth = launcher.frame.size.height;
+        newPage = floor((launcher.contentOffset.y - pageWidth / 2) / pageWidth) + 1;
+    }
+    if (newPage != currentPage) {
+        currentPage = newPage;
+        if (pager != nil) {
+            pager.currentPage = currentPage;
+        }
+        if ([self respondsToSelector:@selector(didChangePage:)]) {
+            [self didChangePage:[NSNumber numberWithInteger:currentPage + 1]];
+        }
+    }
 }
 
 

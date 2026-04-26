@@ -182,8 +182,8 @@ gridView = sortableGridModule.createView({
 	width:Ti.UI.FILL,
 	layout: "vertical",
 	lazyLoadingEnabled:true, // disables image loader when scrolling, enables when scrolling done
-	contentInsets:{top: 10, bottom:20, left:10,right:10},
-	scrollIndicatorInsets:{top: 0, bottom:0,left:0,right:0},
+	contentInsets:{top: 20, bottom:20, left:10,right:10},
+	scrollIndicatorInsets:{top: 10, bottom:10,left:0,right:0},
 	columnCount:3,
 	rowCount:5, // Android only
 	wobble:true, // wobble animation in edit mode
@@ -192,8 +192,8 @@ gridView = sortableGridModule.createView({
 	showDeleteButton:true,
 	deleteButtonImage:deleteButtonImage,  // this should be an image, this demo function that will create the image works only after the view is loaded (because of toImage() function), you can also set the property "deleteButtonImage" after the view did focus with: gridView.deleteButtonImage = yourImage;  
 	itemsBadgeEnabled:true,
-	waterFallLayout:false,
-	pagingEnabled:false, // scroll will do paging instead of normal scrolling
+	waterFallLayout:true,
+	pagingEnabled:true, // scroll will do paging instead of normal scrolling
 	pagerEnabled:true, // display page indicator
 	pagerFollowsBottomInset:false, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
 	pageIndicatorTintColor:'#dddddd',
@@ -201,7 +201,7 @@ gridView = sortableGridModule.createView({
 	showVerticalScrollIndicator: true,
 	showHorizontalScrollIndicator: true,
 	scrollType:'vertical',
-	disableBounce:false, // disable bouncing of gridview
+	disableBounce:true, // disable bouncing of gridview
 	backgroundColor:'#cdcdcd',
 	refreshControl
 	//data:[]
@@ -318,7 +318,7 @@ function createGridDashBoardViews(size){
 
 
 
-gridCells = createGridDashBoardViews(20);
+gridCells = createGridDashBoardViews(40);
 
 
 
