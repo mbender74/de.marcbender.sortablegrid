@@ -29,10 +29,22 @@
 
 
  
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+
+    // Propagate cornerRadius to the container superview so rounded corners appear.
+    // Do NOT propagate clipsToBounds — the container holds overlay views (delete button, badge)
+    // that must extend beyond the rounded corners without being clipped.
+    UIView *container = self.superview;
+    if (container != nil) {
+        container.layer.cornerRadius = self.layer.cornerRadius;
+        container.clipsToBounds = NO;
+    }
+}
+
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    self.clipsToBounds = NO;
-
 
    // self.contentView.frame = bounds;
    // [super frameSizeChanged:frame bounds:bounds];
