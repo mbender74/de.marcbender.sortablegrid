@@ -1399,13 +1399,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
     
     [cellViewContainer addSubview:cellView];
-    cellView.clipsToBounds = NO;
-    cellView.layer.masksToBounds = NO;
-
-    cellViewContainer.clipsToBounds = NO;
-    cellViewContainer.layer.masksToBounds = NO;
     cellViewContainer.frame = cellFrame;
-    cellViewContainer.layer.cornerRadius = cellView.layer.cornerRadius;
+    // cornerRadius & clipsToBounds are propagated by DeMarcbenderSortablegridItem.layoutSubviews
 
     closeButton.hidden = YES;
     closeButton.frame = CGRectMake(cellViewContainer.bounds.origin.x-(closeButton.frame.size.width/4), cellViewContainer.bounds.origin.y-(closeButton.frame.size.height/3), closeButton.frame.size.width, closeButton.frame.size.height);

@@ -41,35 +41,8 @@
 }
 
 
-- (void)setViewShadowColor:(id)value
-{
-    [self replaceValue:nil forKey:@"viewShadowColor" notification:NO];
-}
-
-- (void)setViewShadowOffset:(id)value
-{
-    [self replaceValue:nil forKey:@"viewShadowOffset" notification:NO];
-}
-
-- (void)setViewShadowRadius:(id)value
-{
-    [self replaceValue:nil forKey:@"viewShadowRadius" notification:NO];
-}
-
-- (void)setCenter:(id)value
-{
-    [self replaceValue:nil forKey:@"center" notification:NO];
-}
-
-- (void)setTop:(id)value
-{
-   [self replaceValue:nil forKey:@"top" notification:NO];
-}
-
-- (void)setBottom:(id)value
-{
-  [self replaceValue:nil forKey:@"bottom" notification:NO];
-}
+// All standard Ti.UI.View properties are now supported by default
+// (borderRadius, borderWidth, borderColor, backgroundColor, opacity, top, bottom, left, right, width, height, etc.)
 
 
 - (void)setBadgeValue:(id)value
