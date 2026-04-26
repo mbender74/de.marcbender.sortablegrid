@@ -210,7 +210,7 @@
 
 - (void)scrollToItemAtIndex:(id)args
 {
-    ENSURE_ARG_COUNT(args, 2);
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
     [(DeMarcbenderSortablegridView *)[self view] scrollToItemAtIndex:args];
 }
@@ -218,12 +218,15 @@
 
 -(void)scrollToBottom:(id)args
 {
-    //TiThreadPerformOnMainThread(^{
-        [(DeMarcbenderSortablegridView *)[self view] scrollToBottom:args];
-   // }, NO);
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    [(DeMarcbenderSortablegridView *)[self view] scrollToBottom:args];
 }
 
-
+-(void)scrollToTop:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    [(DeMarcbenderSortablegridView *)[self view] scrollToTop:args];
+}
 
 @end
 

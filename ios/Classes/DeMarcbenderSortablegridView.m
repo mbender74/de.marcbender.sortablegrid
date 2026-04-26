@@ -1660,14 +1660,11 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 - (void)scrollToItemAtIndex:(id)args
 {
-        ENSURE_ARG_COUNT(args, 2);
-        NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
-        NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
-        UICollectionViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:properties def:UICollectionViewScrollPositionBottom];
-        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        NSUInteger itemIndex = [TiUtils intValue:@"index" properties:args];
+        BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
         TiThreadPerformOnMainThread(^{
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:0];
-            [launcher scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
+            [launcher scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionBottom animated:animated];
         }, [NSThread isMainThread]);
 }
 
@@ -2115,30 +2112,31 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 -(void)scrollToBottom:(id)props
 {
-    /*
-     * Calculate the bottom height & width and, sets the offset from the
-     * content view’s origin that corresponds to the receiver’s origin.
-     */
-    
-    BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+    BOOL animated = [TiUtils boolValue:@"animated" properties:props def:YES];
     if ([self isLazyLoadingEnabled]) {
         [[ImageLoader sharedLoader] suspend];
     }
 
-    
-    [UIView performWithoutAnimation:^{
-        CGSize svContentSize = [self launcher].contentSize;
-        CGSize svBoundSize = [self launcher].bounds.size;
-        CGFloat svBottomInsets = [self launcher].contentInset.bottom;
-        
-        CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets + 34;
-        CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
-        
-        CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
-        [[self launcher] setContentOffset:newOffset animated:NO];
-    }];
+    CGSize svContentSize = [self launcher].contentSize;
+    CGSize svBoundSize = [self launcher].bounds.size;
+    CGFloat bottomHeight = svContentSize.height - svBoundSize.height + [self launcher].contentInset.bottom;
+    CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
+    CGPoint newOffset = CGPointMake(bottomWidth, bottomHeight);
+    [[self launcher] setContentOffset:newOffset animated:animated];
 }
 
+-(void)scrollToTop:(id)props
+{
+    BOOL animated = [TiUtils boolValue:@"animated" properties:props def:YES];
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+
+    CGPoint topOffset = CGPointMake(
+        -[self launcher].contentInset.left,
+        -[self launcher].contentInset.top);
+    [[self launcher] setContentOffset:topOffset animated:animated];
+}
 
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -2173,21 +2171,29 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
 
     // Update pager only when page actually changes
+    // Calculate page based on scrollable distance / frame size (matches pagerInit: calculation)
     NSInteger newPage;
     if (scrollDirection == mkScrollHorizontal) {
         CGFloat pageWidth = launcher.frame.size.width;
-        newPage = floor((launcher.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+        CGFloat scrollableDistance = launcher.contentSize.width - launcher.frame.size.width;
+        CGFloat scrolled = launcher.contentOffset.x + launcher.contentInset.left;
+        newPage = (scrollableDistance > 0) ? floor((scrolled / scrollableDistance) * (numberOfPages - 1)) : 0;
     } else {
-        CGFloat pageWidth = launcher.frame.size.height;
-        newPage = floor((launcher.contentOffset.y - pageWidth / 2) / pageWidth) + 1;
+        CGFloat pageHeight = launcher.frame.size.height;
+        CGFloat scrollableDistance = launcher.contentSize.height - launcher.frame.size.height;
+        CGFloat scrolled = launcher.contentOffset.y + launcher.contentInset.top;
+        newPage = (scrollableDistance > 0) ? floor((scrolled / scrollableDistance) * (numberOfPages - 1)) : 0;
     }
+    // Clamp to valid range (0-based for UIPageControl)
+    if (newPage < 0) newPage = 0;
+    if (newPage >= numberOfPages) newPage = numberOfPages - 1;
     if (newPage != currentPage) {
         currentPage = newPage;
         if (pager != nil) {
             pager.currentPage = currentPage;
         }
         if ([self respondsToSelector:@selector(didChangePage:)]) {
-            [self didChangePage:[NSNumber numberWithInteger:currentPage + 1]];
+            [self didChangePage:[NSNumber numberWithInteger:currentPage]];
         }
     }
 }
