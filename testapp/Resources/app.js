@@ -166,10 +166,11 @@ var lbl = Ti.UI.createLabel({
 
 var deleteButtonImage = createRemoveButton().toImage(null,true);
 
-var refreshControl = Ti.UI.createRefreshControl({ tintColor: 'red' });
-refreshControl.addEventListener('refreshstart', () => {
+var refreshControlView = Ti.UI.createRefreshControl({ tintColor: 'red' });
+
+refreshControlView.addEventListener('refreshstart', () => {
 	setTimeout(() => {
-		refreshControl.endRefreshing();
+		refreshControlView.endRefreshing();
 	}, 2000);
 });
 
@@ -183,7 +184,7 @@ gridView = sortableGridModule.createView({
 	layout: "vertical",
 	lazyLoadingEnabled:true, // disables image loader when scrolling, enables when scrolling done
 	contentInsets:{top: 10, bottom:20, left:10,right:10},
-	scrollIndicatorInsets:{top: 10, bottom:10,left:0,right:0},
+	scrollIndicatorInsets:{top: 10, bottom:10,left:10,right:10},
 	columnCount:3,
 	rowCount:5, // Android only
 	wobble:true, // wobble animation in edit mode
@@ -200,11 +201,10 @@ gridView = sortableGridModule.createView({
 	currentPageIndicatorTintColor:'red',
 	showVerticalScrollIndicator: true,
 	showHorizontalScrollIndicator: true,
-	scrollType:'vertical',
-	disableBounce:true, // disable bouncing of gridview
+	scrollType:'horizontal', // 'horizontal' or 'vertical'
+	disableBounce:false, // disable bouncing of gridview, refreshControl will not work if this is set to true on iOS, on Android it will work, but you will not have the bounce effect when you reach the end of the scrollview
 	backgroundColor:'#cdcdcd',
-	refreshControl
-	//data:[]
+	refreshControl:refreshControlView
 });
 
 
@@ -361,8 +361,8 @@ gridCells = createGridDashBoardViews(20);
 
 // ---- Delete item button ----
 var deleteItemButton = Ti.UI.createView({
-	bottom: 10,
-	left: 130,
+	bottom:30,
+	left: 80,
 	height: 40,
 	width: 40,
 	borderRadius: 6,
@@ -558,7 +558,7 @@ var setNewDataButton = Ti.UI.createView({
 
 // ---- Scroll to bottom button ----
 var scrollToBottomButton = Ti.UI.createView({
-	bottom: 10,
+	bottom:30,
 	right: 130,
 	height: 40,
 	width: 40,
@@ -573,7 +573,12 @@ scrollToBottomButton.addEventListener('touchend', function () { this.opacity = 1
 scrollToBottomButton.addEventListener('touchcancel', function () { this.opacity = 1.0; });
 
 scrollToBottomButton.addEventListener('click', function () {
-	gridView.scrollToItemAtIndex(gridView.data.length - 1);
+	console.log("gridView.data.length:"+gridView.data.length);
+
+	gridView.scrollToItemAtIndex({
+		index:(gridView.data.length - 1),
+		animated:true
+	});
 });
 
  gridView.data = gridCells;

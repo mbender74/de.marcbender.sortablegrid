@@ -16,6 +16,7 @@
 @property (nonatomic, strong) NSArray *layoutAttributesArray;
 @property (nonatomic, assign) CGFloat contentHeight;
 @property (nonatomic, assign) CGFloat contentWidth;
+@property (nonatomic, assign) CGFloat maxItemRight;
 @property (nonatomic, assign) CGFloat pagesCount;
 @property (nonatomic, assign) BOOL initDone;
 
@@ -129,6 +130,7 @@
     self.pagesCount = 1;
     self.contentWidth = 0;
     self.contentHeight = 0;
+    self.maxItemRight = 0;
 
     // Use collectionView contentInset.top for proper padding
     topInset = self.collectionView.contentInset.top;
@@ -283,6 +285,10 @@
         }
         attributes.frame = CGRectMake(itemX, itemY, itemWidth, itemH);
         [attributesArray addObject:attributes];
+        CGFloat itemRight = itemX + itemWidth;
+        if (itemRight > self.maxItemRight) {
+            self.maxItemRight = itemRight;
+        }
 
     }
     
@@ -390,9 +396,8 @@
 
     [super collectionViewContentSize];
 
-    if (scrolldirection == mkScrollVertical) {
-        // Use actual computed content height from item layout, plus bottom inset
-        // so content is scrollable above the bottom inset area
+   if (scrolldirection == mkScrollVertical) {
+        // Content height includes items + bottom inset for full scroll range
         CGFloat contentHeight = self.contentHeight + self.collectionView.contentInset.bottom;
         if (contentHeight <= CGRectGetHeight(self.collectionView.frame)) {
             contentHeight = CGRectGetHeight(self.collectionView.frame) + 1;
@@ -400,8 +405,8 @@
         return CGSizeMake(self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right, contentHeight);
     }
     else {
-        // Horizontal: use actual computed content width, plus right inset
-        CGFloat contentWidth = self.contentWidth + self.collectionView.contentInset.right;
+        // Horizontal: use actual rightmost item position + right inset
+        CGFloat contentWidth = self.maxItemRight + self.collectionView.contentInset.right;
         return CGSizeMake(contentWidth, self.collectionView.frame.size.height - self.collectionView.contentInset.top - self.collectionView.contentInset.bottom);
     }
 

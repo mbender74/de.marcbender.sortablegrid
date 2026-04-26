@@ -23,6 +23,8 @@
 - (void)deleteItemAtIndex:(id)args;
 - (void)insertItemAtIndex:(id)args;
 - (void)scrollToItemAtIndex:(id)args;
+- (void)scrollToBottom:(id)args;
+- (void)scrollToTop:(id)args;
 - (void)setContentInsets:(id)args;
 @end
 

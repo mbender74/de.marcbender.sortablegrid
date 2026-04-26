@@ -90,6 +90,7 @@
 -(void)setContentInset:(id)value withObject:(id)props;
 - (void)setContentInsets:(id)args;
 -(void)scrollToBottom:(id)props;
+-(void)scrollToTop:(id)props;
 - (void)startEditing;
 - (void)stopEditing;
 - (void)initData;
