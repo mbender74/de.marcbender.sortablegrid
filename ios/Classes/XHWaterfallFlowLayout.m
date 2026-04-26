@@ -130,7 +130,9 @@
     self.contentWidth = 0;
     self.contentHeight = 0;
 
-    if (self.showDeleteButton == NO){
+    // Use collectionView contentInset.top for proper padding
+    topInset = self.collectionView.contentInset.top;
+    if (self.showDeleteButton == NO && self.sectionInset.top > 0){
         topInset = self.sectionInset.top;
     }
 
@@ -142,7 +144,7 @@
     columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
     
     for (int i = 0; i < self.columnCount; i++) {
-        columnHeight[i] = 0;
+        columnHeight[i] = topInset;
         columnItemCount[i] = 0;
     }
     
@@ -384,23 +386,25 @@
 
 - (CGSize)collectionViewContentSize
 {
-    
-   
+
+
     [super collectionViewContentSize];
 
     if (scrolldirection == mkScrollVertical) {
-        CGFloat contentHeight = ceil(self.pagesCount * self.collectionView.frame.size.height)-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom;
+        // Use actual computed content height from item layout, plus bottom inset
+        // so content is scrollable above the bottom inset area
+        CGFloat contentHeight = self.contentHeight + self.collectionView.contentInset.bottom;
         if (contentHeight <= CGRectGetHeight(self.collectionView.frame)) {
             contentHeight = CGRectGetHeight(self.collectionView.frame) + 1;
         }
-        return CGSizeMake((self.collectionView.frame.size.width)-self.collectionView.contentInset.left-self.collectionView.contentInset.right, contentHeight);
+        return CGSizeMake(self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right, contentHeight);
     }
     else {
-
-        CGFloat contentWidth = (self.pagesCount * (self.collectionView.frame.size.width))-self.collectionView.contentInset.left-self.collectionView.contentInset.right;
-        return CGSizeMake(contentWidth, self.collectionView.frame.size.height-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom);
+        // Horizontal: use actual computed content width, plus right inset
+        CGFloat contentWidth = self.contentWidth + self.collectionView.contentInset.right;
+        return CGSizeMake(contentWidth, self.collectionView.frame.size.height - self.collectionView.contentInset.top - self.collectionView.contentInset.bottom);
     }
-    
+
 }
 
 
