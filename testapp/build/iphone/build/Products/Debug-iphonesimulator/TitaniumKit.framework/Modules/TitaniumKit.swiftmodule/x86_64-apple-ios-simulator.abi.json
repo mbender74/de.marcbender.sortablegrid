@@ -1,0 +1,587 @@
+{
+  "ABIRoot": {
+    "kind": "Root",
+    "name": "TitaniumKit",
+    "printedName": "TitaniumKit",
+    "children": [
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "TitaniumKit",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "SwiftUI",
+        "printedName": "SwiftUI",
+        "declKind": "Import",
+        "moduleName": "TitaniumKit"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "TiErrorViewController",
+        "printedName": "TiErrorViewController",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(error:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "TiErrorViewController",
+                "printedName": "TitaniumKit.TiErrorViewController",
+                "usr": "c:@M@TitaniumKit@objc(cs)TiErrorViewController"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "TiScriptError",
+                "printedName": "TitaniumKit.TiScriptError",
+                "usr": "c:objc(cs)TiScriptError"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@TitaniumKit@objc(cs)TiErrorViewController(im)initWithError:",
+            "mangledName": "$s11TitaniumKit21TiErrorViewControllerC5errorACSo0c6ScriptD0C_tcfc",
+            "moduleName": "TitaniumKit",
+            "objc_name": "initWithError:",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom",
+              "AccessControl",
+              "ObjC"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(nibName:bundle:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "TiErrorViewController",
+                "printedName": "TitaniumKit.TiErrorViewController",
+                "usr": "c:@M@TitaniumKit@objc(cs)TiErrorViewController"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.Bundle?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bundle",
+                    "printedName": "Foundation.Bundle",
+                    "usr": "c:objc(cs)NSBundle"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@TitaniumKit@objc(cs)TiErrorViewController(im)initWithNibName:bundle:",
+            "mangledName": "$s11TitaniumKit21TiErrorViewControllerC7nibName6bundleACSSSg_So8NSBundleCSgtcfc",
+            "moduleName": "TitaniumKit",
+            "overriding": true,
+            "objc_name": "initWithNibName:bundle:",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Preconcurrency",
+              "Custom",
+              "Override",
+              "AccessControl",
+              "Required"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "viewDidLoad",
+            "printedName": "viewDidLoad()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@TitaniumKit@objc(cs)TiErrorViewController(im)viewDidLoad",
+            "mangledName": "$s11TitaniumKit21TiErrorViewControllerC11viewDidLoadyyF",
+            "moduleName": "TitaniumKit",
+            "overriding": true,
+            "objc_name": "viewDidLoad",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Preconcurrency",
+              "Custom",
+              "Override",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@TitaniumKit@objc(cs)TiErrorViewController",
+        "mangledName": "$s11TitaniumKit21TiErrorViewControllerC",
+        "moduleName": "TitaniumKit",
+        "intro_iOS": "13.0",
+        "declAttributes": [
+          "Preconcurrency",
+          "Custom",
+          "AccessControl",
+          "Available",
+          "RawDocComment",
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)UIViewController",
+        "hasMissingDesignatedInitializers": true,
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "UIKit.UIViewController",
+          "UIKit.UIResponder",
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UITraitChangeObservable",
+            "printedName": "UITraitChangeObservable",
+            "usr": "s:5UIKit23UITraitChangeObservableP",
+            "mangledName": "$s5UIKit23UITraitChangeObservableP"
+          }
+        ]
+      }
+    ],
+    "json_format_version": 8
+  },
+  "ConstValues": [
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8080,
+      "length": 4,
+      "value": "0xf4"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8087,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8127,
+      "length": 4,
+      "value": "0x43"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8134,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8173,
+      "length": 4,
+      "value": "0x36"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8180,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8220,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8263,
+      "length": 4,
+      "value": "0xef"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8270,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8318,
+      "length": 4,
+      "value": "0x53"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8325,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8372,
+      "length": 4,
+      "value": "0x50"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8379,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8427,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8471,
+      "length": 4,
+      "value": "0xbd"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8478,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8527,
+      "length": 4,
+      "value": "0xbd"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8534,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8582,
+      "length": 4,
+      "value": "0xbd"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8589,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8638,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8682,
+      "length": 4,
+      "value": "0xf5"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8689,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8738,
+      "length": 4,
+      "value": "0xf5"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8745,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8793,
+      "length": 4,
+      "value": "0xf5"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8800,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8849,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8892,
+      "length": 4,
+      "value": "0x75"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8899,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8947,
+      "length": 4,
+      "value": "0x75"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 8954,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9001,
+      "length": 4,
+      "value": "0x75"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9008,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9056,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9099,
+      "length": 4,
+      "value": "0x42"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9106,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9154,
+      "length": 4,
+      "value": "0x42"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9161,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9208,
+      "length": 4,
+      "value": "0x42"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9215,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9263,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9306,
+      "length": 4,
+      "value": "0x21"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9313,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9361,
+      "length": 4,
+      "value": "0x21"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9368,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9415,
+      "length": 4,
+      "value": "0x21"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9422,
+      "length": 4,
+      "value": "0xff"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/titanium-sdk\/titanium-sdk\/iphone\/TitaniumKit\/TitaniumKit\/Sources\/API\/ErrorView.swift",
+      "kind": "IntegerLiteral",
+      "offset": 9470,
+      "length": 1,
+      "value": "1"
+    }
+  ]
+}

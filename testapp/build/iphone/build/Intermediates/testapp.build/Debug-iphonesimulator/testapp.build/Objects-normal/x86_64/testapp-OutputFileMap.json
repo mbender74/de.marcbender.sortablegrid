@@ -1,0 +1,49 @@
+{
+  "" : {
+    "diagnostics" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/testapp-primary.dia",
+    "emit-module-dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/testapp-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/testapp-primary-emit-module.dia",
+    "pch" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/testapp-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/testapp-primary.swiftdeps"
+  },
+  "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/Classes/TiActivityAttributes.swift" : {
+    "const-values" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes.swiftconstvalues",
+    "dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes.d",
+    "diagnostics" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes.dia",
+    "index-unit-output-path" : "/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes.o",
+    "llvm-bc" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes.bc",
+    "object" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes.o",
+    "swift-dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes.swiftdeps",
+    "swiftmodule" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiActivityAttributes~partial.swiftmodule"
+  },
+  "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/Classes/TiAppiOSActivityAttributesProxy+startActivity.swift" : {
+    "const-values" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity.swiftconstvalues",
+    "dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity.d",
+    "diagnostics" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity.dia",
+    "index-unit-output-path" : "/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity.o",
+    "llvm-bc" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity.bc",
+    "object" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity.o",
+    "swift-dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity.swiftdeps",
+    "swiftmodule" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiAppiOSActivityAttributesProxy+startActivity~partial.swiftmodule"
+  },
+  "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/Classes/TiUtils+Addons.swift" : {
+    "const-values" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons.swiftconstvalues",
+    "dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons.d",
+    "diagnostics" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons.dia",
+    "index-unit-output-path" : "/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons.o",
+    "llvm-bc" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons.bc",
+    "object" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons.o",
+    "swift-dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons.swiftdeps",
+    "swiftmodule" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/TiUtils+Addons~partial.swiftmodule"
+  },
+  "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/testapp.build/Debug-iphonesimulator/testapp.build/Objects-normal/x86_64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

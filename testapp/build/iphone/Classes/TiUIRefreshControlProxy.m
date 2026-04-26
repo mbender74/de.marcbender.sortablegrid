@@ -1,0 +1,117 @@
+/**
+ * testapp SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ * 
+ * WARNING: This is generated code. Modify at your own risk and without support.
+ */
+#ifdef USE_TI_UIREFRESHCONTROL
+
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+#import "TiUIAttributedStringProxy.h"
+#endif
+#import "TiUIRefreshControlProxy.h"
+#import <TitaniumKit/TiUtils.h>
+
+@implementation TiUIRefreshControlProxy
+
+- (NSString *)apiName
+{
+  return @"Ti.UI.RefreshControl";
+}
+
+- (void)dealloc
+{
+  RELEASE_TO_NIL(_refreshControl);
+  [super dealloc];
+}
+
+#pragma mark - Internal Use
+- (UIRefreshControl *)control
+{
+  // Must be called on main thread
+  if (_refreshControl == nil) {
+    _refreshControl = [UIRefreshControl new];
+    [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];
+  }
+
+  return _refreshControl;
+}
+
+- (void)refreshingDidStart
+{
+  if ([self _hasListeners:@"refreshstart"]) {
+    [self fireEvent:@"refreshstart" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
+- (void)refreshingDidEnd
+{
+  if ([self _hasListeners:@"refreshend"]) {
+    [self fireEvent:@"refreshend" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
+#pragma mark - Public APIs
+
+- (void)setTitle:(id)value
+{
+#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:value];
+  if (as) {
+    [self replaceValue:as forKey:@"title" notification:NO];
+
+    TiThreadPerformOnMainThread(
+        ^{
+          [[self control] setAttributedTitle:[(TiUIAttributedStringProxy *)as attributedString]];
+        },
+        NO);
+  }
+#endif
+}
+
+- (void)setTintColor:(id)value
+{
+  [self replaceValue:value forKey:@"tintColor" notification:NO];
+
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setTintColor:[[TiUtils colorValue:value] color]];
+      },
+      NO);
+}
+
+- (void)setBackgroundColor:(id)value
+{
+  [self replaceValue:value forKey:@"backgroundColor" notification:NO];
+
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setBackgroundColor:[[TiUtils colorValue:value] color]];
+      },
+      NO);
+}
+
+- (void)beginRefreshing:(id)unused
+{
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] beginRefreshing];
+        [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
+      },
+      NO);
+}
+
+- (void)endRefreshing:(id)unused
+{
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] endRefreshing];
+        [self refreshingDidEnd];
+      },
+      NO);
+}
+
+@end
+#endif
