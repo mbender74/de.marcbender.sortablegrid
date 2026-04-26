@@ -226,7 +226,8 @@ function createGridDashBoardViews(size){
         canBeMoved:true,
 		badgeValue:generateRandomInteger(0,200),
 		badgeTintColor:'#ccd3413d',
-	   });
+		borderRadius: 8
+		});
 
 	   v.addEventListener("click",function(e){
 			 	console.log("this.position:"+(this.position+1));

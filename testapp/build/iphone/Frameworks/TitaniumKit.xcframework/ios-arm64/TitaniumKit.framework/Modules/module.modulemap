@@ -1,0 +1,11 @@
+framework module TitaniumKit {
+  umbrella header "TitaniumKit.h"
+  export *
+
+  module * { export * }
+}
+
+module TitaniumKit.Swift {
+  header "TitaniumKit-Swift.h"
+  requires objc
+}

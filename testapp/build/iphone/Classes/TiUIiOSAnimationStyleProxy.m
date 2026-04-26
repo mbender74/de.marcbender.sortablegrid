@@ -1,0 +1,32 @@
+/**
+ * testapp SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ * 
+ * WARNING: This is generated code. Modify at your own risk and without support.
+ */
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+
+#import "TiUIiOSAnimationStyleProxy.h"
+#import <TitaniumKit/TiBase.h>
+
+@implementation TiUIiOSAnimationStyleProxy
+
+- (NSString *)apiName
+{
+  return @"Ti.UI.iOS.AnimationStyle";
+}
+
+MAKE_SYSTEM_PROP(NONE, UIViewAnimationOptionTransitionNone);
+MAKE_SYSTEM_PROP(CURL_UP, UIViewAnimationOptionTransitionCurlUp);
+MAKE_SYSTEM_PROP(CURL_DOWN, UIViewAnimationOptionTransitionCurlDown)
+MAKE_SYSTEM_PROP(FLIP_FROM_LEFT, UIViewAnimationOptionTransitionFlipFromLeft);
+MAKE_SYSTEM_PROP(FLIP_FROM_RIGHT, UIViewAnimationOptionTransitionFlipFromRight);
+MAKE_SYSTEM_PROP(FLIP_FROM_TOP, UIViewAnimationOptionTransitionFlipFromTop);
+MAKE_SYSTEM_PROP(FLIP_FROM_BOTTOM, UIViewAnimationOptionTransitionFlipFromBottom);
+MAKE_SYSTEM_PROP(CROSS_DISSOLVE, UIViewAnimationOptionTransitionCrossDissolve);
+
+@end
+
+#endif

@@ -1,0 +1,15 @@
+moduledependenciestarget: \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation1-AQYAG88XOE1EQ48FNUONFZYQ2.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreFoundation-1URZFWHERO7AMCOENH9HITOBV.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stdint-44UJ3GSY2IE9OGS4DEHLQBP0L.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stddef-26KHP9N77B5KG0HKY7CA9T4BZ.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreGraphics-8JXUARUUDQYVYGS45UFC1PL51.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreVideo-9LZUR2XRAT2IWV38MJYRPPVHO.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Dispatch-71F6M78XIV2IPIO8KTZFH84FI.pcm \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/DarwinFoundation1.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreFoundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/dispatch.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreVideo.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreAudio.framework/Modules/module.modulemap
