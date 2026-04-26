@@ -193,7 +193,7 @@ gridView = sortableGridModule.createView({
 	deleteButtonImage:deleteButtonImage,  // this should be an image, this demo function that will create the image works only after the view is loaded (because of toImage() function), you can also set the property "deleteButtonImage" after the view did focus with: gridView.deleteButtonImage = yourImage;  
 	itemsBadgeEnabled:true,
 	waterFallLayout:false,
-	pagingEnabled:true, // scroll will do paging instead of normal scrolling
+	pagingEnabled:false, // scroll will do paging instead of normal scrolling
 	pagerEnabled:true, // display page indicator
 	pagerFollowsBottomInset:false, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
 	pageIndicatorTintColor:'#dddddd',
@@ -216,17 +216,14 @@ function createGridDashBoardViews(size){
 		if (!isAndroid){
 
 	   var v = sortableGridModule.createItem({
-		   top:10,
-		   bottom:0,
-			id:(i+1), // usefull,but not needed, if you will do something with the gridView.data, to identify your item view, the gridView will automaticly add a 'position' property the the item, that reflects the item positon in the gridView, updated each time you move, add, delete an item
-			height:Ti.UI.SIZE,
+		id:(i+1), // usefull,but not needed, if you will do something with the gridView.data, to identify your item view, the gridView will automaticly add a 'position' property the the item, that reflects the item positon in the gridView, updated each time you move, add, delete an item
+		height:Ti.UI.SIZE,
         width:Ti.UI.FILL,
         badge:true,
         canBeDeleted:true,
         canBeMoved:true,
 		badgeValue:generateRandomInteger(0,200),
-		badgeTintColor:'#ccd3413d',
-		borderRadius: 8
+		badgeTintColor:'#ccd3413d'
 		});
 
 	   v.addEventListener("click",function(e){
@@ -249,8 +246,8 @@ function createGridDashBoardViews(size){
 	else {
 		var v = Ti.UI.createView({
 			id:(i+1),
-		  height:generateRandomInteger(120,220),
-		  width:generateRandomInteger(120,180),
+			height:generateRandomInteger(120,220),
+			width:generateRandomInteger(120,180),
 			top:0,
 			left:0,
 			right:0,
@@ -261,12 +258,13 @@ function createGridDashBoardViews(size){
 	}
 
 	var contentContainerView = Ti.UI.createView({
-		left:0,
-		right:0,
-		top:0,
-		bottom:0,
+		left:10,
+		right:10,
+		top:10,
+		bottom:10,
 		width:Ti.UI.SIZE,
-		height:Ti.UI.SIZE,
+		height:100,
+		borderRadius: 8,
 		backgroundColor:getRandomColor(),
 		viewShadowColor: '#000000',
 		  	viewShadowOffset: {
@@ -280,9 +278,9 @@ function createGridDashBoardViews(size){
 		  text: 'Cell ' + (i+1),
 		  color: '#ffffff',
 		  width:Ti.UI.FILL,
-		  height:100,
-		  left:30,
-		  right:30,
+		  height:Ti.UI.FILL,
+		  left:10,
+		  right:10,
 		  bottom:30,
 		  top:30,
 		  textAlign:Ti.UI.TEXT_ALIGNMENT_CENTER,
@@ -386,17 +384,17 @@ gridCells = createGridDashBoardViews(20);
 	var v = sortableGridModule.createItem({
 		id:(index+1),
 		height:generateRandomInteger(120,210),
-//		width:generateRandomInteger(120,120),
+		// width:generateRandomInteger(120,120),
 		width:Ti.UI.FILL,
 		canBeDeleted:true,
 		canBeMoved:true,
-	  borderRadius: 0,
-	  borderWith:4,
-	  borderColor:'#11000000',
-	  badge:true,
-	  badgeValue:generateRandomInteger(0,200),
-	  badgeTintColor:'#ccd3413d',
-	  backgroundColor:getRandomColor()
+		borderRadius: 0,
+		borderWidth:4,
+		borderColor:'#11000000',
+		badge:true,
+		badgeValue:generateRandomInteger(0,200),
+		badgeTintColor:'#ccd3413d',
+		backgroundColor:getRandomColor()
    });
 
 	v.addEventListener("click",function(e){
