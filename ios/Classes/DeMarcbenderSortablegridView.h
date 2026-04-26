@@ -54,6 +54,7 @@
   CGFloat cellWidth;
   BOOL inDeletingItem;
   int deletedItemId;
+  CFAbsoluteTime lastScrollEventTime;
   @private
   BMDragCellCollectionView *launcher;
   XHWaterfallFlowLayout *waterfallLayout;
