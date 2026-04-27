@@ -245,7 +245,10 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 - (void)dealloc
 {
   launcher.delegate = nil;
-  observerAdded = NO;
+  if (observerAdded) {
+      [launcher removeObserver:self forKeyPath:@"contentInset" context:nil];
+      observerAdded = NO;
+  }
   launcher = nil;
   [super dealloc];
 }
@@ -965,7 +968,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             
            // }];
             if (self.wobble == YES){
-                [launcher.visibleCells  makeObjectsPerformSelector:@selector(wobble)];
+ for (BMDragCollectionViewCell *cell in launcher.visibleCells) { [cell wobble]; }
             }
             if ([self.proxy _hasListeners:@"editingStart"]) {
                 [[self proxy] fireEvent:@"editingStart" withObject:nil];
@@ -1019,7 +1022,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
         [launcher longGesture].enabled = NO;
 
         if (self.wobble == YES){
-            [launcher.visibleCells  makeObjectsPerformSelector:@selector(stopWobbleUser)];
+  for (BMDragCollectionViewCell *cell in launcher.visibleCells) { [cell stopWobbleUser]; }
         }
 
    // }];
@@ -1224,7 +1227,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 /*
             [UIView performWithoutAnimation: ^ {
                 if (editing == YES && _wobble == YES){
-                    [launcher.visibleCells makeObjectsPerformSelector:@selector(stopWobble)];
+   for (BMDragCollectionViewCell *cell in launcher.visibleCells) { [cell stopWobble]; }
                 }
                 [launcher reloadItemsAtIndexPaths:[launcher indexPathsForVisibleItems]];
 
@@ -1981,13 +1984,13 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     if (editing == YES && _wobble == YES){
         TiThreadPerformOnMainThread(
          ^{
-        [cell performSelector:@selector(stopWobble)];
+        [cell stopWobble];
     },NO);
     }
     else if (editing == NO && _wobble == YES){
         TiThreadPerformOnMainThread(
          ^{
-        [cell performSelector:@selector(stopWobble)];
+        [cell stopWobble];
     },NO);
     }
 
@@ -1998,13 +2001,13 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     if (editing == YES && _wobble == YES){
         TiThreadPerformOnMainThread(
          ^{
-        [cell performSelector:@selector(wobble)];
+        [cell wobble];
          },NO);
     }
     else if (editing == NO && _wobble == YES){
         TiThreadPerformOnMainThread(
          ^{
-        [cell performSelector:@selector(stopWobble)];
+        [cell stopWobble];
          },NO);
     }
 
@@ -2159,9 +2162,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
-    if ([self isLazyLoadingEnabled]) {
-        [[ImageLoader sharedLoader] suspend];
-    }
+    // ImageLoader already suspended in scrollViewWillBeginDragging
 
     // Throttle JS scroll events to ~30fps to reduce bridge overhead
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();

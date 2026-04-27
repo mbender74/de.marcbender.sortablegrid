@@ -25,6 +25,10 @@
 @property (nonatomic, strong) UICollectionViewLayoutAttributes *headerAttr;
 @property (nonatomic, strong) UICollectionViewLayoutAttributes *footerAttr;
 
+// Layout cache: skip computation if nothing changed
+@property (nonatomic, assign) CGSize lastContentSize;
+@property (nonatomic, assign) NSInteger lastItemCount;
+
 @end
 
 @implementation XHWaterfallFlowLayout
@@ -87,6 +91,15 @@
     }
     
     [super prepareLayout];
+
+    // Layout cache: skip if bounds and item count haven't changed
+    CGSize currentSize = self.collectionView.bounds.size;
+    NSInteger count = [self.collectionView numberOfItemsInSection:0];
+    if (CGSizeEqualToSize(currentSize, self.lastContentSize) && count == self.lastItemCount) {
+        return;
+    }
+    self.lastContentSize = currentSize;
+    self.lastItemCount = count;
 
 
     CGFloat contentWidth = self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
