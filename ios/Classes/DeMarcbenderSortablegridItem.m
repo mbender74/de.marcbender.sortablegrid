@@ -44,7 +44,7 @@
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    self.clipsToBounds = NO;
+    // Don't override clipsToBounds — let Titanium handle it based on borderRadius/clip
 
    // self.contentView.frame = bounds;
    // [super frameSizeChanged:frame bounds:bounds];

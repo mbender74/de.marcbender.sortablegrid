@@ -1268,8 +1268,6 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
     
     [cellViewContainer addSubview:cellView];
-    cellView.clipsToBounds = NO;
-    cellView.layer.masksToBounds = NO;
 
     cellViewContainer.clipsToBounds = NO;
     cellViewContainer.layer.masksToBounds = NO;
