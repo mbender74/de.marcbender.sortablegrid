@@ -614,9 +614,6 @@
                        // [ self  reloadItemsAtIndexPaths: @[_oldIndexPath]];
 
 
-                        //if (_editMode == YES && _wobbleEnabled == YES){
-                           // [self.visibleCells  makeObjectsPerformSelector:@selector(wobble)];
-                      //  }
                         }
                         break;
                     }

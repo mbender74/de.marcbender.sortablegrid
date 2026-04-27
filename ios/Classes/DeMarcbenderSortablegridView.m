@@ -23,9 +23,6 @@
 }
 @property (nonatomic, assign) ScrollDirection scrolldirection;
 @property (nonatomic, assign) BOOL pagingEnabled;
-@property (nonatomic, strong) UIDynamicAnimator *dynamicAnimator;
-
-//- (void)alignToTopForSameLineElements:(NSArray *)sameLineElements;
 
 @end
 
@@ -34,109 +31,9 @@
 -(id)init {
     if (!(self = [super init])) return nil;
     lastPagesCount = 1;
-   // self.dynamicAnimator = [[UIDynamicAnimator alloc] initWithCollectionViewLayout:self];
-    
+
     return self;
 }
-/*
--(NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-{
-    return [self.dynamicAnimator itemsInRect:rect];
-}
-
--(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    return [self.dynamicAnimator layoutAttributesForCellAtIndexPath:indexPath];
-}
-
-
-- (void)prepareLayout {
-    [super prepareLayout];
-
-    CGSize contentSize = self.collectionViewContentSize;
-    NSArray *items = [super layoutAttributesForElementsInRect:
-        CGRectMake(0.0f, 0.0f, contentSize.width, contentSize.height)];
-    if (self.dynamicAnimator.behaviors.count == 0) {
-        [items enumerateObjectsUsingBlock:^(id<UIDynamicItem> obj, NSUInteger idx, BOOL *stop) {
-            UIAttachmentBehavior *behaviour = [[UIAttachmentBehavior alloc] initWithItem:obj
-                                                                        attachedToAnchor:[obj center]];
-            
-            behaviour.length = 0.0f;
-            behaviour.damping = 0.9f;
-            behaviour.frequency = 0.9f;
-            
-            [self.dynamicAnimator addBehavior:behaviour];
-        }];
-    }
-}
-*/
-
-
-/*
-- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
-    NSArray *attributes = [super layoutAttributesForElementsInRect:rect];
-
-    CGFloat leftMargin = self.sectionInset.left; //initalized to silence compiler, and actaully safer, but not planning to use.
-    CGFloat maxY = -1.0f;
-
-    //this loop assumes attributes are in IndexPath order
-    for (UICollectionViewLayoutAttributes *attribute in attributes) {
-        if (attribute.frame.origin.y >= maxY) {
-            leftMargin = self.sectionInset.left;
-        }
-
-        attribute.frame = CGRectMake(leftMargin, attribute.frame.origin.y, attribute.frame.size.width, attribute.frame.size.height);
-
-        leftMargin += attribute.frame.size.width + self.minimumInteritemSpacing;
-        maxY = MAX(CGRectGetMaxY(attribute.frame), maxY);
-    }
-
-    return attributes;
-}
-*/
-/*
-
-- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect;
-{
-    NSArray *attrs = [super layoutAttributesForElementsInRect:rect];
-    CGFloat baseline = -2;
-    NSMutableArray *sameLineElements = [NSMutableArray array];
-    
-    for (UICollectionViewLayoutAttributes *element in attrs) {
-        if (element.representedElementCategory == UICollectionElementCategoryCell) {
-            CGRect frame = element.frame;
-            CGFloat centerY = CGRectGetMidY(frame);
-            if (ABS(centerY - baseline) > 1) {
-
-                baseline = centerY;
-                [self alignToTopForSameLineElements:sameLineElements];
-                [sameLineElements removeAllObjects];
-            }
-            [sameLineElements addObject:element];
-        }
-    }
-    [self alignToTopForSameLineElements:sameLineElements];//align one more time for the last line
-    return attrs;
-}
-
-- (void)alignToTopForSameLineElements:(NSArray *)sameLineElements
-{
-    if (sameLineElements.count == 0) {
-        return;
-    }
-    NSArray *sorted = [sameLineElements sortedArrayUsingComparator:^NSComparisonResult(UICollectionViewLayoutAttributes *obj1, UICollectionViewLayoutAttributes *obj2) {
-        CGFloat height1 = obj1.frame.size.height;
-        CGFloat height2 = obj2.frame.size.height;
-        CGFloat delta = height1 - height2;
-        return delta == 0. ? NSOrderedSame : ABS(delta)/delta;
-    }];
-    UICollectionViewLayoutAttributes *tallest = [sorted lastObject];
-    [sameLineElements enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes *obj, NSUInteger idx, BOOL *stop) {
-        obj.frame = CGRectOffset(obj.frame, 0, tallest.frame.origin.y - obj.frame.origin.y);
-    }];
-}
-
-*/
 
 - (CGSize)collectionViewContentSize
 {
@@ -189,37 +86,6 @@
         return lastContentSize;
     }
 }
-
-/*
-
--(BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
-{
-    UIScrollView *scrollView = self.collectionView;
-    CGFloat delta = newBounds.origin.y - scrollView.bounds.origin.y;
-    
-    CGPoint touchLocation = [self.collectionView.panGestureRecognizer locationInView:self.collectionView];
-    
-    [self.dynamicAnimator.behaviors enumerateObjectsUsingBlock:^(UIAttachmentBehavior *springBehaviour, NSUInteger idx, BOOL *stop) {
-        CGFloat yDistanceFromTouch = fabs(touchLocation.y - springBehaviour.anchorPoint.y);
-        CGFloat xDistanceFromTouch = fabs(touchLocation.x - springBehaviour.anchorPoint.x);
-        CGFloat scrollResistance = (yDistanceFromTouch + xDistanceFromTouch) / 1500.0f;
-        UICollectionViewLayoutAttributes *item = [springBehaviour.items firstObject];
-
-        CGPoint center = item.center;
-        if (delta < 0) {
-            center.y += MAX(delta, delta*scrollResistance);
-        }
-        else {
-            center.y += MIN(delta, delta*scrollResistance);
-        }
-        item.center = center;
-        
-        [self.dynamicAnimator updateItemUsingCurrentState:item];
-    }];
-    
-    return NO;
-}
-*/
 
 @end
 
