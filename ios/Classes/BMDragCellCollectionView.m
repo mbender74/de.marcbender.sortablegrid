@@ -136,6 +136,7 @@
 }
 
 - (void)dealloc {
+    [self removeObserver:self forKeyPath:@"contentSize" context:NULL];
     [self _stopEdgeTimer];
     [super dealloc];
 }
