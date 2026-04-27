@@ -92,14 +92,8 @@
     
     [super prepareLayout];
 
-    // Layout cache: skip if bounds and item count haven't changed
-    CGSize currentSize = self.collectionView.bounds.size;
-    NSInteger count = [self.collectionView numberOfItemsInSection:0];
-    if (CGSizeEqualToSize(currentSize, self.lastContentSize) && count == self.lastItemCount) {
-        return;
-    }
-    self.lastContentSize = currentSize;
-    self.lastItemCount = count;
+   // Layout cache removed: causes wrong layout after drag-and-drop
+    // because item heights can change even when count/bounds stay the same
 
 
     CGFloat contentWidth = self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
