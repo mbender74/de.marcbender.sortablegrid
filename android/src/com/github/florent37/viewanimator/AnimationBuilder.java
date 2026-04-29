@@ -159,14 +159,13 @@ public class AnimationBuilder {
         return this;
     }
 
-    public AnimationBuilder custom(final AnimationListener.Update update, float... values) {
+    public AnimationBuilder custom(final AnimationListener.Update<View> update, float... values) {
         for (final View view : views) {
             ValueAnimator valueAnimator = ValueAnimator.ofFloat(getValues(values));
             if (update != null)
                 valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
-                        //noinspection unchecked
                         update.update(view, (Float) animation.getAnimatedValue());
                     }
                 });
@@ -176,7 +175,7 @@ public class AnimationBuilder {
     }
 
     public AnimationBuilder height(float... height) {
-        return custom(new AnimationListener.Update() {
+        return custom(new AnimationListener.Update<View>() {
             @Override
             public void update(View view, float value) {
                 view.getLayoutParams().height = (int) value;
@@ -186,7 +185,7 @@ public class AnimationBuilder {
     }
 
     public AnimationBuilder width(float... width) {
-        return custom(new AnimationListener.Update() {
+        return custom(new AnimationListener.Update<View>() {
             @Override
             public void update(View view, float value) {
                 view.getLayoutParams().width = (int) value;
@@ -466,7 +465,7 @@ public class AnimationBuilder {
             return this;
         }
         final PathMeasure pathMeasure = new PathMeasure(path, false);
-        return custom(new AnimationListener.Update() {
+        return custom(new AnimationListener.Update<View>() {
             @Override
             public void update(View view, float value) {
                 if (view == null) {

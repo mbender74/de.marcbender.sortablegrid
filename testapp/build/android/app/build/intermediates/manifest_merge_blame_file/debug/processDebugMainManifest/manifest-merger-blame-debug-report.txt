@@ -1,0 +1,229 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="de.marcbender.testapp"
+4    android:versionCode="3"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+7-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:3:19-87
+8        android:minSdkVersion="26"
+8-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:3:29-55
+9        android:targetSdkVersion="30" />
+9-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:3:56-85
+10
+11    <supports-screens
+11-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:4:19-178
+12        android:anyDensity="true"
+12-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:4:37-62
+13        android:largeScreens="true"
+13-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:4:92-119
+14        android:normalScreens="true"
+14-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:4:120-148
+15        android:smallScreens="true"
+15-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:4:149-176
+16        android:xlargeScreens="true" />
+16-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:4:63-91
+17
+18    <uses-permission android:name="android.permission.INTERNET" />
+18-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:6:2-63
+18-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:6:19-61
+19    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+19-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:10:2-72
+19-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:10:19-70
+20    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+20-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:14:2-75
+20-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:14:19-73
+21
+22    <permission
+22-->[androidx.core:core:1.16.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/81321b631caa1fd287b2dc306426eafb/transformed/core-1.16.0/AndroidManifest.xml:22:5-24:47
+23        android:name="de.marcbender.testapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+23-->[androidx.core:core:1.16.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/81321b631caa1fd287b2dc306426eafb/transformed/core-1.16.0/AndroidManifest.xml:23:9-81
+24        android:protectionLevel="signature" />
+24-->[androidx.core:core:1.16.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/81321b631caa1fd287b2dc306426eafb/transformed/core-1.16.0/AndroidManifest.xml:24:9-44
+25
+26    <uses-permission android:name="de.marcbender.testapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+26-->[androidx.core:core:1.16.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/81321b631caa1fd287b2dc306426eafb/transformed/core-1.16.0/AndroidManifest.xml:26:5-97
+26-->[androidx.core:core:1.16.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/81321b631caa1fd287b2dc306426eafb/transformed/core-1.16.0/AndroidManifest.xml:26:22-94
+27
+28    <application
+28-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:20:2-31:16
+29        android:name="de.marcbender.testapp.TestappApplication"
+29-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:20:72-105
+30        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+30-->[androidx.core:core:1.16.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/81321b631caa1fd287b2dc306426eafb/transformed/core-1.16.0/AndroidManifest.xml:28:18-86
+31        android:extractNativeLibs="false"
+32        android:hardwareAccelerated="true"
+32-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:5:25-59
+33        android:icon="@drawable/appicon"
+33-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:20:15-47
+34        android:label="testapp"
+34-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:20:48-71
+35        android:largeHeap="true"
+35-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:5:60-84
+36        android:theme="@style/Theme.Titanium.App"
+36-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:20:142-183
+37        android:usesCleartextTraffic="true" >
+37-->/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/main/AndroidManifest.xml:20:106-141
+38        <activity
+39            android:name="de.marcbender.testapp.TestappActivity"
+40            android:alwaysRetainTaskState="true"
+41            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+42            android:exported="true"
+43            android:label="@string/app_name"
+44            android:theme="@style/Theme.Titanium" >
+45            <intent-filter>
+46                <action android:name="android.intent.action.MAIN" />
+47
+48                <category android:name="android.intent.category.LAUNCHER" />
+49            </intent-filter>
+50        </activity>
+51        <activity
+51-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:8:9-11:40
+52            android:name="org.appcelerator.titanium.TiActivity"
+52-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:9:13-64
+53            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+53-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:10:13-194
+54            android:exported="false" />
+54-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:11:13-37
+55        <activity
+55-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:12:9-16:67
+56            android:name="org.appcelerator.titanium.TiTranslucentActivity"
+56-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:13:13-75
+57            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+57-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:14:13-194
+58            android:exported="false"
+58-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:15:13-37
+59            android:theme="@style/Theme.AppDerived.Translucent" />
+59-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:16:13-64
+60        <activity
+60-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:17:9-21:69
+61            android:name="ti.modules.titanium.media.TiCameraActivity"
+61-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:18:13-70
+62            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+62-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:19:13-194
+63            android:exported="false"
+63-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:20:13-37
+64            android:theme="@style/Theme.Titanium.Dark.Fullscreen" />
+64-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:21:13-66
+65        <activity
+65-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:22:9-26:69
+66            android:name="ti.modules.titanium.media.TiCameraXActivity"
+66-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:23:13-71
+67            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+67-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:24:13-194
+68            android:exported="false"
+68-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:25:13-37
+69            android:theme="@style/Theme.Titanium.Dark.Fullscreen" />
+69-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:26:13-66
+70        <activity
+70-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:27:9-31:66
+71            android:name="ti.modules.titanium.media.TiVideoActivity"
+71-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:28:13-69
+72            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+72-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:29:13-194
+73            android:exported="false"
+73-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:30:13-37
+74            android:theme="@style/Theme.AppDerived.Fullscreen" />
+74-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:31:13-63
+75        <activity
+75-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:32:9-34:40
+76            android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"
+76-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:33:13-80
+77            android:exported="false" />
+77-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:34:13-37
+78
+79        <provider
+79-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:36:9-40:50
+80            android:name="org.appcelerator.titanium.io.TiFileProvider"
+80-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:37:13-71
+81            android:authorities="de.marcbender.testapp.tifileprovider"
+81-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:38:13-66
+82            android:exported="false"
+82-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:39:13-37
+83            android:grantUriPermissions="true" />
+83-->[org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:40:13-47
+84
+85        <service
+85-->[androidx.camera:camera-camera2:1.5.3] /Users/marcbender/.gradle/caches/8.14.3/transforms/6716e0cbd9aa096dead557a2d3ddc415/transformed/jetified-camera-camera2-1.5.3/AndroidManifest.xml:24:9-33:19
+86            android:name="androidx.camera.core.impl.MetadataHolderService"
+86-->[androidx.camera:camera-camera2:1.5.3] /Users/marcbender/.gradle/caches/8.14.3/transforms/6716e0cbd9aa096dead557a2d3ddc415/transformed/jetified-camera-camera2-1.5.3/AndroidManifest.xml:25:13-75
+87            android:enabled="false"
+87-->[androidx.camera:camera-camera2:1.5.3] /Users/marcbender/.gradle/caches/8.14.3/transforms/6716e0cbd9aa096dead557a2d3ddc415/transformed/jetified-camera-camera2-1.5.3/AndroidManifest.xml:26:13-36
+88            android:exported="false" >
+88-->[androidx.camera:camera-camera2:1.5.3] /Users/marcbender/.gradle/caches/8.14.3/transforms/6716e0cbd9aa096dead557a2d3ddc415/transformed/jetified-camera-camera2-1.5.3/AndroidManifest.xml:27:13-37
+89            <meta-data
+89-->[androidx.camera:camera-camera2:1.5.3] /Users/marcbender/.gradle/caches/8.14.3/transforms/6716e0cbd9aa096dead557a2d3ddc415/transformed/jetified-camera-camera2-1.5.3/AndroidManifest.xml:30:13-32:89
+90                android:name="androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
+90-->[androidx.camera:camera-camera2:1.5.3] /Users/marcbender/.gradle/caches/8.14.3/transforms/6716e0cbd9aa096dead557a2d3ddc415/transformed/jetified-camera-camera2-1.5.3/AndroidManifest.xml:31:17-103
+91                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider" />
+91-->[androidx.camera:camera-camera2:1.5.3] /Users/marcbender/.gradle/caches/8.14.3/transforms/6716e0cbd9aa096dead557a2d3ddc415/transformed/jetified-camera-camera2-1.5.3/AndroidManifest.xml:32:17-86
+92        </service>
+93
+94        <provider
+94-->[androidx.emoji2:emoji2:1.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/5cfad5f306c6ea6659ba46535e0ad4c1/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+95            android:name="androidx.startup.InitializationProvider"
+95-->[androidx.emoji2:emoji2:1.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/5cfad5f306c6ea6659ba46535e0ad4c1/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:25:13-67
+96            android:authorities="de.marcbender.testapp.androidx-startup"
+96-->[androidx.emoji2:emoji2:1.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/5cfad5f306c6ea6659ba46535e0ad4c1/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:26:13-68
+97            android:exported="false" >
+97-->[androidx.emoji2:emoji2:1.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/5cfad5f306c6ea6659ba46535e0ad4c1/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:27:13-37
+98            <meta-data
+98-->[androidx.emoji2:emoji2:1.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/5cfad5f306c6ea6659ba46535e0ad4c1/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+99                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+99-->[androidx.emoji2:emoji2:1.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/5cfad5f306c6ea6659ba46535e0ad4c1/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:30:17-75
+100                android:value="androidx.startup" />
+100-->[androidx.emoji2:emoji2:1.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/5cfad5f306c6ea6659ba46535e0ad4c1/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:31:17-49
+101            <meta-data
+101-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/marcbender/.gradle/caches/8.14.3/transforms/8af45b07db9a6c905ad39fa2ffdab093/transformed/jetified-lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+102                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+102-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/marcbender/.gradle/caches/8.14.3/transforms/8af45b07db9a6c905ad39fa2ffdab093/transformed/jetified-lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+103                android:value="androidx.startup" />
+103-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/marcbender/.gradle/caches/8.14.3/transforms/8af45b07db9a6c905ad39fa2ffdab093/transformed/jetified-lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+104            <meta-data
+104-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
+105                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+105-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
+106                android:value="androidx.startup" />
+106-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
+107        </provider>
+108
+109        <receiver
+109-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
+110            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+110-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
+111            android:directBootAware="false"
+111-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
+112            android:enabled="true"
+112-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
+113            android:exported="true"
+113-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
+114            android:permission="android.permission.DUMP" >
+114-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
+115            <intent-filter>
+115-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
+116                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+116-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
+116-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
+117            </intent-filter>
+118            <intent-filter>
+118-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
+119                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+119-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
+119-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+120            </intent-filter>
+121            <intent-filter>
+121-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
+122                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+122-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
+122-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
+123            </intent-filter>
+124            <intent-filter>
+124-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
+125                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+125-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
+125-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/a3ac4760714046c1140c80d11a6bbdef/transformed/jetified-profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
+126            </intent-filter>
+127        </receiver>
+128    </application>
+129
+130</manifest>

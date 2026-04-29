@@ -1,0 +1,58 @@
+[
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-port-xxhdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-port-xxhdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-port-xhdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-port-xhdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-port-mdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-port-mdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-land-xxhdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-land-xxhdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-land-mdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-land-mdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable_appicon.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable/appicon.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-land-hdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-land-hdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-port-hdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-port-hdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-port-xxxhdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-port-xxxhdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-land-ldpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-land-ldpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-land-xxxhdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-land-xxxhdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-land-xhdpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-land-xhdpi/background.png"
+    },
+    {
+        "merged": "de.marcbender.testapp-debug-51:/drawable-port-ldpi_background.png.flat",
+        "source": "de.marcbender.testapp-main-53:/drawable-port-ldpi/background.png"
+    }
+]

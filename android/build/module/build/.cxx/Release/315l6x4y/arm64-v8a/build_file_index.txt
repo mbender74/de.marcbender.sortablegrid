@@ -1,0 +1,1 @@
+/Users/marcbender/gridmodul/de.marcbender.sortablegrid/android/build/module/src/main/jni/Android.mk

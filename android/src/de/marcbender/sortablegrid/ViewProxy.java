@@ -17,447 +17,1254 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.TiApplication;
-import android.content.res.Resources;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.TiDimension;
-import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.graphics.Color;
-import org.appcelerator.titanium.view.TiDrawableReference;
+import android.graphics.drawable.BitmapDrawable;
 import android.app.Activity;
 import java.util.ArrayList;
 import java.util.Collections;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.view.View.OnClickListener;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
-import android.content.Context;
-import de.marcbender.sortablegrid.R;
-import android.widget.BaseAdapter;
-import android.os.Bundle;
-import java.util.ArrayList;
 import java.util.List;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.Gravity;
-import android.widget.Button;
-import android.view.MotionEvent;
-import android.widget.ImageView.ScaleType;
-import android.widget.FrameLayout;
-//import com.readystatesoftware.viewbadger.BadgeView;
+import android.content.res.Resources;
 import com.allenliu.badgeview.BadgeView;
 import com.allenliu.badgeview.BadgeFactory;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
-import com.github.florent37.viewanimator.AnimationListener;
-import com.github.florent37.viewanimator.ViewAnimator;
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
+import android.widget.ImageView.ScaleType;
+import org.appcelerator.titanium.view.TiDrawableReference;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import android.view.ViewTreeObserver;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.SnapHelper;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
+import ti.modules.titanium.ui.RefreshControlProxy;
+import android.graphics.Color;
 
 
 
 
-// This proxy can be created by calling TiSortablegrid.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule=TiSortablegridModule.class)
-//public class ViewProxy extends TiViewProxy implements DragSwipeAdapter.OnItemClick<UserModel>
 public class ViewProxy extends TiViewProxy
 {
 	// Standard Debugging variables
 	private static final String LCAT = "ViewProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-	private List<HashMap<String, Object>> dataSourceList = new ArrayList<HashMap<String, Object>>();
 
-	int HORIZONTAL_SPACING = 10;
-	int VERTICAL_SPACING = 10;
-
-	int COLUMN_WIDTH = 110;
-  int num_colums = 3;
-  int NUM_ROW = 7;
- 	String packageName;
-	Resources resources;
-  Activity context;
-	TiViewProxy myProxy;
-	TiUIView myView;
-  DragGridView mDragGridView;
-  TiCompositeLayout compositeView;
-  ArrayList<Object> itemsList;
-	ArrayList<Object> animationsList;
-  ArrayList<TiDrawableReference> imageReferences;
-  LayoutInflater inflater;
-
-  RelativeLayout layout;
-  RelativeLayout layout2;
-  int id_main_layout = 0;
-  int id_dragableGridview = 0;
-  int resId_viewHolder = 0;
-  int id_bottomSheet = 0;
-	boolean isInEditMode = false;
-
+	// Property constants
 	public static final String PROPERTY_ITEMS = "data";
 	public static final String PROPERTY_ITEM = "item";
 	public static final String PROPERTY_BADGE = "badge";
-
+	public static final String PROPERTY_BADGE_VALUE = "badgeValue";
+	public static final String PROPERTY_BADGE_TINT_COLOR = "badgeTintColor";
+	public static final String PROPERTY_CAN_BE_DELETED = "canBeDeleted";
+	public static final String PROPERTY_CAN_BE_MOVED = "canBeMoved";
 	public static final String PROPERTY_DELETE_BUTTON_IMAGE = "deleteButtonImage";
 	public static final String PROPERTY_COLUMNS = "columnCount";
 	public static final String PROPERTY_COLUMN_WIDTH = "columnWidth";
 	public static final String PROPERTY_HORIZONTAL_SPACING = "horizontalSpacing";
 	public static final String PROPERTY_VERTICAL_SPACING = "verticalSpacing";
+	public static final String PROPERTY_MIN_HORIZONTAL_SPACING = "minHorizontalSpacing";
+	public static final String PROPERTY_MIN_VERTICAL_SPACING = "minVerticalSpacing";
+	public static final String PROPERTY_WOBBLE = "wobble";
+	public static final String PROPERTY_SHOW_DELETE_BUTTON = "showDeleteButton";
+	public static final String PROPERTY_ITEMS_BADGE_ENABLED = "itemsBadgeEnabled";
+	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
+	public static final String PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR = "showVerticalScrollIndicator";
+	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
+	public static final String PROPERTY_CONTENT_INSETS = "contentInsets";
+	public static final String PROPERTY_SCROLL_INDICATOR_INSETS = "scrollIndicatorInsets";
+	public static final String PROPERTY_SCROLL_TO_BOTTOM_AFTER_SET_DATA = "scrollToBottomAfterSetData";
+	public static final String PROPERTY_DRAG_ITEM_SHADOW_OPACITY = "dragItemShadowOpacity";
+	public static final String PROPERTY_EDITABLE = "editable";
+	public static final String PROPERTY_PAGING_ENABLED = "pagingEnabled";
+	public static final String PROPERTY_PAGER_ENABLED = "pagerEnabled";
+	public static final String PROPERTY_PAGE_INDICATOR_TINT_COLOR = "pageIndicatorTintColor";
+	public static final String PROPERTY_CURRENT_PAGE_INDICATOR_TINT_COLOR = "currentPageIndicatorTintColor";
+	public static final String PROPERTY_WATER_FALL_LAYOUT = "waterFallLayout";
+	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
+	public static final String PROPERTY_LAZY_LOADING_ENABLED = "lazyLoadingEnabled";
+	public static final String PROPERTY_DISABLE_BOUNCE = "disableBounce";
+	public static final String PROPERTY_PAGER_FOLLOWS_BOTTOM_INSET = "pagerFollowsBottomInset";
+	public static final String PROPERTY_ROW_COUNT = "rowCount";
 
+	List<HashMap<String, Object>> dataSourceList = new ArrayList<HashMap<String, Object>>();
+	private ArrayList<Object> itemsList;
+	private ArrayList<Object> animationsList;
+	private ArrayList<TiDrawableReference> imageReferences;
 
+	int HORIZONTAL_SPACING = 10;
+	int VERTICAL_SPACING = 10;
+	int COLUMN_WIDTH = 110;
+	int num_colums = 3;
+	int row_count = 4;
+	String packageName;
+	Resources resources;
+	Activity context;
+	TiViewProxy myProxy;
+	TiUIView myView;
+	LayoutInflater inflater;
+
+	RelativeLayout layout;
+	boolean isInEditMode = false;
+	boolean wobbleEnabled = true;
+	boolean showDeleteButtonEnabled = true;
+	boolean itemsBadgeEnabledFlag = true;
+	boolean scrollEnabledFlag = true;
+	boolean scrollToBottomAfterSetData = false;
+	boolean pagingEnabledFlag = false;
+	boolean pagerEnabledFlag = false;
+	boolean waterFallLayoutFlag = false;
+	boolean skipGenericRebuild = false;
+	boolean lazyLoadingEnabledFlag = false;
+	boolean disableBounceFlag = false;
+	boolean pagerFollowsBottomInsetFlag = false;
+	float dragItemShadowOpacity = 0.95f;
+	int currentPage = 0;
+	int lastScrollState = 0;
+	String scrollType = "vertical";
+
+	private boolean dataPending = false;
 	private TiDrawableReference deleteButtonReference;
 
-	View.OnClickListener myOnlyhandler;
+	// RecyclerView fields (unified for both grid and waterfall modes)
+	private RecyclerView mRecyclerView;
+	private DragRecyclerAdapter mRecyclerAdapter;
+	private DragItemTouchCallback mTouchCallback;
+	private StaggeredGridLayoutManager mStaggeredGridLayoutManager;
+	private GridLayoutManager mGridLayoutManager;
+	private GridSpacingItemDecoration mSpacingDecoration;
+	private ItemTouchHelper mItemTouchHelper;
+        private int itemsPerPage = 0;
+        private androidx.recyclerview.widget.RecyclerView.LayoutManager mLayoutManager;
+        private boolean useGridLayoutManager = false;
 
+	private void buildGridItems() {
+		Log.d(LCAT, "buildGridItems: itemsList size=" + (itemsList != null ? itemsList.size() : "null") + " mRecyclerView=" + (mRecyclerView != null ? "exists" : "null") + " waterFallLayoutFlag=" + waterFallLayoutFlag);
+		if (itemsList != null && itemsList.size() > 0) {
+			if (mRecyclerView == null) {
+				Log.d(LCAT, "buildGridItems: deferring - view not created yet, dataPending=true");
+				dataPending = true;
+			} else if (mRecyclerView.getWidth() == 0) {
+				Log.d(LCAT, "buildGridItems: deferring - RecyclerView width is 0, adding layout listener");
+				mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+					@Override
+					public void onGlobalLayout() {
+						mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+						if (dataPending || dataSourceList.size() == 0) {
+							dataPending = false;
+							dataSourceList.clear();
+							if (skipGenericRebuild) {
+								Log.d(LCAT, "buildGridItems (deferred): skipping generic rebuild");
+								skipGenericRebuild = false;
+							} else {
+								rebuildGridItemsInternal();
+							}
+						}
+					}
+				});
+			} else {
+				if (skipGenericRebuild) {
+					Log.d(LCAT, "buildGridItems: skipping generic rebuild");
+					skipGenericRebuild = false;
+				} else {
+					rebuildGridItemsInternal();
+				}
+			}
+		}
+	}
+
+	private void rebuildGridItemsInternal() {
+		Log.d(LCAT, "rebuildGridItemsInternal: processing " + itemsList.size() + " items, waterFallLayoutFlag=" + waterFallLayoutFlag +
+		  " layoutManager=" + (mRecyclerView != null && mRecyclerView.getLayoutManager() != null ? mRecyclerView.getLayoutManager().getClass().getSimpleName() : "null"));
+		if (mRecyclerView != null && mRecyclerView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
+			StaggeredGridLayoutManager sgl = (StaggeredGridLayoutManager) mRecyclerView.getLayoutManager();
+			Log.d(LCAT, "rebuildGridItemsInternal: StaggeredGridLayoutManager spanCount=" + sgl.getSpanCount() +
+			  " orientation=" + (sgl.getOrientation() == StaggeredGridLayoutManager.HORIZONTAL ? "HORIZONTAL" : "VERTICAL"));
+		}
+
+		// Build a new list first to avoid RecyclerView seeing a partially-filled data source
+		ArrayList<HashMap<String, Object>> newData = new ArrayList<HashMap<String, Object>>();
+		for (int i = 0; i < itemsList.size(); i++) {
+			HashMap<String, Object> itemHashMap = buildItemHashMap(itemsList.get(i), i);
+			if (itemHashMap != null) {
+				newData.add(itemHashMap);
+			}
+		}
+
+		// Atomically swap the data source
+		dataSourceList.clear();
+		dataSourceList.addAll(newData);
+
+		if (mRecyclerAdapter != null) {
+			mRecyclerAdapter.notifyDataSetChanged();
+		} else if (mRecyclerView != null) {
+			mRecyclerView.setAdapter(mRecyclerAdapter);
+		}
+		updateItemPositions();
+
+		// Calculate total content height (used by scroll range)
+		int totalContentHeight = mRecyclerAdapter.getTotalContentHeight();
+		Log.d(LCAT, "rebuildGridItemsInternal: totalContentHeight=" + totalContentHeight);
+
+		if (scrollToBottomAfterSetData && mRecyclerView != null) {
+			mRecyclerView.post(new Runnable() {
+				@Override
+				public void run() {
+					mRecyclerView.smoothScrollToPosition(dataSourceList.size() - 1);
+				}
+			});
+		}
+
+		// Update PageIndicator after items are bound and measured
+		if (pageIndicatorView != null && mRecyclerView != null) {
+			mRecyclerView.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					updatePageIndicator();
+				}
+			}, 300); // Wait for all items to be measured
+		}
+	}
+
+	private void updatePageIndicator() {
+		if (pageIndicatorView == null || mRecyclerView == null) return;
+
+		int totalItems = dataSourceList.size();
+		if (totalItems == 0) {
+			pageIndicatorView.setPageCount(1);
+			pageIndicatorView.setCurrentPage(0);
+			return;
+		}
+
+		// Page height = GridView height (the outer layout), not RecyclerView inner height
+		int pageHeight = layout.getHeight() - layout.getPaddingTop() - layout.getPaddingBottom();
+		if (pageHeight <= 0) return;
+
+		// Estimate total content height from item heights
+		int totalContentHeight = 0;
+		int[] columnHeights = new int[num_colums];
+		for (int i = 0; i < totalItems; i++) {
+			HashMap<String, Object> item = dataSourceList.get(i);
+			int itemHeight = 0;
+			// measured_height is the actual rendered height (most accurate, set after binding)
+			Object mh = item.get("measured_height");
+			if (mh instanceof Number && ((Number) mh).intValue() > 0) {
+				itemHeight = ((Number) mh).intValue();
+			}
+			// cell_height is the raw cell property (less accurate)
+			if (itemHeight <= 0) {
+				Object ch = item.get("cell_height");
+				if (ch instanceof Number && ((Number) ch).intValue() > 0) {
+					itemHeight = ((Number) ch).intValue();
+				}
+			}
+			if (itemHeight <= 0) itemHeight = VERTICAL_SPACING + 150; // fallback
+
+			// Assign to shortest column (same algorithm as StaggeredGrid)
+			int targetCol = 0;
+			for (int c = 1; c < num_colums; c++) {
+				if (columnHeights[c] < columnHeights[targetCol]) {
+					targetCol = c;
+				}
+			}
+			columnHeights[targetCol] += itemHeight + VERTICAL_SPACING;
+		}
+
+		// Max column height is the content height
+		for (int h : columnHeights) {
+			if (h > totalContentHeight) totalContentHeight = h;
+		}
+
+		// pageCount: how many pages of content exist (based on GridView page height)
+		int pageCount;
+		int currentPage;
+		if (totalContentHeight <= pageHeight) {
+			pageCount = 1; // Everything fits on one page
+		} else {
+			pageCount = (int) Math.ceil((double) totalContentHeight / pageHeight);
+		}
+
+		// Calculate current page from scroll offset
+		int scrollOffset = mRecyclerView.computeVerticalScrollOffset();
+		int maxScrollOffset = Math.max(0, totalContentHeight - pageHeight);
+		if (maxScrollOffset <= 0) {
+			currentPage = 0; // All fits on one page
+		} else {
+			currentPage = (int) Math.round(((double) scrollOffset / maxScrollOffset) * (pageCount - 1));
+		}
+		currentPage = Math.max(0, Math.min(currentPage, pageCount - 1));
+
+		pageIndicatorView.setPageCount(pageCount);
+		pageIndicatorView.setCurrentPage(currentPage);
+		Log.d(LCAT, "updatePageIndicator: pageCount=" + pageCount + " currentPage=" + currentPage +
+		  " totalContentHeight=" + totalContentHeight + " pageHeight=" + pageHeight);
+	}
+
+	private HashMap<String, Object> buildItemHashMap(Object itemObj, int position) {
+		if (mRecyclerView == null) {
+			Log.w(LCAT, "buildItemHashMap called before view was created, deferring");
+			return null;
+		}
+
+		if (!(itemObj instanceof TiViewProxy)) {
+			Log.w(LCAT, "Item at position " + position + " is not a TiViewProxy, skipping");
+			return null;
+		}
+
+		final TiViewProxy thisproxy = (TiViewProxy) itemObj;
+		Log.d(LCAT, "buildItemHashMap position=" + position + " proxy=" + thisproxy.getClass().getSimpleName());
+
+		TiUIView uiView = thisproxy.getOrCreateView();
+		if (uiView == null) {
+			Log.w(LCAT, "buildItemHashMap: getOrCreateView returned null for position " + position);
+			return null;
+		}
+
+		Log.d(LCAT, "buildItemHashMap: uiView=" + uiView.getClass().getSimpleName() + " outerView=" + uiView.getOuterView().getClass().getSimpleName());
+
+		HashMap<String, Object> itemHashMap = new HashMap<String, Object>();
+
+		// Calculate item width: always divided by columnCount (columns per page)
+		if (mRecyclerView != null && mRecyclerView.getWidth() > 0) {
+			int availableWidth = mRecyclerView.getWidth() - mRecyclerView.getPaddingLeft() - mRecyclerView.getPaddingRight();
+			int itemWidthPx = (availableWidth - (num_colums - 1) * HORIZONTAL_SPACING) / num_colums;
+			if (itemWidthPx > 0 && itemWidthPx != COLUMN_WIDTH) {
+				COLUMN_WIDTH = itemWidthPx;
+			}
+		}
+
+		// Determine item width
+		Object widthProp = thisproxy.getProperty("width");
+		String widthStr = widthProp != null ? widthProp.toString() : null;
+		int itemWidthPx;
+		if (!"fill".equals(widthStr) && !"size".equals(widthStr)) {
+			if (widthProp instanceof Number && ((Number) widthProp).intValue() < 0) {
+				itemWidthPx = COLUMN_WIDTH > 0 ? COLUMN_WIDTH : ViewGroup.LayoutParams.WRAP_CONTENT;
+			} else {
+				TiDimension nativeWidth = new TiDimension(TiConvert.toString(thisproxy.getWidth()), TiDimension.TYPE_WIDTH);
+				itemWidthPx = (int) nativeWidth.getValue();
+			}
+		} else {
+			itemWidthPx = COLUMN_WIDTH > 0 ? COLUMN_WIDTH : ViewGroup.LayoutParams.WRAP_CONTENT;
+		}
+
+		// Determine item height
+		Object heightProp = thisproxy.getProperty("height");
+		String heightStr = heightProp != null ? heightProp.toString() : null;
+		int itemHeightPx;
+		if ("fill".equals(heightStr)) {
+			itemHeightPx = ViewGroup.LayoutParams.MATCH_PARENT;
+		} else if ("size".equals(heightStr)) {
+			itemHeightPx = ViewGroup.LayoutParams.WRAP_CONTENT;
+		} else if (heightProp instanceof Number && ((Number) heightProp).intValue() < 0) {
+			itemHeightPx = ViewGroup.LayoutParams.WRAP_CONTENT;
+		} else {
+			TiDimension nativeHeight = new TiDimension(TiConvert.toString(thisproxy.getHeight()), TiDimension.TYPE_HEIGHT);
+			itemHeightPx = (int) nativeHeight.getValue();
+		}
+
+		// Calculate cell dimensions (fallback for SIZE/FILL)
+		int cellWidthPx = itemWidthPx;
+		if ("fill".equals(widthStr)) {
+			cellWidthPx = ViewGroup.LayoutParams.MATCH_PARENT;
+		} else if (itemWidthPx <= 0) {
+			cellWidthPx = COLUMN_WIDTH > 0 ? COLUMN_WIDTH : 110;
+		}
+
+		int cellHeightPx = itemHeightPx;
+		if (itemHeightPx <= 0) {
+			cellHeightPx = 110;
+		}
+
+		// Adjust column width if needed
+		if (cellWidthPx > COLUMN_WIDTH) {
+			COLUMN_WIDTH = cellWidthPx;
+			if (mRecyclerView != null) {
+			}
+		}
+		if (cellHeightPx + 10 > COLUMN_WIDTH) {
+			COLUMN_WIDTH = cellHeightPx + 10;
+			if (mRecyclerView != null) {
+			}
+		}
+
+		View pageView = uiView.getOuterView();
+		Log.d(LCAT, "buildItemHashMap: pageView=" + (pageView != null ? pageView.getClass().getSimpleName() : "null") + " parent=" + (pageView != null && pageView.getParent() != null ? pageView.getParent().getClass().getSimpleName() : "none"));
+		LayoutParams layoutParams = uiView.getLayoutParams();
+		layoutParams.height = cellHeightPx;
+
+		// For waterfall layout: each item fills the full column width (MATCH_PARENT)
+		if (waterFallLayoutFlag) {
+			layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+		} else {
+			layoutParams.width = cellWidthPx;
+		}
+
+		TiCompositeLayout cellContainer = new TiCompositeLayout(context);
+		if (pageView.getParent() instanceof ViewGroup) {
+			((ViewGroup) pageView.getParent()).removeView(pageView);
+		}
+		cellContainer.addView(pageView, layoutParams);
+		cellContainer.setClipChildren(false);
+		cellContainer.setClipToPadding(false);
+
+		if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+			cellContainer.setId(5000 + TiConvert.toInt(thisproxy.getProperty(TiC.PROPERTY_ID)));
+		}
+
+		// canBeDeleted support
+		boolean canBeDeleted = true;
+		if (thisproxy.hasProperty(PROPERTY_CAN_BE_DELETED)) {
+			canBeDeleted = TiConvert.toBoolean(thisproxy.getProperty(PROPERTY_CAN_BE_DELETED), true);
+		}
+
+		Log.d(LCAT, "buildItemHashMap pos=" + position + ": deleteButtonRef=" + (deleteButtonReference != null ? "non-null" : "NULL") + " canBeDeleted=" + canBeDeleted + " showDeleteBtn=" + showDeleteButtonEnabled + " hasProp_canBeDeleted=" + thisproxy.hasProperty(PROPERTY_CAN_BE_DELETED));
+
+		// Delete button
+		if (deleteButtonReference != null && canBeDeleted && showDeleteButtonEnabled) {
+			float factor = context.getResources().getDisplayMetrics().density;
+			int diffWidth = cellWidthPx == ViewGroup.LayoutParams.MATCH_PARENT ? 0 : COLUMN_WIDTH - cellWidthPx;
+			TiCompositeLayout.LayoutParams layoutParamsButton = new TiCompositeLayout.LayoutParams();
+			TiDimension left = new TiDimension(TiConvert.toString(diffWidth / 2 - 5), TiDimension.TYPE_LEFT);
+			TiDimension top = new TiDimension(TiConvert.toString(0), TiDimension.TYPE_TOP);
+			layoutParamsButton.width = (int) (30 * factor);
+			layoutParamsButton.height = (int) (30 * factor);
+			layoutParamsButton.optionLeft = left;
+			layoutParamsButton.optionTop = top;
+
+			TiCompositeLayout buttonContainerLayout = new TiCompositeLayout(context);
+			RelativeLayout relativeLayout = new RelativeLayout(context);
+			RelativeLayout.LayoutParams layoutParamsImage = new RelativeLayout.LayoutParams((int) (30 * factor), (int) (30 * factor));
+
+			Bitmap b = deleteButtonReference.getBitmap(false, true);
+			final ImageView deleteButtonView = new ImageView(context);
+			BitmapDrawable drawable = new BitmapDrawable(context.getResources(), b);
+			drawable.setAntiAlias(true);
+			deleteButtonView.setImageDrawable(drawable);
+			deleteButtonView.setScaleType(ScaleType.CENTER_INSIDE);
+			relativeLayout.addView(deleteButtonView, layoutParamsImage);
+
+			buttonContainerLayout.setClipChildren(false);
+			buttonContainerLayout.setClipToPadding(false);
+			relativeLayout.setClipChildren(false);
+			relativeLayout.setClipToPadding(false);
+			buttonContainerLayout.addView(relativeLayout);
+			cellContainer.addView(buttonContainerLayout, layoutParamsButton);
+
+			final int pressedColorValue = TiConvert.toColor("#88d3413c", context);
+			deleteButtonView.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
+
+			if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+				deleteButtonView.setId(8000 + TiConvert.toInt(thisproxy.getProperty(TiC.PROPERTY_ID)));
+			}
+
+			deleteButtonView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Log.d(LCAT, "DeleteButton onClick");
+					if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+						deleteItem(String.valueOf(thisproxy.getProperty(TiC.PROPERTY_ID)));
+					}
+				}
+			});
+
+			deleteButtonView.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					switch (event.getAction()) {
+						case MotionEvent.ACTION_DOWN:
+							deleteButtonView.setColorFilter(pressedColorValue);
+							return false;
+						case MotionEvent.ACTION_UP:
+							deleteButtonView.clearColorFilter();
+							v.performClick();
+							return true;
+						case MotionEvent.ACTION_CANCEL:
+							deleteButtonView.clearColorFilter();
+							return false;
+						default:
+							return false;
+					}
+				}
+			});
+
+			itemHashMap.put("delete_button", deleteButtonView);
+			Log.d(LCAT, "buildItemHashMap pos=" + position + ": delete button CREATED");
+		} else {
+			Log.d(LCAT, "buildItemHashMap pos=" + position + ": SKIPPED delete button (deleteButtonRef=" + (deleteButtonReference != null ? "set" : "NULL") + " canBeDeleted=" + canBeDeleted + " showDeleteBtn=" + showDeleteButtonEnabled + ")");
+		}
+
+		// Badge
+		if (thisproxy.hasProperty(PROPERTY_BADGE) && itemsBadgeEnabledFlag) {
+			int badgeValue = TiConvert.toInt(thisproxy.getProperty(PROPERTY_BADGE_VALUE), 0);
+			int badgeTintColor = Color.RED;
+			if (thisproxy.hasProperty(PROPERTY_BADGE_TINT_COLOR)) {
+				badgeTintColor = TiConvert.toColor(thisproxy.getProperty(PROPERTY_BADGE_TINT_COLOR).toString(), context);
+			}
+
+			FrameLayout badgeViewLayout = new FrameLayout(context);
+			cellContainer.addView(badgeViewLayout);
+
+			View badgeView = BadgeFactory.create(context)
+				.setTextColor(Color.WHITE)
+				.setWidthAndHeight(28, 28)
+				.setBadgeBackground(badgeTintColor)
+				.setTextSize(13)
+				.setBadgeGravity(Gravity.RIGHT | Gravity.TOP)
+				.setBadgeCount(badgeValue)
+				.setShape(BadgeView.SHAPE_CIRCLE)
+				.setSpace((cellWidthPx == ViewGroup.LayoutParams.MATCH_PARENT ? COLUMN_WIDTH : cellWidthPx) + 12, cellHeightPx + 5)
+				.bind(badgeViewLayout);
+
+			itemHashMap.put("badge_view", badgeView);
+
+			if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
+				badgeView.setId(10000 + TiConvert.toInt(thisproxy.getProperty(TiC.PROPERTY_ID)));
+			}
+
+			badgeView.setVisibility(isInEditMode ? View.INVISIBLE : View.VISIBLE);
+		}
+
+		// canBeMoved support
+		itemHashMap.put("item_view", cellContainer);
+		itemHashMap.put("item_proxy", thisproxy);
+		itemHashMap.put("canBeDeleted", canBeDeleted);
+		itemHashMap.put("canBeMoved", thisproxy.hasProperty(PROPERTY_CAN_BE_MOVED) ? TiConvert.toBoolean(thisproxy.getProperty(PROPERTY_CAN_BE_MOVED), true) : true);
+		itemHashMap.put("position", position);
+		itemHashMap.put("columnCount", num_colums);
+		itemHashMap.put("cell_height", cellHeightPx);
+		itemHashMap.put("cell_width", cellWidthPx);
+		Log.d(LCAT, "buildItemHashMap pos=" + position + " cellHeight=" + cellHeightPx + " cellWidth=" + cellWidthPx + " waterFallLayout=" + waterFallLayoutFlag);
+		thisproxy.setProperty("position", position);
+
+		return itemHashMap;
+	}
+
+	private void updateItemPositions() {
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			HashMap<String, Object> item = dataSourceList.get(i);
+			item.put("position", i);
+			Object proxyObj = item.get("item_proxy");
+			if (proxyObj instanceof TiViewProxy) {
+				((TiViewProxy) proxyObj).setProperty("position", i);
+			}
+		}
+	}
+
+	private int calculateCurrentPage() {
+		if (mRecyclerView == null || !pagingEnabledFlag) {
+			return 1;
+		}
+		if (useGridLayoutManager && mLayoutManager instanceof GridLayoutManager) {
+			GridLayoutManager glm = (GridLayoutManager) mLayoutManager;
+			int firstVisible = glm.findFirstVisibleItemPosition();
+			int itemsPer = itemsPerPage > 0 ? itemsPerPage : num_colums;
+			return Math.max(1, firstVisible / itemsPer + 1);
+		} else if (mLayoutManager instanceof StaggeredGridLayoutManager) {
+			return calculatePixelPage(mRecyclerView, "vertical".equalsIgnoreCase(scrollType) ? "vertical" : "horizontal");
+		}
+		return 1;
+	}
+
+	private int calculatePageCount() {
+		if (mRecyclerView == null || !pagingEnabledFlag) {
+			int totalItems = dataSourceList.size();
+			if (totalItems == 0) return 1;
+			int itemsPer = itemsPerPage > 0 ? itemsPerPage : num_colums;
+			return (int) Math.ceil((double) totalItems / (double) itemsPer);
+		}
+		if (useGridLayoutManager && mLayoutManager instanceof GridLayoutManager) {
+			int totalItems = dataSourceList.size();
+			if (totalItems == 0) return 1;
+			int itemsPer = itemsPerPage > 0 ? itemsPerPage : num_colums;
+			return (int) Math.ceil((double) totalItems / (double) itemsPer);
+		} else if (mLayoutManager instanceof StaggeredGridLayoutManager) {
+			return calculatePixelPageCount(mRecyclerView, "vertical".equalsIgnoreCase(scrollType) ? "vertical" : "horizontal");
+		}
+		return 1;
+	}
+
+	private int calculateCurrentPageCount() {
+		return calculatePageCount();
+	}
+
+	// ---- Y-Pixel-basiertes Paging für StaggeredGridLayoutManager ----
+
+	/**
+	 * Berechnet die aktuelle Page basierend auf Scroll-Offset und View-Größe.
+	 * Bei vertikalem Scrollen: Y-Pixel. Bei horizontalem Scrollen: X-Pixel.
+	 */
+	private int calculatePixelPage(RecyclerView rv, String orientation) {
+		if (rv == null || rv.getWidth() <= 0 || rv.getHeight() <= 0) return 1;
+		int scrollOffset, visibleSize, totalRange;
+		if ("vertical".equalsIgnoreCase(orientation)) {
+			scrollOffset = rv.computeVerticalScrollOffset();
+			visibleSize = rv.computeVerticalScrollExtent();
+			totalRange = rv.computeVerticalScrollRange();
+		} else {
+			scrollOffset = rv.computeHorizontalScrollOffset();
+			visibleSize = rv.computeHorizontalScrollExtent();
+			totalRange = rv.computeHorizontalScrollRange();
+		}
+		if (visibleSize <= 0) return 1;
+		int pageCount = totalRange / visibleSize;
+		if (totalRange % visibleSize != 0) pageCount++;
+		if (pageCount <= 0) return 1;
+		int page = scrollOffset / visibleSize + 1;
+		return Math.max(1, Math.min(page, pageCount));
+	}
+
+	/**
+	 * Berechnet die Gesamtzahl der Pages basierend auf Scroll-Range und View-Größe.
+	 */
+	private int calculatePixelPageCount(RecyclerView rv, String orientation) {
+		if (rv == null || rv.getWidth() <= 0 || rv.getHeight() <= 0) return 1;
+		int visibleSize, totalRange;
+		if ("vertical".equalsIgnoreCase(orientation)) {
+			visibleSize = rv.computeVerticalScrollExtent();
+			totalRange = rv.computeVerticalScrollRange();
+		} else {
+			visibleSize = rv.computeHorizontalScrollExtent();
+			totalRange = rv.computeHorizontalScrollRange();
+		}
+		if (visibleSize <= 0) return 1;
+		int pageCount = totalRange / visibleSize;
+		if (totalRange % visibleSize != 0) pageCount++;
+		return Math.max(1, pageCount);
+	}
+
+	private int getVisibleRowCount() {
+		if (waterFallLayoutFlag && mRecyclerView != null) {
+			StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mRecyclerView.getLayoutManager();
+			if (layoutManager != null) {
+				// Use child count and first/last visible positions from adapter
+				int visibleChildren = mRecyclerView.getChildCount();
+				if (visibleChildren > 0) {
+					DragRecyclerAdapter.DragViewHolder firstHolder = (DragRecyclerAdapter.DragViewHolder) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(0));
+					DragRecyclerAdapter.DragViewHolder lastHolder = (DragRecyclerAdapter.DragViewHolder) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(visibleChildren - 1));
+					int firstVisible = firstHolder.getAdapterPosition();
+					int lastVisible = lastHolder.getAdapterPosition();
+					if (lastVisible < firstVisible) {
+						return 1;
+					}
+					int visibleItems = lastVisible - firstVisible + 1;
+					return (int) Math.ceil((double) visibleItems / (double) num_colums);
+				}
+			}
+			return 1;
+		}
+		if (mRecyclerView == null) {
+			return 1;
+		}
+		int firstVisible = ((GridLayoutManager) mLayoutManager).findFirstVisibleItemPosition();
+		int lastVisible = dataSourceList.size();
+		if (lastVisible < firstVisible) {
+			return 1;
+		}
+		int visibleItems = lastVisible - firstVisible + 1;
+		return (int) Math.ceil((double) visibleItems / (double) num_colums);
+	}
+
+	private void snapToPage() {
+		if (mRecyclerView == null || !pagingEnabledFlag) return;
+		if (useGridLayoutManager && mLayoutManager instanceof GridLayoutManager) {
+			GridLayoutManager glm = (GridLayoutManager) mLayoutManager;
+			int firstVisible = glm.findFirstVisibleItemPosition();
+			int itemsPer = itemsPerPage > 0 ? itemsPerPage : num_colums;
+			int targetPosition = (firstVisible / itemsPer) * itemsPer;
+			mRecyclerView.smoothScrollToPosition(targetPosition);
+		} else if (mLayoutManager instanceof StaggeredGridLayoutManager) {
+			snapToPixelPage("vertical".equalsIgnoreCase(scrollType) ? "vertical" : "horizontal");
+		}
+	}
+
+	/**
+	 * Snapt zur aktuellen Page bei StaggeredGridLayoutManager pixel-basiert.
+	 */
+	private void snapToPixelPage(String orientation) {
+		if (mRecyclerView == null || mRecyclerView.getWidth() <= 0 || mRecyclerView.getHeight() <= 0) return;
+		int currentScroll, visibleSize, totalRange, targetScroll;
+		if ("vertical".equalsIgnoreCase(orientation)) {
+			currentScroll = mRecyclerView.computeVerticalScrollOffset();
+			visibleSize = mRecyclerView.computeVerticalScrollExtent();
+			totalRange = mRecyclerView.computeVerticalScrollRange();
+		} else {
+			currentScroll = mRecyclerView.computeHorizontalScrollOffset();
+			visibleSize = mRecyclerView.computeHorizontalScrollExtent();
+			totalRange = mRecyclerView.computeHorizontalScrollRange();
+		}
+		if (visibleSize <= 0 || totalRange <= 0) return;
+		int targetPage = currentScroll / visibleSize;
+		targetScroll = targetPage * visibleSize;
+		if ("vertical".equalsIgnoreCase(orientation)) {
+			mRecyclerView.scrollTo(0, targetScroll);
+		} else {
+			mRecyclerView.scrollTo(targetScroll, 0);
+		}
+	}
+
+	private void applyContentInsets(Object insetsObj) {
+		if ((mRecyclerView != null) && insetsObj != null) {
+			int top = 0;
+			int bottom = 0;
+			int left = 0;
+			int right = 0;
+			float scale = context.getResources().getDisplayMetrics().density;
+			if (insetsObj instanceof HashMap) {
+				@SuppressWarnings("unchecked")
+				HashMap<String, Object> insets = (HashMap<String, Object>) insetsObj;
+				if (insets.containsKey("top")) {
+					top = (int) ((float) TiConvert.toInt(insets.get("top")) * scale + 0.5f);
+				}
+				if (insets.containsKey("bottom")) {
+					bottom = (int) ((float) TiConvert.toInt(insets.get("bottom")) * scale + 0.5f);
+				}
+				if (insets.containsKey("left")) {
+					left = (int) ((float) TiConvert.toInt(insets.get("left")) * scale + 0.5f);
+				}
+				if (insets.containsKey("right")) {
+					right = (int) ((float) TiConvert.toInt(insets.get("right")) * scale + 0.5f);
+				}
+			}
+			if (waterFallLayoutFlag && mRecyclerView != null) {
+				mRecyclerView.setPadding(left, top, right, bottom);
+			} else if (mRecyclerView != null) {
+				mRecyclerView.setPadding(left, top, right, bottom);
+			}
+		}
+	}
+
+	private void applyScrollIndicatorInsets(Object insetsObj) {
+		applyContentInsets(insetsObj);
+	}
+
+
+	// Pull-to-refresh support
+	private TiSwipeRefreshLayout swipeRefreshLayout;
+	private RefreshControlProxy refreshControl;
+
+	// Page indicator
+	private PageIndicatorView pageIndicatorView;
+	private String pageIndicatorTintColor = "#dddddd";
+	private String currentPageIndicatorTintColor = "#ff0000";
 
 	private class SGV extends TiUIView
 	{
 		public SGV(TiViewProxy proxy) {
 			super(proxy);
 			myProxy = proxy;
+			myProxy = ViewProxy.this; // Explicit outer class reference needed inside inner class
 			animationsList = new ArrayList<Object>();
 
 			inflater = LayoutInflater.from(proxy.getActivity());
 			context = proxy.getActivity();
 			resources = proxy.getActivity().getResources();
 
-			try{
-			 	id_main_layout = TiRHelper.getResource("layout.layout_main");
-				id_dragableGridview = TiRHelper.getResource("id.dragGridView");
-			}catch (TiRHelper.ResourceNotFoundException e) {
-
+			try {
+				int mainLayoutRes = TiRHelper.getResource("layout.layout_main");
+				layout = (RelativeLayout) inflater.inflate(mainLayoutRes, null);
+			} catch (ResourceNotFoundException e) {
+				Log.e(LCAT, "Layout resource not found", e);
+				layout = new RelativeLayout(context);
 			}
-
-			layout = (RelativeLayout) inflater.inflate(id_main_layout, null);
-
-			mDragGridView = (DragGridView) layout.findViewById(id_dragableGridview);
+			createRecyclerView();
 			setNativeView(layout);
 
+			Log.d(LCAT, "SGV constructor: unified RecyclerView, waterFallLayout=" + waterFallLayoutFlag + " scrollType=" + scrollType);
 
-
-			final DragAdapter mDragAdapter = new DragAdapter(myProxy.getActivity(), dataSourceList);
-			mDragGridView.setAdapter(mDragAdapter);
+			// After view is created, build grid items if data is pending
+			if (dataPending) {
+				dataPending = false;
+				rebuildGridItemsInternal();
+			}
 		}
 
+		private void createRecyclerView() {
+				if (mRecyclerView != null) return; // Already created
 
-		private void setMargins (View view, int left, int top, int right, int bottom) {
-		    if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-		        ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+				mRecyclerView = new RecyclerView(context);
+				if (waterFallLayoutFlag) {
+					// Waterfall layout = StaggeredGridLayoutManager
+					int orientation = "horizontal".equalsIgnoreCase(scrollType)
+						? StaggeredGridLayoutManager.HORIZONTAL
+						: StaggeredGridLayoutManager.VERTICAL;
+					mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(num_colums, orientation);
+					mStaggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+					mLayoutManager = mStaggeredGridLayoutManager;
+					mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
 
-		        final float scale = context.getResources().getDisplayMetrics().density;
-		        // convert the DP into pixel
-		        int l =  (int)(left * scale + 0.5f);
-		        int r =  (int)(right * scale + 0.5f);
-		        int t =  (int)(top * scale + 0.5f);
-		        int b =  (int)(bottom * scale + 0.5f);
-
-		        p.setMargins(l, t, r, b);
-		        view.requestLayout();
-		    }
-		}
-
-
-		public KrollDict getViewRect(View v)
-			{
-				KrollDict d = new KrollDict();
-				if (v != null) {
-					int[] position = new int[2];
-					v.getLocationInWindow(position);
-
-					TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
-					TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
-					TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
-					TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
-					TiDimension localLeft = new TiDimension(v.getX(), TiDimension.TYPE_LEFT);
-					TiDimension localTop = new TiDimension(v.getY(), TiDimension.TYPE_TOP);
-
-					// TiDimension needs a view to grab the window manager.
-					d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(v));
-					d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(v));
-					d.put(TiC.PROPERTY_X, localLeft.getAsDefault(v));
-					d.put(TiC.PROPERTY_Y, localTop.getAsDefault(v));
-					d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(v));
-					d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(v));
-
-
+					Log.d(LCAT, "createRecyclerView: StaggeredGridLayoutManager, columns=" + num_colums +
+					  " orientation=" + (orientation == StaggeredGridLayoutManager.HORIZONTAL ? "HORIZONTAL" : "VERTICAL"));
+				} else {
+					// Regular grid = GridLayoutManager (always VERTICAL spanCount for proper column layout)
+					mGridLayoutManager = new GridLayoutManager(context, num_colums, LinearLayoutManager.VERTICAL, false);
+					mRecyclerView.setLayoutManager(mGridLayoutManager);
+					Log.d(LCAT, "createRecyclerView: GridLayoutManager, spanCount=" + num_colums +
+					  " orientation=VERTICAL");
 				}
-				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
-					d.put(TiC.PROPERTY_WIDTH, 0);
-					d.put(TiC.PROPERTY_HEIGHT, 0);
-					d.put(TiC.PROPERTY_X, 0);
-					d.put(TiC.PROPERTY_Y, 0);
-
+				// GridSpacingItemDecoration always uses columnCount (items per row)
+				mSpacingDecoration = new GridSpacingItemDecoration(num_colums, HORIZONTAL_SPACING, VERTICAL_SPACING);
+				if (waterFallLayoutFlag) {
+					// For StaggeredGridLayoutManager: no ItemDecoration, use padding on RecyclerView
+					mRecyclerView.setPadding(
+						HORIZONTAL_SPACING / 2,
+						VERTICAL_SPACING / 2,
+						HORIZONTAL_SPACING / 2,
+						VERTICAL_SPACING / 2
+					);
+					mRecyclerView.setClipToPadding(false);
+					mRecyclerView.setClipChildren(false);
+				} else {
+					// For GridLayoutManager: set padding on RecyclerView itself
+					// This creates uniform spacing between all items
+					mRecyclerView.setPadding(
+						HORIZONTAL_SPACING / 2,
+						VERTICAL_SPACING / 2,
+						HORIZONTAL_SPACING / 2,
+						VERTICAL_SPACING / 2
+					);
+					mRecyclerView.setClipToPadding(false);
+					mRecyclerView.setClipChildren(false);
 				}
 
+                                mRecyclerAdapter = new DragRecyclerAdapter(context, dataSourceList, ViewProxy.this);
+				mRecyclerAdapter.setWobbleEnabled(wobbleEnabled);
+				mRecyclerAdapter.setShowDeleteButtons(showDeleteButtonEnabled);
+				mRecyclerAdapter.setItemsBadgeEnabled(itemsBadgeEnabledFlag);
+				mRecyclerAdapter.setDeleteButtonReference(deleteButtonReference);
+				mRecyclerView.setAdapter(mRecyclerAdapter);
 
-				return d;
-			}
+				mTouchCallback = new DragItemTouchCallback(mRecyclerAdapter, mRecyclerView);
+				mTouchCallback.setDragItemShadowOpacity(dragItemShadowOpacity);
+				mTouchCallback.setListener(new DragItemTouchCallback.DragItemTouchCallbackListener() {
+					@Override
+					public void onItemsReordered() {
+						notifyItemsReordered();
+					}
 
-		@Override
-		public void processProperties(KrollDict d)
-		{
-				super.processProperties(d);
+					@Override
+					public void onItemDeleted(int position, Object itemId) {
+						KrollDict eventDict = new KrollDict();
+						eventDict.put("itemId", itemId);
+						fireEvent("itemDeleted", eventDict);
+					}
+				});
+				mItemTouchHelper = new ItemTouchHelper(mTouchCallback);
+				mItemTouchHelper.attachToRecyclerView(mRecyclerView);
 
-
-				if (d.containsKey(PROPERTY_COLUMN_WIDTH)) {
-					COLUMN_WIDTH = TiConvert.toInt(d.get(PROPERTY_COLUMN_WIDTH));
-					mDragGridView.setColumnWidth(COLUMN_WIDTH);
-				}
-				if (d.containsKey(PROPERTY_HORIZONTAL_SPACING)) {
-					HORIZONTAL_SPACING = TiConvert.toInt(d.get(PROPERTY_HORIZONTAL_SPACING));
-					mDragGridView.setHorizontalSpacing(HORIZONTAL_SPACING);
-				}
-				if (d.containsKey(PROPERTY_VERTICAL_SPACING)) {
-					VERTICAL_SPACING = TiConvert.toInt(d.get(PROPERTY_VERTICAL_SPACING));
-					mDragGridView.setVerticalSpacing(VERTICAL_SPACING);
-				}
-
-
-				if (d.containsKey(PROPERTY_COLUMNS)) {
-					num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
-					mDragGridView.setNumColumns(num_colums);
-				}
-
-				if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
-					deleteButtonReference = TiDrawableReference.fromObject(myProxy, d.get(PROPERTY_DELETE_BUTTON_IMAGE));
-				}
-
-
-				if (d.containsKey(PROPERTY_ITEMS)) {
-					 itemsList = new ArrayList<Object>();
-					 for (Object o : (Object[]) d.get(PROPERTY_ITEMS)) {
-					 	itemsList.add(o);
-				 }
-
-
-		 		// mDragGridView.setOnItemClickListener(new OnItemClickListener() {
-		 		// 	@Override
-		 		// 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
- 				// 			Log.d(LCAT, "+++++++++++++++++++++++  onItemClick");
-
-		 		// 			mDragGridView.removeItemAnimation(position);
-		 		// 	}
-			  // 	});
-
-			}
-
-
-					for (int i = 0; i < itemsList.size(); i++) {
-						HashMap<String, Object> itemHashMap = new HashMap<String, Object>();
-
-						View cellContent = null;
-						TiCompositeLayout.LayoutParams layoutParams = null;
-						//layoutParams = new TiCompositeLayout.LayoutParams();
-
-						TiViewProxy thisproxy = (TiViewProxy) itemsList.get(i);
-						if (thisproxy != null) {
-						 TiUIView uiView = thisproxy.getOrCreateView();
-
-						 if (uiView != null) {
-							layoutParams = uiView.getLayoutParams();
-
-							TiDimension parentViewWidth = new TiDimension(TiConvert.toString(myProxy.getWidth()), TiDimension.TYPE_WIDTH);
-
-
-							TiDimension nativeWidth = new TiDimension(TiConvert.toString(thisproxy.getWidth()), TiDimension.TYPE_WIDTH);
-							TiDimension nativeHeight = new TiDimension(TiConvert.toString(thisproxy.getHeight()), TiDimension.TYPE_HEIGHT);
-							TiDimension cellBottom = new TiDimension(TiConvert.toString(6), TiDimension.TYPE_BOTTOM);
-							TiDimension cellLeft = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_LEFT);
-							TiDimension cellRight = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_RIGHT);
-							TiDimension cellTop = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_TOP);
-							//TiDimension cellLeft = new TiDimension(TiConvert.toString(10), TiDimension.TYPE_LEFT);
-
-							layoutParams.height = (int)(nativeHeight.getValue());
-							layoutParams.width = (int)(nativeWidth.getValue());
-							layoutParams.optionBottom = cellBottom;
-							layoutParams.optionTop = cellTop;
-
-
-							if ((int)(nativeHeight.getValue()) > COLUMN_WIDTH){
-								COLUMN_WIDTH = (int)(nativeHeight.getValue())+10;
-								mDragGridView.setColumnWidth(COLUMN_WIDTH);
+				mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+					@Override
+					public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+						lastScrollState = newState;
+						Log.d(LCAT, "onScrollStateChanged: newState=" + newState +
+						  " (IDLE=" + RecyclerView.SCROLL_STATE_IDLE + " DRAGGING=" + RecyclerView.SCROLL_STATE_DRAGGING + " SETTLING=" + RecyclerView.SCROLL_STATE_SETTLING + ")" +
+						  " layoutManager=" + (recyclerView.getLayoutManager() != null ? recyclerView.getLayoutManager().getClass().getSimpleName() : "null") +
+						  " childCount=" + recyclerView.getChildCount() + " itemCount=" + getItemCountSafe());
+						if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+							if (pagingEnabledFlag) {
+								snapToPage();
 							}
-
-							if ( (((int)(nativeHeight.getValue())+10) * num_colums) < (COLUMN_WIDTH * num_colums)) {
-								COLUMN_WIDTH = (int)(nativeHeight.getValue())+10;
-								mDragGridView.setColumnWidth(COLUMN_WIDTH);
+							// Update PageIndicator with correct page count and current page
+							if (pageIndicatorView != null) {
+								updatePageIndicator();
 							}
-
-							layoutParams.optionLeft = cellLeft;
-							layoutParams.optionRight = cellRight;
-
-							//layoutParams.optionLeft = cellLeft;
-
-							cellContent = uiView.getOuterView();
-
-							TiCompositeLayout cellContainer = new TiCompositeLayout(context);
-							cellContainer.addView(cellContent, layoutParams);
-							cellContainer.setClipChildren(false);
-							cellContainer.setClipToPadding(false);
-
-
-							ViewGroup.LayoutParams layoutParamsCellContainer = null;
-							layoutParamsCellContainer = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-							cellContainer.setLayoutParams(layoutParamsCellContainer);
-
-
-
-							int gridWidth = (COLUMN_WIDTH * num_colums) + ((num_colums-1)*HORIZONTAL_SPACING);
-
-							int cellWidth = COLUMN_WIDTH;
-							int diffWidth = cellWidth - (int)(nativeWidth.getValue());
-							Log.d(LCAT, "  ");
-							Log.d(LCAT, "+++++++++++++++++++++++  cellWidth: "+cellWidth);
-							Log.d(LCAT, "+++++++++++++++++++++++  nativeWidth: "+((int)(nativeWidth.getValue())));
-							Log.d(LCAT, "+++++++++++++++++++++++  diffWidth: "+diffWidth);
-							Log.d(LCAT, "+++++++++++++++++++++++  calcLeft: "+((diffWidth/2)-5));
-
-
-
-							if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
-								cellContainer.setId(5000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
+							final int newPage = calculateCurrentPage();
+							if (newPage != currentPage) {
+								currentPage = newPage;
+								KrollDict pageData = new KrollDict();
+								pageData.put("pageNo", newPage);
+								fireEvent("pageChanged", pageData);
 							}
-
-
-
-							if (deleteButtonReference != null){
-								float factor = context.getResources().getDisplayMetrics().density;
-								TiCompositeLayout.LayoutParams layoutParamsButton = null;
-								layoutParamsButton = new TiCompositeLayout.LayoutParams();
-								TiDimension left = new TiDimension(TiConvert.toString(((diffWidth/2)-5)), TiDimension.TYPE_LEFT);
-								TiDimension top = new TiDimension(TiConvert.toString(0), TiDimension.TYPE_TOP);
-								layoutParamsButton.width = (int)(30 * factor);
-								layoutParamsButton.height = (int)(30 * factor);
-								layoutParamsButton.optionLeft = left;
-								layoutParamsButton.optionTop = top;
-								TiCompositeLayout buttonContainerLayout = new TiCompositeLayout(context);
-								RelativeLayout relativeLayout;
-								RelativeLayout.LayoutParams layoutParamsImage;
-								relativeLayout = new RelativeLayout(context);
-								layoutParamsImage = new RelativeLayout.LayoutParams((int)(30 * factor), (int)(30 * factor));
-								Bitmap b = deleteButtonReference.getBitmap(false,true);
-								ImageView deleteButtonView = new ImageView(context);
-
-								BitmapDrawable drawable = new BitmapDrawable(context.getResources(),b);
-								drawable.setAntiAlias(true);
-								deleteButtonView.setImageDrawable(drawable);
-								deleteButtonView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-//								 int backgroundColorValue = TiConvert.toColor("red");
-//								 cellContainer.setBackgroundColor(backgroundColorValue);
-								relativeLayout.addView(deleteButtonView,layoutParamsImage);
-
-
-								buttonContainerLayout.setClipChildren(false);
-								buttonContainerLayout.setClipToPadding(false);
-
-								relativeLayout.setClipChildren(false);
-								relativeLayout.setClipToPadding(false);
-
-								buttonContainerLayout.addView(relativeLayout);
-								cellContainer.addView(buttonContainerLayout,layoutParamsButton);
-
-
-								int pressedColorValue = TiConvert.toColor("#88d3413c");
-
-								deleteButtonView.setVisibility(View.INVISIBLE);
-
-
-								if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
-									deleteButtonView.setId(8000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
-								}
-
-
-								deleteButtonView.setOnClickListener(new View.OnClickListener() {
-										@Override
-										public void onClick(View v) {
-													Log.d(LCAT, "OnClickListener: ");
-													deleteItem(TiConvert.toString(5000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID)))));
-										}
-								});
-
-								deleteButtonView.setOnTouchListener(new View.OnTouchListener() {
-										@Override
-										public boolean onTouch(View v, MotionEvent event) {
-												switch(event.getAction()) {
-														case MotionEvent.ACTION_DOWN:
-																deleteButtonView.setColorFilter(pressedColorValue);
-																return false; // if you want to handle the touch event
-														case MotionEvent.ACTION_UP:
-																// RELEASED
-																deleteButtonView.clearColorFilter();
-																v.performClick();
-																return true; // if you want to handle the touch event
-														case MotionEvent.ACTION_CANCEL:
-																		// RELEASED
-																		deleteButtonView.clearColorFilter();
-																		return false; // if you want to handle the touch event
-												}
-												return false;
-										}
-								});
-								itemHashMap.put("delete_button", deleteButtonView);
-
+							if (lazyLoadingEnabledFlag) {
+								// Placeholder for lazy loading logic
 							}
-							if (thisproxy.hasProperty(PROPERTY_BADGE)){
-									int badgeValue = TiConvert.toInt(thisproxy.getProperty(PROPERTY_BADGE));
-									FrameLayout badgeViewLayout = new FrameLayout(context);
-									cellContainer.addView(badgeViewLayout);
-
-
-
-									View badgeView = BadgeFactory.create(context)
-								 .setTextColor(Color.WHITE)
-								 .setWidthAndHeight(28,28)
-								 .setBadgeBackground(Color.RED)
-								 .setTextSize(13)
-								 .setBadgeGravity(Gravity.RIGHT|Gravity.TOP)
-								 .setBadgeCount(badgeValue)
-								 .setShape(BadgeView.SHAPE_CIRCLE)
-								 .setSpace((int)(nativeWidth.getValue())+12,(int)(nativeHeight.getValue())+5)
-								 .bind(badgeViewLayout);
-								 itemHashMap.put("badge_view", badgeView);
-
-								 if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
- 									badgeView.setId(10000+TiConvert.toInt((thisproxy.getProperty(TiC.PROPERTY_ID))));
- 								}
-
-
-							}
-
-							itemHashMap.put("item_view", cellContainer);
-							dataSourceList.add(itemHashMap);
-
-						 }
+						}
+						if (newState == RecyclerView.SCROLL_STATE_DRAGGING && lazyLoadingEnabledFlag) {
+							// Placeholder for lazy loading logic
 						}
 					}
 
+					@Override
+					public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+						// Update PageIndicator during scrolling (not just on IDLE)
+						if (pageIndicatorView != null && lastScrollState != RecyclerView.SCROLL_STATE_IDLE) {
+							updatePageIndicator();
+						}
+
+						// Logging für GAP-Bug Tracking bei waterFallLayout:true
+						if (waterFallLayoutFlag) {
+							int scrollOffset = recyclerView.computeVerticalScrollOffset();
+							int scrollExtent = recyclerView.computeVerticalScrollExtent();
+							int scrollRange = recyclerView.computeVerticalScrollRange();
+							int visibleHeight = recyclerView.getHeight();
+							int firstVisible = -1, lastVisible = -1;
+							int visibleCount = recyclerView.getChildCount();
+
+							if (recyclerView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
+								if (visibleCount > 0) {
+									DragRecyclerAdapter.DragViewHolder firstHolder = (DragRecyclerAdapter.DragViewHolder) recyclerView.getChildViewHolder(recyclerView.getChildAt(0));
+									DragRecyclerAdapter.DragViewHolder lastHolder = (DragRecyclerAdapter.DragViewHolder) recyclerView.getChildViewHolder(recyclerView.getChildAt(visibleCount - 1));
+									firstVisible = firstHolder.getAdapterPosition();
+									lastVisible = lastHolder.getAdapterPosition();
+								}
+							}
+
+							Log.d(LCAT, "onScrolled: dx=" + dx + " dy=" + dy +
+							  " scrollOffset=" + scrollOffset + " scrollExtent=" + scrollExtent +
+							  " scrollRange=" + scrollRange + " visibleHeight=" + visibleHeight +
+							  " visibleCount=" + visibleCount +
+							  " firstVisiblePos=" + firstVisible + " lastVisiblePos=" + lastVisible +
+							  " totalCount=" + getItemCountSafe() +
+							  " layoutManager=" + (recyclerView.getLayoutManager() != null ? recyclerView.getLayoutManager().getClass().getSimpleName() : "null"));
+						}
+
+						KrollDict scrollData = new KrollDict();
+						KrollDict contentOffset = new KrollDict();
+						KrollDict contentSize = new KrollDict();
+						contentOffset.put("x", mRecyclerView.getScrollX());
+						contentOffset.put("y", mRecyclerView.getScrollY());
+						contentSize.put("width", mRecyclerView.getWidth());
+						contentSize.put("height", mRecyclerView.getHeight());
+						scrollData.put("contentOffset", contentOffset);
+						scrollData.put("contentSize", contentSize);
+						fireEvent("scroll", scrollData);
+
+						final int newPageCount = calculatePageCount();
+						if (newPageCount != calculateCurrentPageCount()) {
+							KrollDict pageCountData = new KrollDict();
+							pageCountData.put("pageCount", newPageCount);
+							fireEvent("pageCountChanged", pageCountData);
+						}
+					}
+				});
+
+				// Create layout if not already set (e.g., when called from processProperties)
+				if (layout == null) {
+					layout = new RelativeLayout(context);
+				}
+				RelativeLayout.LayoutParams rvParams = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.MATCH_PARENT,
+					RelativeLayout.LayoutParams.MATCH_PARENT);
+				layout.addView(mRecyclerView, rvParams);
+			}
+
+			// Setup paging and pager AFTER flags are set in processProperties
+			private void setupPagingAndPager() {
+				if (mRecyclerView == null || layout == null) return;
+
+				// Setup paging (SnapHelper)
+				if (pagingEnabledFlag) {
+					SnapHelper snapHelper = new LinearSnapHelper();
+					snapHelper.attachToRecyclerView(mRecyclerView);
+					Log.d(LCAT, "setupPagingAndPager: LinearSnapHelper attached for paging");
+				}
+
+				// Create PageIndicatorView if pagerEnabled
+				if (pagerEnabledFlag && pageIndicatorView == null) {
+					pageIndicatorView = new PageIndicatorView(context);
+					pageIndicatorView.setPageIndicatorTintColor(TiColorHelper.parseColor(pageIndicatorTintColor, context));
+					pageIndicatorView.setCurrentPageIndicatorTintColor(TiColorHelper.parseColor(currentPageIndicatorTintColor, context));
+					RelativeLayout.LayoutParams pagerParams = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.MATCH_PARENT,
+						RelativeLayout.LayoutParams.WRAP_CONTENT);
+					pagerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+					layout.addView(pageIndicatorView, pagerParams);
+					// Update with initial page count after layout settles
+					mRecyclerView.post(new Runnable() {
+						@Override
+						public void run() {
+							updatePageIndicator();
+						}
+					});
+					Log.d(LCAT, "setupPagingAndPager: PageIndicatorView added");
+				}
+			}
 
 
+			private void setMargins(View view, int left, int top, int right, int bottom) {
+			if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+				ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+				float scale = context.getResources().getDisplayMetrics().density;
+				int l = (int) (left * scale + 0.5f);
+				int r = (int) (right * scale + 0.5f);
+				int t = (int) (top * scale + 0.5f);
+				int b = (int) (bottom * scale + 0.5f);
+				p.setMargins(l, t, r, b);
+			}
+		}
 
+		public KrollDict getViewRect(View v) {
+			KrollDict d = new KrollDict();
+			if (v != null) {
+				int[] position = new int[2];
+				v.getLocationInWindow(position);
 
+				TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+				TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+				TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
+				TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
+				TiDimension localLeft = new TiDimension((int) v.getX(), TiDimension.TYPE_LEFT);
+				TiDimension localTop = new TiDimension((int) v.getY(), TiDimension.TYPE_TOP);
 
+				d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(v));
+				d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(v));
+				d.put(TiC.PROPERTY_X, localLeft.getAsDefault(v));
+				d.put(TiC.PROPERTY_Y, localTop.getAsDefault(v));
+				d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(v));
+				d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(v));
+			}
+			if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+				d.put(TiC.PROPERTY_WIDTH, 0);
+				d.put(TiC.PROPERTY_HEIGHT, 0);
+				d.put(TiC.PROPERTY_X, 0);
+				d.put(TiC.PROPERTY_Y, 0);
+			}
+			return d;
+		}
 
+		@Override
+		public void processProperties(KrollDict d) {
+			super.processProperties(d);
+			Log.d(LCAT, "processProperties: keys=" + d.keySet());
+
+			// Handle deleteButtonImage FIRST so it's available when rebuildGridItemsInternal is called
+			if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
+				deleteButtonReference = TiDrawableReference.fromObject(myProxy, d.get(PROPERTY_DELETE_BUTTON_IMAGE));
+				Log.d(LCAT, "processProperties (early): deleteButtonReference=" + (deleteButtonReference != null ? "non-null" : "NULL"));
+			}
+
+			// For waterfall layout: skip the first rebuild in buildGridItems, only rebuild at end of processProperties
+			if (waterFallLayoutFlag) {
+				skipGenericRebuild = true;
+				Log.d(LCAT, "processProperties: set skipGenericRebuild=true for waterfall layout");
+			}
+
+			if (d.containsKey(PROPERTY_COLUMN_WIDTH)) {
+				COLUMN_WIDTH = TiConvert.toInt(d.get(PROPERTY_COLUMN_WIDTH));
+				if (mRecyclerView != null) {
+				}
+			}
+			if (d.containsKey(PROPERTY_HORIZONTAL_SPACING)) {
+				HORIZONTAL_SPACING = TiConvert.toInt(d.get(PROPERTY_HORIZONTAL_SPACING));
+				if (mRecyclerView != null) {
+					
+				}
+				if (mSpacingDecoration != null) {
+					mSpacingDecoration.setHorizontalSpacing(HORIZONTAL_SPACING);
+				}
+			}
+			if (d.containsKey(PROPERTY_MIN_HORIZONTAL_SPACING)) {
+				HORIZONTAL_SPACING = TiConvert.toInt(d.get(PROPERTY_MIN_HORIZONTAL_SPACING));
+				if (mRecyclerView != null) {
+					
+				}
+				if (mSpacingDecoration != null) {
+					mSpacingDecoration.setHorizontalSpacing(HORIZONTAL_SPACING);
+				}
+			}
+			if (d.containsKey(PROPERTY_VERTICAL_SPACING)) {
+				VERTICAL_SPACING = TiConvert.toInt(d.get(PROPERTY_VERTICAL_SPACING));
+				if (mRecyclerView != null) {
+					
+				}
+				if (mSpacingDecoration != null) {
+					mSpacingDecoration.setVerticalSpacing(VERTICAL_SPACING);
+				}
+			}
+			if (d.containsKey(PROPERTY_MIN_VERTICAL_SPACING)) {
+				VERTICAL_SPACING = TiConvert.toInt(d.get(PROPERTY_MIN_VERTICAL_SPACING));
+				if (mRecyclerView != null) {
+					
+				}
+				if (mSpacingDecoration != null) {
+					mSpacingDecoration.setVerticalSpacing(VERTICAL_SPACING);
+				}
+			}
+			if (d.containsKey(PROPERTY_COLUMNS)) {
+				num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
+				if (mRecyclerView != null) {
+				}
+				if (mStaggeredGridLayoutManager != null) {
+					mStaggeredGridLayoutManager.setSpanCount(num_colums);
+				}
+				if (mGridLayoutManager != null) {
+					mGridLayoutManager.setSpanCount(num_colums);
+				}
+				if (mSpacingDecoration != null) {
+					mSpacingDecoration.setSpanCount(num_colums);
+				}
+			}
+			if (d.containsKey(PROPERTY_ROW_COUNT)) {
+				row_count = TiConvert.toInt(d.get(PROPERTY_ROW_COUNT), 4);
+				// rowCount determines items per page in horizontal mode
+			}
+			if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
+				if (mRecyclerAdapter != null) {
+					mRecyclerAdapter.setDeleteButtonReference(deleteButtonReference);
+				}
+				// Rebuild items so delete buttons are created (deleteButtonReference is now available)
+				if (!waterFallLayoutFlag && itemsList != null && !itemsList.isEmpty()) {
+					rebuildGridItemsInternal();
+				}
+				Log.d(LCAT, "processProperties (late): deleteButtonReference=" + (deleteButtonReference != null ? "non-null" : "NULL"));
+			}
+
+			// For waterfall layout: rebuild at end of processProperties (single pass with all props set)
+			if (waterFallLayoutFlag && itemsList != null && !itemsList.isEmpty()) {
+				Log.d(LCAT, "processProperties: rebuilding grid items at end of processProperties");
+				rebuildGridItemsInternal();
+			}
+
+			// Skip the first rebuild in buildGridItems since we do it here
+			skipGenericRebuild = true;
+			if (d.containsKey(PROPERTY_WOBBLE)) {
+				wobbleEnabled = TiConvert.toBoolean(d.get(PROPERTY_WOBBLE), true);
+				if (mRecyclerAdapter != null) {
+					mRecyclerAdapter.setWobbleEnabled(wobbleEnabled);
+				}
+			}
+			if (d.containsKey(PROPERTY_SHOW_DELETE_BUTTON)) {
+				showDeleteButtonEnabled = TiConvert.toBoolean(d.get(PROPERTY_SHOW_DELETE_BUTTON), true);
+				if (mRecyclerAdapter != null) {
+					mRecyclerAdapter.setShowDeleteButtons(showDeleteButtonEnabled);
+				}
+			}
+			if (d.containsKey(PROPERTY_ITEMS_BADGE_ENABLED)) {
+				itemsBadgeEnabledFlag = TiConvert.toBoolean(d.get(PROPERTY_ITEMS_BADGE_ENABLED), true);
+				if (mRecyclerAdapter != null) {
+					mRecyclerAdapter.setItemsBadgeEnabled(itemsBadgeEnabledFlag);
+				}
+			}
+			// Handle refreshControl from creation dict
+			if (d.containsKey("refreshControl")) {
+				Object rc = d.get("refreshControl");
+				if (rc != null) {
+					setRefreshControl_(rc);
+				}
+			}
+			if (d.containsKey(PROPERTY_SCROLL_ENABLED)) {
+				scrollEnabledFlag = TiConvert.toBoolean(d.get(PROPERTY_SCROLL_ENABLED), true);
+				if (mRecyclerView != null) {
+				}
+			}
+			if (d.containsKey(PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
+				boolean showVerticalIndicator = TiConvert.toBoolean(d.get(PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR), true);
+				setShowVerticalScrollIndicator(showVerticalIndicator);
+			}
+			if (d.containsKey(PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
+				boolean showHorizontalIndicator = TiConvert.toBoolean(d.get(PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR), true);
+				setShowHorizontalScrollIndicator(showHorizontalIndicator);
+			}
+			if (d.containsKey(PROPERTY_SCROLL_TO_BOTTOM_AFTER_SET_DATA)) {
+				scrollToBottomAfterSetData = TiConvert.toBoolean(d.get(PROPERTY_SCROLL_TO_BOTTOM_AFTER_SET_DATA), false);
+			}
+			if (d.containsKey(PROPERTY_DRAG_ITEM_SHADOW_OPACITY)) {
+				dragItemShadowOpacity = TiConvert.toFloat(d.get(PROPERTY_DRAG_ITEM_SHADOW_OPACITY), 0.95f);
+				if (mTouchCallback != null) {
+					mTouchCallback.setDragItemShadowOpacity(dragItemShadowOpacity);
+				}
+			}
+			if (d.containsKey(PROPERTY_EDITABLE)) {
+				isInEditMode = TiConvert.toBoolean(d.get(PROPERTY_EDITABLE), false);
+				if (mRecyclerView != null) {
+				}
+			}
+			if (d.containsKey(PROPERTY_PAGING_ENABLED)) {
+				pagingEnabledFlag = TiConvert.toBoolean(d.get(PROPERTY_PAGING_ENABLED), false);
+			}
+			if (d.containsKey(PROPERTY_PAGER_ENABLED)) {
+				pagerEnabledFlag = TiConvert.toBoolean(d.get(PROPERTY_PAGER_ENABLED), false);
+			}
+			if (d.containsKey(PROPERTY_PAGE_INDICATOR_TINT_COLOR)) {
+				pageIndicatorTintColor = (String) d.get(PROPERTY_PAGE_INDICATOR_TINT_COLOR);
+			}
+			if (d.containsKey(PROPERTY_CURRENT_PAGE_INDICATOR_TINT_COLOR)) {
+				currentPageIndicatorTintColor = (String) d.get(PROPERTY_CURRENT_PAGE_INDICATOR_TINT_COLOR);
+			}
+			// Setup paging and pager after flags are read
+			setupPagingAndPager();
+
+			if (d.containsKey(PROPERTY_WATER_FALL_LAYOUT)) {
+				boolean newValue = TiConvert.toBoolean(d.get(PROPERTY_WATER_FALL_LAYOUT), false);
+				if (newValue != waterFallLayoutFlag && mRecyclerView != null) {
+					Log.d(LCAT, "processProperties: recreating RecyclerView due to waterFallLayout change");
+					layout.removeView(mRecyclerView);
+					mRecyclerView = null;
+					mRecyclerAdapter = null;
+					mLayoutManager = null;
+					mSpacingDecoration = null;
+					mTouchCallback = null;
+					mItemTouchHelper = null;
+					waterFallLayoutFlag = newValue;
+					createRecyclerView();
+					setNativeView(layout);
+					return;
+				}
+				waterFallLayoutFlag = newValue;
+			}
+			if (d.containsKey(PROPERTY_SCROLL_TYPE)) {
+				scrollType = TiConvert.toString(d.get(PROPERTY_SCROLL_TYPE), "vertical");
+			}
+			if (d.containsKey(PROPERTY_LAZY_LOADING_ENABLED)) {
+				lazyLoadingEnabledFlag = TiConvert.toBoolean(d.get(PROPERTY_LAZY_LOADING_ENABLED), false);
+			}
+			if (d.containsKey(PROPERTY_DISABLE_BOUNCE)) {
+				disableBounceFlag = TiConvert.toBoolean(d.get(PROPERTY_DISABLE_BOUNCE), false);
+			}
+			if (d.containsKey(PROPERTY_PAGER_FOLLOWS_BOTTOM_INSET)) {
+				pagerFollowsBottomInsetFlag = TiConvert.toBoolean(d.get(PROPERTY_PAGER_FOLLOWS_BOTTOM_INSET), false);
+			}
+			if (d.containsKey(PROPERTY_CONTENT_INSETS)) {
+				applyContentInsets(d.get(PROPERTY_CONTENT_INSETS));
+			}
+			if (d.containsKey(PROPERTY_SCROLL_INDICATOR_INSETS)) {
+				applyScrollIndicatorInsets(d.get(PROPERTY_SCROLL_INDICATOR_INSETS));
+			}
+
+			if (d.containsKey(PROPERTY_ITEMS)) {
+				Object dataObj = d.get(PROPERTY_ITEMS);
+				Log.d(LCAT, "processProperties: data key found, type=" + (dataObj != null ? dataObj.getClass().getSimpleName() : "null"));
+				itemsList = new ArrayList<Object>();
+				if (dataObj instanceof Object[]) {
+					for (Object o : (Object[]) dataObj) {
+						Log.d(LCAT, "processProperties: item type=" + (o != null ? o.getClass().getSimpleName() : "null"));
+						itemsList.add(o);
+					}
+				}
+				buildGridItems();
+			}
+
+			if (dataPending && (mRecyclerView != null)) {
+				Log.d(LCAT, "processProperties: processing pending data, dataPending=" + dataPending);
+				dataPending = false;
+				dataSourceList.clear();
+				buildGridItems();
+			}
 		}
 	}
-
-
-
 
 
 	// Constructor
@@ -473,12 +1280,7 @@ public class ViewProxy extends TiViewProxy
 		view.getLayoutParams().autoFillsHeight = true;
 		view.getLayoutParams().autoFillsWidth = true;
 		myView = view;
-		TiDimension nativeWidth = new TiDimension(TiConvert.toString(myProxy.getWidth()), TiDimension.TYPE_WIDTH);
-
-		Log.d(LCAT, "  ");
-		Log.d(LCAT, "+++++++++++++++++++++++  viewWidth: "+ nativeWidth);
-
-
+		myProxy = this;
 		return view;
 	}
 
@@ -487,165 +1289,1089 @@ public class ViewProxy extends TiViewProxy
 	public void handleCreationDict(KrollDict options)
 	{
 		super.handleCreationDict(options);
-
-		if (options.containsKey("message")) {
-			Log.d(LCAT, "example created with message: " + options.get("message"));
+		// Read waterFallLayout and scrollType BEFORE createView/SGV constructor
+		// so the correct view type (RecyclerView) is created from the start
+		if (options != null) {
+			if (options.containsKey(PROPERTY_WATER_FALL_LAYOUT)) {
+				waterFallLayoutFlag = TiConvert.toBoolean(options.get(PROPERTY_WATER_FALL_LAYOUT), false);
+			}
+			if (options.containsKey(PROPERTY_SCROLL_TYPE)) {
+				scrollType = TiConvert.toString(options.get(PROPERTY_SCROLL_TYPE), "vertical");
+			}
+			if (options.containsKey(PROPERTY_COLUMNS)) {
+				num_colums = TiConvert.toInt(options.get(PROPERTY_COLUMNS), 3);
+			}
+			Log.d(LCAT, "handleCreationDict: waterFallLayoutFlag=" + waterFallLayoutFlag + " scrollType=" + scrollType + " num_colums=" + num_colums);
 		}
-
-
 	}
 
 	protected void animateItem(View view, int rotation) {
-
-			 ViewAnimator viewAnimator = ViewAnimator.animate(view).rotation(rotation).repeatMode(ViewAnimator.REVERSE).duration(180).repeatCount(1000).start();
-
-			 animationsList.add(viewAnimator);
-
-							// .dp().translationY(-1000, 0)
-							// .alpha(0, 1)
-							// .singleInterpolator(new OvershootInterpolator())
-							//
-							// .andAnimate(percent)
-							// .scale(0, 1)
-							//
-							// .andAnimate(text)
-							// .textColor(Color.BLACK, Color.WHITE)
-							// .backgroundColor(Color.WHITE, Color.BLACK)
-							//
-							// .waitForHeight()
-							// .singleInterpolator(new AccelerateDecelerateInterpolator())
-							// .duration(2000)
-							//
-							// .thenAnimate(percent)
-							// .custom(new AnimationListener.Update<TextView>() {
-							// 		@Override
-							// 		public void update(TextView view, float value) {
-							// 				view.setText(String.format(Locale.US, "%.02f%%", value));
-							// 		}
-							// }, 0, 1)
-							//
-							// .andAnimate(image)
-							// .rotation(0, 360)
-							//.pulse()
-
-
-
-			// new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-			// 		@Override
-			// 		public void run() {
-			// 				viewAnimator.cancel();
-			// 		}
-			// }, 4000);
+		// Native ValueAnimator with listener: alternate between rotation and -rotation
+		final int finalRotation = rotation;
+		ValueAnimator animator = new ValueAnimator();
+		animator.setFloatValues(finalRotation, -finalRotation);
+		animator.setDuration(180);
+		animator.setRepeatMode(ValueAnimator.REVERSE);
+		animator.setRepeatCount(ValueAnimator.INFINITE);
+		animator.addUpdateListener(animation -> {
+			if (view != null) {
+				view.setRotation((Float) animation.getAnimatedValue());
+			}
+		});
+		animator.start();
+		animationsList.add(animator);
 	}
 
 	@Kroll.method
 	public void deleteItem(String id) {
-			Log.d(LCAT, "deleteItem: ");
 
-			View v = mDragGridView.findViewById(Integer.parseInt(id));
+				// Find item by proxy ID in data source
+				int position = -1;
+				try {
+					int targetId = Integer.parseInt(id);
+					for (int i = 0; i < dataSourceList.size(); i++) {
+						HashMap<String, Object> item = dataSourceList.get(i);
+						Object proxyObj = item.get("item_proxy");
+						if (proxyObj instanceof TiViewProxy) {
+							TiViewProxy proxy = (TiViewProxy) proxyObj;
+							if (proxy.hasProperty(TiC.PROPERTY_ID) && Integer.parseInt(String.valueOf(proxy.getProperty(TiC.PROPERTY_ID))) == targetId) {
+								position = i;
+								break;
+							}
+						}
+					}
+				} catch (NumberFormatException e) {
+					Log.w(LCAT, "deleteItem: invalid id format: " + id);
+				}
+				if (position >= 0) {
+					Log.d(LCAT, "deleteItem: removing position=" + position + " id=" + id);
+					if (mRecyclerAdapter != null) {
+						mRecyclerAdapter.removeItem(position);
+						final Object itemId = id;
+						mRecyclerView.post(new Runnable() {
+							@Override
+							public void run() {
+								KrollDict eventDict = new KrollDict();
+								eventDict.put("itemId", itemId);
+								fireEvent("itemDeleted", eventDict);
+							}
+						});
+					} else {
+						Log.w(LCAT, "deleteItem: no adapter for id=" + id);
+					}
+				} else {
+					Log.w(LCAT, "deleteItem: item not found for id=" + id + " dataSourceSize=" + (dataSourceList != null ? dataSourceList.size() : "null"));
+				}
 
-			if (v!=null){
-				int leftOffset = v.getLeft();
-				int topOffset = v.getTop();
-
-				int midX = leftOffset + (v.getWidth()/2);
-				int midY = topOffset + (v.getHeight()/2);
-
-				int position = mDragGridView.getItemPosition(midX,midY);
-
-				Log.d(LCAT, "POSITION: " + position);
-
-
-				mDragGridView.removeItemAnimation(position);
-			}
-	}
-
-
+				// RecyclerView cleanup
+}
 
 	@Kroll.method
 	public void stopEditing() {
-		 View deleteButton;
-		 View badgeView;
-		 View itemView;
+		Log.d(LCAT, "stopEditing called: isInEditMode was=" + isInEditMode + " dataSourceList.size=" + (dataSourceList != null ? dataSourceList.size() : "null") + " wobbleEnabled=" + wobbleEnabled);
+
 		isInEditMode = false;
-		mDragGridView.setEditMode(false);
 
-
-		for (int j = 0; j < animationsList.size(); j++) {
-				((ViewAnimator)(animationsList.get(j))).cancel();
-				//animation.cancel();
+		// CRITICAL: Stop ALL ValueAnimators from ViewProxy.animationsList
+		Log.d(LCAT, "stopEditing: stopping ViewProxy.animationsList (" +
+			(animationsList != null ? animationsList.size() : "null") + " animators)");
+		if (animationsList != null) {
+			for (Object anim : animationsList) {
+				if (anim instanceof Animator) {
+					Animator a = (Animator) anim;
+					if (a.isRunning()) {
+						a.cancel();
+						Log.d(LCAT, "stopEditing: cancelled animator from ViewProxy.animationsList");
+					}
+				}
+			}
+			animationsList.clear();
 		}
-		animationsList.clear();
-		Log.d(LCAT, "+++++++++++++++++++++++ AFTER  animationsList size: "+ animationsList.size());
+
+		if (mRecyclerAdapter != null) {
+			mRecyclerAdapter.setEditMode(false);
+			Log.d(LCAT, "stopEditing: calling adapter.stopWobble() and clearAnimations()");
+			mRecyclerAdapter.stopWobble();
+			mRecyclerAdapter.clearAnimations();
+			Log.d(LCAT, "stopEditing: calling notifyDataSetChanged()");
+			if (mRecyclerView != null) {
+				mRecyclerView.getRecycledViewPool().clear();
+			}
+			mRecyclerAdapter.notifyDataSetChanged();
+			Log.d(LCAT, "stopEditing: resetting visible view rotations");
+			mRecyclerAdapter.resetVisibleViewRotations();
+		} else {
+			Log.d(LCAT, "stopEditing: mRecyclerAdapter is null, skipping adapter cleanup");
+		}
+
+		if (mTouchCallback != null) {
+			mTouchCallback.setEditMode(false);
+			Log.d(LCAT, "stopEditing: callback setEditMode(false)");
+		} else {
+			Log.d(LCAT, "stopEditing: mTouchCallback is null, skipping callback cleanup");
+		}
 
 		for (int i = 0; i < dataSourceList.size(); i++) {
-			deleteButton = (View)dataSourceList.get(i).get("delete_button");
-			badgeView = (View)dataSourceList.get(i).get("badge_view");
-			itemView = (View)dataSourceList.get(i).get("item_view");
+			HashMap<String, Object> item = dataSourceList.get(i);
+			View itemView = (View) item.get("item_view");
+			View deleteButton = (View) item.get("delete_button");
+			View badgeView = (View) item.get("badge_view");
 
-			deleteButton.setVisibility(View.INVISIBLE);
-			if (badgeView!=null){
+			if (deleteButton != null) {
+				deleteButton.setVisibility(View.INVISIBLE);
+			}
+			if (badgeView != null && itemsBadgeEnabledFlag) {
 				badgeView.setVisibility(View.VISIBLE);
 			}
-			ViewAnimator.animate(itemView).rotation(0).duration(180).start();
-			//animationsList.add(ViewAnimator.animate(itemView).wobble().duration(720).repeatCount(1000).start());
-
-
+			if (itemView != null && wobbleEnabled) {
+				itemView.setRotation(0f);
+			}
 		}
 
-
-		Log.d(LCAT, "+++++++++++++++++++++++  animationsList size: "+ animationsList.size());
-
-		new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-				@Override
-				public void run() {
-
-
-
-				}
-		}, 200);
-
-
+		Log.d(LCAT, "stopEditing: completed, dataSourceSize=" + dataSourceList.size());
 	}
-
-
 
 	@Kroll.method
 	public void startEditing() {
-		View deleteButton;
-		View badgeView;
-		View itemView;
-		int modulo = 0;
-
-		mDragGridView.setEditMode(true);
 		isInEditMode = true;
+		Log.d(LCAT, "startEditing: dataSourceList size=" + dataSourceList.size());
 
-		for (int i = 0; i < dataSourceList.size(); i++) {
-			itemView = (View)dataSourceList.get(i).get("item_view");
-			//ViewAnimator viewAnimator = ViewAnimator.animate(itemView).rotation(rotation).repeatMode(ViewAnimator.REVERSE).duration(180).repeatCount(1000).start();
-		//	animationsList.add(ViewAnimator.animate(itemView).wobble().duration(360).repeatCount(1000).start());
-
-			deleteButton = (View)dataSourceList.get(i).get("delete_button");
-			badgeView = (View)dataSourceList.get(i).get("badge_view");
-			deleteButton.setVisibility(View.VISIBLE);
-			if (badgeView!=null){
-				badgeView.setVisibility(View.INVISIBLE);
-			}
-
-			 modulo = i % 2;
-			 if (modulo > 0){
-			 	animateItem(itemView,-2);
-			 }
-			 else {
-			 	animateItem(itemView,2);
-			 }
+		if (mRecyclerAdapter != null) {
+			mTouchCallback.setEditMode(true);
+			mRecyclerAdapter.setEditMode(true);
+			mRecyclerAdapter.setShowDeleteButtons(showDeleteButtonEnabled);
 		}
 
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			HashMap<String, Object> item = dataSourceList.get(i);
+			View itemView = (View) item.get("item_view");
+			View deleteButton = (View) item.get("delete_button");
+			View badgeView = (View) item.get("badge_view");
 
+			Log.d(LCAT, "startEditing item[" + i + "]: delete_button=" + (deleteButton != null ? "exists" : "NULL") + " badge_view=" + (badgeView != null ? "exists" : "NULL"));
 
+			if (deleteButton != null) {
+				deleteButton.setVisibility(showDeleteButtonEnabled ? View.VISIBLE : View.INVISIBLE);
+			}
+			if (badgeView != null) {
+				badgeView.setVisibility(View.INVISIBLE);
+			}
+			if (itemView != null && wobbleEnabled) {
+				int rotation = (i % 2 == 0) ? 2 : -2;
+				animateItem(itemView, rotation);
+			}
+		}
 
+		if (mRecyclerAdapter != null) {
+			mRecyclerAdapter.notifyDataSetChanged();
+		}
+
+		fireEvent("editingStart", null);
 	}
 
+
+	@Kroll.method
+	public HashMap<String, Object> createItem(KrollDict options) {
+		HashMap<String, Object> item = new HashMap<String, Object>();
+		if (options != null) {
+			if (options.containsKey("view")) {
+				item.put("view", options.get("view"));
+			}
+			if (options.containsKey("badge")) {
+				item.put("badge", options.get("badge"));
+			}
+			if (options.containsKey("image")) {
+				item.put("image", options.get("image"));
+			}
+		}
+		return item;
+	}
+
+	@Kroll.method
+	public void insertItemAtIndex(KrollDict options) {
+		Log.d(LCAT, "insertItemAtIndex called");
+		if (options != null) {
+			int index = TiConvert.toInt(options.get("index"));
+			Object itemObj = options.get("item");
+			Log.d(LCAT, "insertItemAtIndex: index=" + index + " itemObj=" + (itemObj != null ? itemObj.getClass().getSimpleName() : "null"));
+			insertItem(itemObj, index);
+		}
+	}
+
+	public void insertItem(Object item, final int index) {
+		Log.d(LCAT, "insertItem called: index=" + index + " item type=" + (item != null ? item.getClass().getSimpleName() : "null"));
+		int clampedIndex = Math.max(0, Math.min(index, dataSourceList.size()));
+		if (index < 0 || index > dataSourceList.size()) {
+			Log.w(LCAT, "insertItem: clamping index from " + index + " to " + clampedIndex);
+		}
+
+		TiViewProxy viewProxy = null;
+		if (item instanceof ItemProxy) {
+			viewProxy = (ItemProxy) item;
+		} else if (item instanceof HashMap) {
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> itemMap = (HashMap<String, Object>) item;
+			Object viewObj = itemMap.get("view");
+			if (viewObj instanceof TiViewProxy) {
+				viewProxy = (TiViewProxy) viewObj;
+			}
+		} else if (item instanceof TiViewProxy) {
+			viewProxy = (TiViewProxy) item;
+		}
+
+		if (viewProxy != null) {
+			HashMap<String, Object> newItem = buildItemHashMap(viewProxy, clampedIndex);
+			if (newItem != null) {
+				dataSourceList.add(clampedIndex, newItem);
+				itemsList.add(clampedIndex, item);
+
+				if (mRecyclerAdapter != null) {
+					mRecyclerView.getRecycledViewPool().clear();
+					mRecyclerAdapter.notifyDataSetChanged();
+				}
+
+				updateItemPositions();
+				mRecyclerView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (pageIndicatorView != null) updatePageIndicator();
+					}
+				}, 300);
+
+				final Object itemId = viewProxy.hasProperty(TiC.PROPERTY_ID) ? viewProxy.getProperty(TiC.PROPERTY_ID) : Integer.valueOf(clampedIndex);
+				KrollDict eventDict = new KrollDict();
+				eventDict.put("itemId", itemId);
+				eventDict.put("index", clampedIndex);
+				fireEvent("itemAdded", eventDict);
+			}
+		} else {
+			Log.w(LCAT, "insertItem: could not resolve TiViewProxy from item object type=" + (item != null ? item.getClass().getSimpleName() : "null"));
+		}
+	}
+
+	@Kroll.method
+	public void deleteItemAtIndex(Object args) {
+		// Accept both: deleteItemAtIndex(0) and deleteItemAtIndex({ index: 0 })
+		int index;
+		if (args instanceof HashMap) {
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> map = (HashMap<String, Object>) args;
+			index = TiConvert.toInt(map.get("index"), -1);
+		} else if (args instanceof Number) {
+			index = ((Number) args).intValue();
+		} else {
+			Log.w(LCAT, "deleteItemAtIndex: invalid argument type " + (args != null ? args.getClass().getSimpleName() : "null"));
+			return;
+		}
+
+		if (index >= 0 && index < dataSourceList.size()) {
+			HashMap<String, Object> item = dataSourceList.get(index);
+			Object itemIdObj = Integer.valueOf(index);
+			Object proxyObj = item.get("item_proxy");
+			if (proxyObj instanceof TiViewProxy) {
+				TiViewProxy proxy = (TiViewProxy) proxyObj;
+				if (proxy.hasProperty(TiC.PROPERTY_ID)) {
+					itemIdObj = proxy.getProperty(TiC.PROPERTY_ID);
+				}
+			}
+
+			// Remove from data sources
+			dataSourceList.remove(index);
+			if (itemsList != null && index < itemsList.size()) {
+				itemsList.remove(index);
+			}
+
+			if (mRecyclerAdapter != null) {
+				mRecyclerView.getRecycledViewPool().clear();
+				mRecyclerAdapter.notifyDataSetChanged();
+			}
+			updateItemPositions();
+
+			final Object itemId = itemIdObj;
+			mRecyclerView.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					if (pageIndicatorView != null) updatePageIndicator();
+					KrollDict eventDict = new KrollDict();
+					eventDict.put("itemId", itemId);
+					eventDict.put("index", index);
+					fireEvent("itemDeleted", eventDict);
+				}
+			}, 300);
+		}
+	}
+
+	/**
+	 * Reflows all items from startIndex onwards using adapter-based reflow.
+	 * Both waterfall and grid modes use the same adapter path now.
+	 * @param startIndex The index where reflow starts
+	 * @param deletedCol unused (kept for API compatibility)
+	 * @param deletedHeight unused (kept for API compatibility)
+	 */
+	private void reflowItemsFromIndex(int startIndex, int deletedCol, int deletedHeight) {
+		if (startIndex >= 0 && startIndex < dataSourceList.size()) {
+			Log.d(LCAT, "reflowItemsFromIndex: using adapter-based reflow");
+			if (mRecyclerAdapter != null) {
+				rebuildGridItemsInternal();
+			}
+		}
+	}
+
+	private void animateWaterfallDelete(final int position, final Object itemId) {
+		// Unified delete path: use adapter-based delete for both waterfall and grid modes
+		Log.d(LCAT, "animateWaterfallDelete: using adapter-based delete at position=" + position);
+
+		dataSourceList.remove(position);
+		itemsList.remove(position);
+
+		if (mRecyclerAdapter != null) {
+			mRecyclerAdapter.notifyDataSetChanged();
+		}
+
+		updateItemPositions();
+
+		final Object finalItemId = itemId;
+		mRecyclerView.post(new Runnable() {
+			@Override
+			public void run() {
+				KrollDict eventDict = new KrollDict();
+				eventDict.put("itemId", finalItemId);
+				fireEvent("itemDeleted", eventDict);
+			}
+		});
+	}
+
+	@Kroll.method
+	public void scrollToItemAtIndex(Object args) {
+		// Accept both: scrollToItemAtIndex(0) and scrollToItemAtIndex({ index: 0, animated: true })
+		int index;
+		if (args instanceof HashMap) {
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> map = (HashMap<String, Object>) args;
+			index = TiConvert.toInt(map.get("index"), -1);
+		} else if (args instanceof Number) {
+			index = ((Number) args).intValue();
+		} else {
+			Log.w(LCAT, "scrollToItemAtIndex: invalid argument type " + (args != null ? args.getClass().getSimpleName() : "null"));
+			return;
+		}
+
+		if (mRecyclerView != null && index >= 0 && index < dataSourceList.size()) {
+			mRecyclerView.smoothScrollToPosition(index);
+		}
+	}
+
+	@Kroll.method
+	public void scrollToBottom() {
+		if (mRecyclerView != null && dataSourceList.size() > 0) {
+			mRecyclerView.smoothScrollToPosition(dataSourceList.size() - 1);
+		}
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setItems(KrollDict items) {
+		Object data = items.get("data");
+		if (data instanceof Object[]) {
+			itemsList = new ArrayList<Object>();
+			Collections.addAll(itemsList, (Object[]) data);
+		} else if (data instanceof List) {
+			@SuppressWarnings("unchecked")
+			List<Object> listData = (List<Object>) data;
+			itemsList = new ArrayList<Object>(listData);
+		}
+		dataSourceList.clear();
+		buildGridItems();
+	}
+
+	@Kroll.method
+	public void updateBadgeValue(int index, int value) {
+		if (index >= 0 && index < dataSourceList.size()) {
+			HashMap<String, Object> item = dataSourceList.get(index);
+			Object badgeViewObj = item.get("badge_view");
+			if (badgeViewObj instanceof BadgeView) {
+				BadgeView badgeView = (BadgeView) badgeViewObj;
+				badgeView.setBadgeCount(value);
+				badgeView.setVisibility(value > 0 ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
+			}
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public int getPageCount() {
+		return calculatePageCount();
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setColumnCount(int count) {
+		if (count > 0) {
+			num_colums = count;
+			if (mStaggeredGridLayoutManager != null) {
+				mStaggeredGridLayoutManager.setSpanCount(count);
+			}
+			if (mGridLayoutManager != null) {
+				mGridLayoutManager.setSpanCount(count);
+			}
+		}
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setColumnWidth(int width) {
+		COLUMN_WIDTH = width;
+		if (mRecyclerView != null) {
+		}
+		// For RecyclerView, column width is managed by StaggeredGridLayoutManager
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public int getColumnWidth() {
+		return COLUMN_WIDTH;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setDeleteButtonImage(Object image) {
+		deleteButtonReference = TiDrawableReference.fromObject(myProxy, image);
+		Log.d(LCAT, "setDeleteButtonImage: deleteButtonRef=" + (deleteButtonReference != null ? "non-null" : "NULL") + " waterFallLayoutFlag=" + waterFallLayoutFlag);
+		if (mRecyclerAdapter != null) {
+			mRecyclerAdapter.setDeleteButtonReference(deleteButtonReference);
+		}
+		// Rebuild all items with new delete button reference
+		if (waterFallLayoutFlag && itemsList != null) {
+			Log.d(LCAT, "setDeleteButtonImage: rebuilding grid items");
+			dataSourceList.clear();
+			rebuildGridItemsInternal();
+		}
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setRefreshControl_(Object refreshControl) {
+		Log.d(LCAT, "setRefreshControl_: called with " + (refreshControl != null ? refreshControl.getClass().getSimpleName() : "null") + " mRecyclerView=" + (mRecyclerView != null ? "exists" : "null"));
+		// Unassign previous refresh control
+		if (this.refreshControl != null && swipeRefreshLayout != null) {
+			RefreshControlProxy.unassignFrom(swipeRefreshLayout);
+		}
+
+		// Clear refresh control
+		if (refreshControl == null) {
+			this.refreshControl = null;
+			return;
+		}
+
+		if (!(refreshControl instanceof RefreshControlProxy)) {
+			Log.w(LCAT, "setRefreshControl_: expected RefreshControlProxy, got " + refreshControl.getClass().getSimpleName());
+			return;
+		}
+
+		this.refreshControl = (RefreshControlProxy) refreshControl;
+
+		// Create SwipeRefreshLayout if not exists
+		if (swipeRefreshLayout == null && mRecyclerView != null && mRecyclerView.getParent() != null) {
+			ViewGroup parent = (ViewGroup) mRecyclerView.getParent();
+			int index = parent.indexOfChild(mRecyclerView);
+			parent.removeView(mRecyclerView);
+
+			// Create SwipeRefreshLayout and add RecyclerView to it
+			swipeRefreshLayout = new TiSwipeRefreshLayout(context);
+			TiSwipeRefreshLayout.LayoutParams lp = new TiSwipeRefreshLayout.LayoutParams(
+				TiSwipeRefreshLayout.LayoutParams.MATCH_PARENT, TiSwipeRefreshLayout.LayoutParams.MATCH_PARENT);
+			swipeRefreshLayout.addView(mRecyclerView, lp);
+
+			// Add SwipeRefreshLayout to parent at same position
+			parent.addView(swipeRefreshLayout, index, parent.getLayoutParams() != null ? parent.getLayoutParams() : new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+
+			Log.d(LCAT, "setRefreshControl_: TiSwipeRefreshLayout created and wrapping RecyclerView");
+		}
+
+		// Assign refresh control to SwipeRefreshLayout
+		if (swipeRefreshLayout != null) {
+			this.refreshControl.assignTo(swipeRefreshLayout);
+			Log.d(LCAT, "setRefreshControl_: assigned to SwipeRefreshLayout");
+		}
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setHorizontalSpacing(int value) {
+		HORIZONTAL_SPACING = value;
+		if (mSpacingDecoration != null) {
+			mSpacingDecoration.setHorizontalSpacing(value);
+			mRecyclerView.invalidateItemDecorations();
+		}
+		if (mRecyclerView != null) {
+			
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public int getHorizontalSpacing() {
+		return HORIZONTAL_SPACING;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setVerticalSpacing(int value) {
+		VERTICAL_SPACING = value;
+		if (mSpacingDecoration != null) {
+			mSpacingDecoration.setVerticalSpacing(value);
+			mRecyclerView.invalidateItemDecorations();
+		}
+		if (mRecyclerView != null) {
+			
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public int getVerticalSpacing() {
+		return VERTICAL_SPACING;
+	}
+
+
+	@Kroll.method
+	public void notifyItemsReordered() {
+		Log.d(LCAT, "notifyItemsReordered: dataSourceList.size=" + dataSourceList.size());
+		fireEvent("itemsReordered", null);
+		updateItemPositions();
+	}
+
+	/**
+	 * Called after a drag-and-drop operation in the column-container layout.
+	 */
+	public void onDragDropComplete() {
+		Log.d(LCAT, "onDragDropComplete: dataSourceList.size=" + dataSourceList.size());
+		fireEvent("itemsReordered", null);
+		updateItemPositions();
+	}
+
+	// ---- Helper methods ----
+
+	private View getItemViewFromData(HashMap<String, Object> itemData) {
+		Object viewObj = itemData.get("item_view");
+		if (viewObj instanceof View) return (View) viewObj;
+		return null;
+	}
+
+	private int getItemHeight(HashMap<String, Object> itemData) {
+		Object mh = itemData.get("measured_height");
+		if (mh instanceof Integer && (Integer)mh > 0) return (Integer) mh;
+		Object ch = itemData.get("cellHeight");
+		if (ch instanceof Integer && (Integer)ch > 0) return (Integer) ch;
+		return 0;
+	}
+
+	/**
+	 * Moves an item in the data source from one position to another.
+	 */
+	public void moveItemInDataSource(int fromPos, int toPos) {
+		if (fromPos < 0 || fromPos >= dataSourceList.size() || toPos < 0 || toPos > dataSourceList.size()) return;
+		Object item = dataSourceList.remove(fromPos);
+		dataSourceList.add(toPos, (HashMap<String, Object>) item);
+		// Also move in itemsList
+		if (itemsList != null && fromPos < itemsList.size()) {
+			Object itemObj = itemsList.remove(fromPos);
+			itemsList.add(Math.min(toPos, itemsList.size()), itemObj);
+		}
+		Log.d(LCAT, "moveItemInDataSource: " + fromPos + " -> " + toPos);
+	}
+
+	public int getItemCountSafe() {
+		return dataSourceList.size();
+	}
+
+	/**
+	 * Find the position of an item in dataSourceList by its view ID.
+	 * View IDs are 5000 + proxyId. Returns -1 if not found.
+	 */
+	public int findDataSourcePositionById(int viewId) {
+		int proxyId = viewId - 5000;
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			HashMap<String, Object> item = dataSourceList.get(i);
+			Object proxyObj = item.get("item_proxy");
+			if (proxyObj instanceof TiViewProxy) {
+				Object idProp = ((TiViewProxy) proxyObj).getProperty(TiC.PROPERTY_ID);
+				if (TiConvert.toInt(idProp) == proxyId) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Get the cell_height (in px) for a view by its view ID.
+	 * View IDs are 5000 + proxyId.
+	 */
+	public int getCellHeightForView(int viewId) {
+		int idx = findDataSourcePositionById(viewId);
+		if (idx >= 0) {
+			Object h = dataSourceList.get(idx).get("cell_height");
+			if (h instanceof Number) return ((Number) h).intValue();
+		}
+		return 0;
+	}
+
+	/**
+	 * Reorder dataSourceList and itemsList after drag-and-drop.
+	 * With StaggeredGridLayoutManager, the adapter handles reordering via ItemTouchHelper.
+	 */
+	public void reorderDataSourceToMatchColumns() {
+		if (mRecyclerAdapter != null) {
+			mRecyclerAdapter.notifyDataSetChanged();
+		}
+		updateItemPositions();
+		KrollDict eventDict = new KrollDict();
+		fireEvent("itemsReordered", eventDict);
+		Log.d(LCAT, "reorderDataSourceToMatchColumns: reordered " + dataSourceList.size() + " items");
+	}
+
+	// Property setters and getters
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setData(Object[] items) {
+		Log.d(LCAT, "setData called with " + (items != null ? items.length : "null") + " items");
+		itemsList = new ArrayList<Object>();
+		if (items != null) {
+			for (Object item : items) {
+				Log.d(LCAT, "setData item type: " + (item != null ? item.getClass().getSimpleName() : "null"));
+				itemsList.add(item);
+			}
+		}
+		dataSourceList.clear();
+		buildGridItems();
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public Object[] getData() {
+		return itemsList == null ? new Object[0] : itemsList.toArray();
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setWobble(boolean value) {
+		wobbleEnabled = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getWobble() {
+		return wobbleEnabled;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setShowDeleteButton(boolean value) {
+		showDeleteButtonEnabled = value;
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			HashMap<String, Object> item = dataSourceList.get(i);
+			Object deleteBtn = item.get("delete_button");
+			if (deleteBtn instanceof View) {
+				((View) deleteBtn).setVisibility(value && isInEditMode ? View.VISIBLE : View.INVISIBLE);
+			}
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getShowDeleteButton() {
+		return showDeleteButtonEnabled;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setItemsBadgeEnabled(boolean value) {
+		itemsBadgeEnabledFlag = value;
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			HashMap<String, Object> item = dataSourceList.get(i);
+			Object badgeView = item.get("badge_view");
+			if (badgeView instanceof View) {
+				((View) badgeView).setVisibility(value ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
+			}
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getItemsBadgeEnabled() {
+		return itemsBadgeEnabledFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setScrollEnabled(boolean value) {
+		scrollEnabledFlag = value;
+		if (mRecyclerView != null) {
+			mRecyclerView.setLayoutFrozen(!value);
+		}
+		if (mRecyclerView != null) {
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getScrollEnabled() {
+		return scrollEnabledFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setShowVerticalScrollIndicator(boolean value) {
+		if (mRecyclerView != null) {
+			mRecyclerView.setVerticalScrollBarEnabled(value);
+		}
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.setVerticalScrollBarEnabled(value);
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getShowVerticalScrollIndicator() {
+		if (mRecyclerView != null) {
+			return mRecyclerView.isVerticalScrollBarEnabled();
+		}
+		return true;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setShowHorizontalScrollIndicator(boolean value) {
+		if (mRecyclerView != null) {
+			mRecyclerView.setHorizontalScrollBarEnabled(value);
+		}
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.setHorizontalScrollBarEnabled(value);
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getShowHorizontalScrollIndicator() {
+		if (mRecyclerView != null) {
+			return mRecyclerView.isHorizontalScrollBarEnabled();
+		}
+		return mRecyclerView != null ? mRecyclerView.isHorizontalScrollBarEnabled() : true;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setMinHorizontalSpacing(int value) {
+		HORIZONTAL_SPACING = value;
+		if (mSpacingDecoration != null) {
+			mSpacingDecoration.setHorizontalSpacing(value);
+			mRecyclerView.invalidateItemDecorations();
+		}
+		if (mRecyclerView != null) {
+			
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public int getMinHorizontalSpacing() {
+		return HORIZONTAL_SPACING;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setMinVerticalSpacing(int value) {
+		VERTICAL_SPACING = value;
+		if (mSpacingDecoration != null) {
+			mSpacingDecoration.setVerticalSpacing(value);
+			mRecyclerView.invalidateItemDecorations();
+		}
+		if (mRecyclerView != null) {
+			
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public int getMinVerticalSpacing() {
+		return VERTICAL_SPACING;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setContentInsets(Object value) {
+		applyContentInsets(value);
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setScrollIndicatorInsets(Object value) {
+		applyScrollIndicatorInsets(value);
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setScrollToBottomAfterSetData(boolean value) {
+		scrollToBottomAfterSetData = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getScrollToBottomAfterSetData() {
+		return scrollToBottomAfterSetData;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setDragItemShadowOpacity(float value) {
+		dragItemShadowOpacity = Math.max(0.0f, Math.min(1.0f, value));
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public float getDragItemShadowOpacity() {
+		return dragItemShadowOpacity;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setEditable(boolean value) {
+		isInEditMode = value;
+		if (waterFallLayoutFlag && mTouchCallback != null) {
+			mTouchCallback.setEditMode(value);
+			if (mRecyclerAdapter != null) {
+				mRecyclerAdapter.setEditMode(value);
+			}
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getEditable() {
+		return isInEditMode;
+	}
+
+	/**
+	 * Returns the current edit mode (for ColumnTouchHelper).
+	 */
+	public boolean isInEditMode() {
+		return isInEditMode;
+	}
+
+	/**
+	 * Recursively finds all ImageView children with ID > 8000 (delete buttons) and sets visibility.
+	 */
+	private void findAndSetDeleteButtonVisibility(View view, int visibility) {
+		if (view == null) return;
+		if (view instanceof ImageView && ((ImageView) view).getId() > 8000) {
+			((ImageView) view).setVisibility(visibility);
+		}
+		if (view instanceof ViewGroup) {
+			ViewGroup vg = (ViewGroup) view;
+			for (int i = 0; i < vg.getChildCount(); i++) {
+				findAndSetDeleteButtonVisibility(vg.getChildAt(i), visibility);
+			}
+		}
+	}
+
+	/**
+	 * Recursively finds all FrameLayout children with ID > 10000 (badges) and sets visibility.
+	 */
+	private void findAndSetBadgeVisibility(View view, int visibility) {
+		if (view == null) return;
+		if (view instanceof FrameLayout && view.getId() > 10000) {
+			view.setVisibility(visibility);
+		}
+		if (view instanceof ViewGroup) {
+			ViewGroup vg = (ViewGroup) view;
+			for (int i = 0; i < vg.getChildCount(); i++) {
+				findAndSetBadgeVisibility(vg.getChildAt(i), visibility);
+			}
+		}
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setPagingEnabled(boolean value) {
+		pagingEnabledFlag = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getPagingEnabled() {
+		return pagingEnabledFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setPagerEnabled(boolean value) {
+		pagerEnabledFlag = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getPagerEnabled() {
+		return pagerEnabledFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setPageIndicatorTintColor(String color) {
+		pageIndicatorTintColor = color;
+		if (pageIndicatorView != null && color != null) {
+			pageIndicatorView.setPageIndicatorTintColor(TiColorHelper.parseColor(color, context));
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public String getPageIndicatorTintColor() {
+		return pageIndicatorTintColor;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setCurrentPageIndicatorTintColor(String color) {
+		currentPageIndicatorTintColor = color;
+		if (pageIndicatorView != null && color != null) {
+			pageIndicatorView.setCurrentPageIndicatorTintColor(TiColorHelper.parseColor(color, context));
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public String getCurrentPageIndicatorTintColor() {
+		return currentPageIndicatorTintColor;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setWaterFallLayout(boolean value) {
+		if (mRecyclerView != null) {
+			Log.w(LCAT, "setWaterFallLayout: cannot change after view creation. Set waterFallLayout in createView options.");
+		}
+		waterFallLayoutFlag = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getWaterFallLayout() {
+		return waterFallLayoutFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setScrollType(String value) {
+		scrollType = value;
+		if (mStaggeredGridLayoutManager != null) {
+			if ("horizontal".equalsIgnoreCase(value)) {
+				mStaggeredGridLayoutManager.setOrientation(StaggeredGridLayoutManager.HORIZONTAL);
+			} else {
+				mStaggeredGridLayoutManager.setOrientation(StaggeredGridLayoutManager.VERTICAL);
+			}
+		}
+		if (mGridLayoutManager != null) {
+			if ("horizontal".equalsIgnoreCase(value)) {
+				mGridLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+			} else {
+				mGridLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+			}
+		}
+		// scrollType is now supported in both directions
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public String getScrollType() {
+		return scrollType;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setLazyLoadingEnabled(boolean value) {
+		lazyLoadingEnabledFlag = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getLazyLoadingEnabled() {
+		return lazyLoadingEnabledFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setDisableBounce(boolean value) {
+		disableBounceFlag = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getDisableBounce() {
+		return disableBounceFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setPagerFollowsBottomInset(boolean value) {
+		pagerFollowsBottomInsetFlag = value;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public boolean getPagerFollowsBottomInset() {
+		return pagerFollowsBottomInsetFlag;
+	}
+
+	@Kroll.setProperty
+	@Kroll.method
+	public void setCurrentPage(int page) {
+		currentPage = page;
+		if (mRecyclerView == null) return;
+		if (useGridLayoutManager && mLayoutManager instanceof GridLayoutManager) {
+			int itemsPer = itemsPerPage > 0 ? itemsPerPage : num_colums;
+			int targetPosition = (page - 1) * itemsPer;
+			mRecyclerView.smoothScrollToPosition(Math.max(0, Math.min(targetPosition, dataSourceList.size() - 1)));
+		} else if (mLayoutManager instanceof StaggeredGridLayoutManager) {
+			setCurrentPagePixel(page, "vertical".equalsIgnoreCase(scrollType) ? "vertical" : "horizontal");
+		}
+	}
+
+	/**
+	 * Scrollt zur angegebenen Page bei StaggeredGridLayoutManager pixel-basiert.
+	 */
+	private void setCurrentPagePixel(int page, String orientation) {
+		if (mRecyclerView == null || mRecyclerView.getWidth() <= 0 || mRecyclerView.getHeight() <= 0) return;
+		int visibleSize, totalRange;
+		if ("vertical".equalsIgnoreCase(orientation)) {
+			visibleSize = mRecyclerView.computeVerticalScrollExtent();
+			totalRange = mRecyclerView.computeVerticalScrollRange();
+		} else {
+			visibleSize = mRecyclerView.computeHorizontalScrollExtent();
+			totalRange = mRecyclerView.computeHorizontalScrollRange();
+		}
+		if (visibleSize <= 0) return;
+		int targetScroll = (page - 1) * visibleSize;
+		targetScroll = Math.max(0, Math.min(targetScroll, totalRange - visibleSize));
+		if ("vertical".equalsIgnoreCase(orientation)) {
+			mRecyclerView.scrollTo(0, targetScroll);
+		} else {
+			mRecyclerView.scrollTo(targetScroll, 0);
+		}
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	// Helper method for DragRecyclerAdapter to get the current LayoutManager
+	public androidx.recyclerview.widget.RecyclerView.LayoutManager getLayoutManager() {
+		return mLayoutManager;
+	}
+
+	public int getCurrentPage() {
+		return calculateCurrentPage();
+	}
 
 
 }
