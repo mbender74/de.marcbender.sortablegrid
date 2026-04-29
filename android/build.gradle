@@ -5,4 +5,5 @@ repositories {
 
 dependencies {
 	// AndroidX RecyclerView 1.2.0+ provides getSpanIndex()/setSpanIndex() on LayoutParams
+	implementation 'androidx.viewpager2:viewpager2:1.0.0'
 }

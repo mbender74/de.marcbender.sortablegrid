@@ -252,13 +252,23 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		}
 		d("onCreateViewHolder: viewType=" + viewType + " layoutManager=" + lmName + " spanCount=" + spanCount);
 
-		// Verwende GridLayoutManager.LayoutParams wenn GridLayoutManager aktiv ist
-		// Sonst: StaggeredGridLayoutManager.LayoutParams (wichtig fur stabile Spaltenzuordnung)
+		// Use GridLayoutManager.LayoutParams or StaggeredGridLayoutManager.LayoutParams
+		// depending on the layout manager configuration
 		if (viewProxy.getLayoutManager() instanceof GridLayoutManager) {
-			container.setLayoutParams(new GridLayoutManager.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT
-			));
+			GridLayoutManager glm = (GridLayoutManager) viewProxy.getLayoutManager();
+			if (glm.getOrientation() == GridLayoutManager.HORIZONTAL) {
+				// Horizontal: column width is determined by item content, height fills the span
+				container.setLayoutParams(new GridLayoutManager.LayoutParams(
+					ViewGroup.LayoutParams.WRAP_CONTENT,
+					ViewGroup.LayoutParams.MATCH_PARENT
+				));
+			} else {
+				// Vertical: width fills the column, height determined by content
+				container.setLayoutParams(new GridLayoutManager.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.WRAP_CONTENT
+				));
+			}
 		} else if (viewProxy.getLayoutManager() instanceof StaggeredGridLayoutManager) {
 			StaggeredGridLayoutManager.LayoutParams params = new StaggeredGridLayoutManager.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
@@ -327,6 +337,12 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cellWidth, FrameLayout.LayoutParams.WRAP_CONTENT);
 			holder.container.addView(itemView, lp);
 
+			// Check if we're in horizontal grid mode
+			boolean isHorizontalGrid = false;
+			if (recyclerView != null && recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+				isHorizontalGrid = ((GridLayoutManager) recyclerView.getLayoutManager()).getOrientation() == GridLayoutManager.HORIZONTAL;
+			}
+
 			// Force measure to get actual rendered height (including borders, padding).
 			// For StaggeredGridLayoutManager, measure at column (cell) width so content
 			// reflows correctly; for other layout managers, use the full RecyclerView width.
@@ -337,10 +353,16 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 			if (recyclerView != null && recyclerView.getWidth() > 0) {
 				RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
 				if (lm instanceof GridLayoutManager) {
-					// GridLayoutManager: width / columnCount (stored in item data)
-					Object colCount = itemData.get("columnCount");
-					int cols = (colCount instanceof Number) ? ((Number) colCount).intValue() : ((GridLayoutManager) lm).getSpanCount();
-					measureWidth = recyclerView.getWidth() / cols;
+					GridLayoutManager glm = (GridLayoutManager) lm;
+					if (glm.getOrientation() == GridLayoutManager.HORIZONTAL) {
+						// Horizontal: measure at the cell width (column width)
+						measureWidth = cellWidth > 0 ? cellWidth : recyclerView.getWidth() / 3;
+					} else {
+						// Vertical GridLayoutManager: width / columnCount
+						Object colCount = itemData.get("columnCount");
+						int cols = (colCount instanceof Number) ? ((Number) colCount).intValue() : glm.getSpanCount();
+						measureWidth = recyclerView.getWidth() / cols;
+					}
 				} else if (!(lm instanceof StaggeredGridLayoutManager)) {
 					measureWidth = recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight();
 				}
@@ -351,19 +373,26 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 			);
 			int measuredHeight = holder.container.getMeasuredHeight();
 
-			// Use the measured height for the container's LayoutParams so GridLayoutManager
-			// sees consistent heights. Fall back to cellHeight from data, then to WRAP_CONTENT.
+			// Update container LayoutParams based on measured content
 			ViewGroup.LayoutParams containerLp = holder.container.getLayoutParams();
 			if (containerLp != null) {
-				if (measuredHeight > 0) {
-					containerLp.height = measuredHeight;
-				} else if (cellHeight > 0) {
-					containerLp.height = cellHeight;
-				} else {
-					containerLp.height = cellHeight; // WRAP_CONTENT (-1) or MATCH_PARENT
+				if (!isHorizontalGrid) {
+					// Vertical mode: set height to match measured content
+					if (measuredHeight > 0) {
+						containerLp.height = measuredHeight;
+					} else if (cellHeight > 0) {
+						containerLp.height = cellHeight;
+					} else {
+						containerLp.height = cellHeight; // WRAP_CONTENT (-1) or MATCH_PARENT
+					}
+				} else if (cellWidth > 0) {
+					// Horizontal grid: set concrete column width so GridLayoutManager
+					// measures items correctly (WRAP_CONTENT width gets UNSPECIFIED measure spec)
+					containerLp.width = cellWidth;
 				}
 				d("onBindViewHolder: pos=" + position + " cellWidth=" + cellWidth + " cellHeight=" + cellHeight +
-				  " measuredWidth=" + measureWidth + " measuredHeight=" + measuredHeight + " appliedHeight=" + containerLp.height);
+				  " measuredWidth=" + measureWidth + " measuredHeight=" + measuredHeight +
+				  " appliedHeight=" + containerLp.height + " appliedWidth=" + containerLp.width + " isHorizontalGrid=" + isHorizontalGrid);
 				// Save the actual measured height for stable scrollRange calculation
 				itemData.put("measured_height", measuredHeight > 0 ? measuredHeight : (cellHeight > 0 ? cellHeight : 0));
 

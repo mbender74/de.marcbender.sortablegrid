@@ -6,6 +6,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import org.appcelerator.kroll.common.Log;
 
@@ -25,6 +26,11 @@ public class DragItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 	private DragItemTouchCallbackListener listener;
 	private boolean isEditMode = false;
 	private float dragItemShadowOpacity = 0.95f;
+	private ViewPager2 viewPager2;
+	private int currentPageIndex = 0;
+	private static final int EDGE_THRESHOLD = 50; // dp from edge to trigger page switch
+	private long lastPageSwitchTime = 0;
+	private static final long PAGE_SWITCH_COOLDOWN = 300; // ms between page switches
 
 	public interface DragItemTouchCallbackListener {
 		void onItemsReordered();
@@ -48,6 +54,13 @@ public class DragItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 
 	public void setListener(DragItemTouchCallbackListener listener) {
 		this.listener = listener;
+	}
+
+	/** Setzt ViewPager2-Referenz und Page-Index für Cross-Page-Drag */
+	public void setViewPager(ViewPager2 viewPager, int pageIndex) {
+		this.viewPager2 = viewPager;
+		this.currentPageIndex = pageIndex;
+		d("setViewPager: pageIndex=" + pageIndex);
 	}
 
 	@Override
@@ -149,5 +162,33 @@ public class DragItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 						float dX, float dY, int actionState,
 						boolean isCurrentlyActive) {
 		super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+		// Cross-Page Drag: wenn Item am Rand, Page wechseln
+		if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewPager2 != null && isCurrentlyActive) {
+			View dragView = viewHolder.itemView;
+			int[] location = new int[2];
+			dragView.getLocationOnScreen(location);
+			int screenX = location[0] + dragView.getWidth() / 2;
+			int pageWidth = viewPager2.getWidth();
+			int screenWidth = pageWidth; // ViewPager2 is full screen width
+			long now = System.currentTimeMillis();
+
+			// Rechts am Rand → nächste Page
+			if (screenX > screenWidth - EDGE_THRESHOLD && currentPageIndex < viewPager2.getAdapter().getItemCount() - 1
+			    && now - lastPageSwitchTime > PAGE_SWITCH_COOLDOWN) {
+				d("onChildDraw: right edge, switching to page " + (currentPageIndex + 1));
+				viewPager2.setCurrentItem(currentPageIndex + 1, false);
+				currentPageIndex++;
+				lastPageSwitchTime = now;
+			}
+			// Links am Rand → vorherige Page
+			else if (screenX < EDGE_THRESHOLD && currentPageIndex > 0
+			         && now - lastPageSwitchTime > PAGE_SWITCH_COOLDOWN) {
+				d("onChildDraw: left edge, switching to page " + (currentPageIndex - 1));
+				viewPager2.setCurrentItem(currentPageIndex - 1, false);
+				currentPageIndex--;
+				lastPageSwitchTime = now;
+			}
+		}
 	}
 }
