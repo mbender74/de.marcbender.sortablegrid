@@ -175,7 +175,7 @@ refreshControlView.addEventListener('refreshstart', () => {
 });
 
 gridView = sortableGridModule.createView({
-	top:100,
+	top:50,
 	bottom:100,
 	left:0,
 	right:0,
@@ -186,17 +186,17 @@ gridView = sortableGridModule.createView({
 	contentInsets:{top: 10, bottom:20, left:10,right:10},
 	scrollIndicatorInsets:{top: 10, bottom:10,left:10,right:10},
 	columnCount:3,
-	rowCount:5, // Android only
+	rowCount:4,
 	wobble:true, // wobble animation in edit mode
 	minHorizontalSpacing:10,
 	minVerticalSpacing:10,
 	showDeleteButton:true,
 	deleteButtonImage:deleteButtonImage,  // this should be an image, this demo function that will create the image works only after the view is loaded (because of toImage() function), you can also set the property "deleteButtonImage" after the view did focus with: gridView.deleteButtonImage = yourImage;  
 	itemsBadgeEnabled:true,
-	waterFallLayout:true,
+	waterFallLayout:false,
 	pagingEnabled:false, // scroll will do paging instead of normal scrolling
 	pagerEnabled:true, // display page indicator
-	pagerFollowsBottomInset:false, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
+	pagerFollowsBottomInset:true, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
 	pageIndicatorTintColor:'#dddddd',
 	currentPageIndicatorTintColor:'red',
 	showVerticalScrollIndicator: true,
@@ -213,12 +213,11 @@ gridView = sortableGridModule.createView({
 function createGridDashBoardViews(size){
 	var sortableViewData = [];
 	for (var i = 0; i < size; i++){
-		if (!isAndroid){
-
 	   var v = sortableGridModule.createItem({
 		id:(i+1), // usefull,but not needed, if you will do something with the gridView.data, to identify your item view, the gridView will automaticly add a 'position' property the the item, that reflects the item positon in the gridView, updated each time you move, add, delete an item
 		height:Ti.UI.SIZE,
-        width:Ti.UI.FILL,
+        //width:Ti.UI.FILL,
+		width:130,
         badge:true,
         canBeDeleted:true,
         canBeMoved:true,
@@ -231,31 +230,23 @@ function createGridDashBoardViews(size){
 				//gridView.deleteItemAtIndex({index:this.position});
 	   });
 	   v.addEventListener('touchstart', function(e){
+			console.log("touchstart this.opacity:"+(this.opacity));
+
 			 this.opacity = 0.7;
 	   });
 
 	  v.addEventListener('touchend', function(e){
+			console.log("touchend this.opacity:"+(this.opacity));
+
 			this.opacity = 1.0;
 	  });
 
 	  v.addEventListener('touchcancel', function(e){
+			console.log("touchcancel this.opacity:"+(this.opacity));
+
 			this.opacity = 1.0;
 	  });
 
-	}
-	else {
-		var v = Ti.UI.createView({
-			id:(i+1),
-			height:generateRandomInteger(120,220),
-			width:generateRandomInteger(120,180),
-			top:0,
-			left:0,
-			right:0,
-			bottom:0,
-		  backgroundColor:getRandomColor()
-	   });
-
-	}
 
 	var contentContainerView = Ti.UI.createView({
 		left:10,
@@ -312,13 +303,7 @@ function createGridDashBoardViews(size){
 
 
 
-
-
-
-
-
-
-gridCells = createGridDashBoardViews(20);
+ gridCells = createGridDashBoardViews(20);
 
 
 

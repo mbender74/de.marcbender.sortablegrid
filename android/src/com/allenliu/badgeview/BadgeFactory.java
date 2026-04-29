@@ -5,11 +5,10 @@ import android.view.Gravity;
 
 import com.allenliu.badgeview.BadgeView;
 
-import static java.security.AccessController.getContext;
-
 /**
  * Created by Allen Liu on 2016/7/15.
  */
+@SuppressWarnings("removal")
 public class BadgeFactory {
     public static BadgeView createDot(Context context){
         return  new BadgeView(context).setWidthAndHeight(10,10).setTextSize(0).setBadgeGravity(Gravity.RIGHT| Gravity.TOP).setShape(BadgeView.SHAPE_CIRCLE);

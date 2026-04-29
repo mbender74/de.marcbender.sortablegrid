@@ -45,21 +45,26 @@ public class BadgeView extends View {
     private boolean hasBind=false;
     private int horiontalSpace=0;
     private int verticalSpace=0;
+
+    @SuppressWarnings("this-escape")
     public BadgeView(Context context) {
         super(context);
         init(context);
     }
 
+    @SuppressWarnings("this-escape")
     public BadgeView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
+    @SuppressWarnings("this-escape")
     public BadgeView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
 
+    @SuppressWarnings("this-escape")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public BadgeView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -126,7 +131,7 @@ public class BadgeView extends View {
     }
 
     private int sp2px(Context context, float spValue) {
-        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
+        final float fontScale = context.getResources().getDisplayMetrics().density;
         return (int) (spValue * fontScale + 0.5f);
     }
 

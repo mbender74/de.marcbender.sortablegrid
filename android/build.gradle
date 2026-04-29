@@ -1,3 +1,8 @@
 repositories {
 	maven { url 'https://jitpack.io' }
+	mavenCentral()
+}
+
+dependencies {
+	// AndroidX RecyclerView 1.2.0+ provides getSpanIndex()/setSpanIndex() on LayoutParams
 }
