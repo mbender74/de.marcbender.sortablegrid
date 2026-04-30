@@ -384,17 +384,29 @@ public class ViewProxy extends TiViewProxy
 		boolean isHorizontalGrid = !waterFallLayoutFlag && "horizontal".equalsIgnoreCase(scrollType);
 		if (mRecyclerView != null && mRecyclerView.getWidth() > 0) {
 			int availableWidth = mRecyclerView.getWidth() - mRecyclerView.getPaddingLeft() - mRecyclerView.getPaddingRight();
-			int itemWidthPx = (availableWidth - (num_colums - 1) * HORIZONTAL_SPACING) / num_colums;
-			if (itemWidthPx > 0 && itemWidthPx != COLUMN_WIDTH) {
-				COLUMN_WIDTH = itemWidthPx;
+			if (isHorizontalGrid) {
+				// Horizontal grid: GridLayoutManager gives items UNSPECIFIED width
+				// for MATCH_PARENT, so we must calculate the exact pixel width.
+				// Each column occupies (availableWidth / num_colums) space (item + decoration).
+				// Item width = columnWidth - HORIZONTAL_SPACING (5px decoration each side)
+				int calculatedWidth = availableWidth / num_colums - HORIZONTAL_SPACING;
+				if (calculatedWidth > 0) {
+					COLUMN_WIDTH = calculatedWidth;
+				}
+			} else {
+				int itemWidthPx = (availableWidth - (num_colums - 1) * HORIZONTAL_SPACING) / num_colums;
+				if (itemWidthPx > 0 && itemWidthPx != COLUMN_WIDTH) {
+					COLUMN_WIDTH = itemWidthPx;
+				}
 			}
 		}
 		// For horizontal grid, also calculate item height from rowCount and viewport height
 		if (isHorizontalGrid && mRecyclerView != null && mRecyclerView.getHeight() > 0) {
 			int availableHeight = mRecyclerView.getHeight() - mRecyclerView.getPaddingTop() - mRecyclerView.getPaddingBottom();
-			int itemHeightPx = (availableHeight - (row_count - 1) * VERTICAL_SPACING) / row_count;
+			// Each row occupies (availableHeight / row_count) space (item + decoration).
+			// Item height = rowHeight - VERTICAL_SPACING
+			int itemHeightPx = availableHeight / row_count - VERTICAL_SPACING;
 			if (itemHeightPx > 0) {
-				// Store this as a separate baseline; cell height may get overridden by content
 				itemHashMap.put("row_height", itemHeightPx);
 			}
 		}
