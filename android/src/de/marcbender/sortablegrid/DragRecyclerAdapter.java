@@ -343,6 +343,21 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				isHorizontalGrid = ((GridLayoutManager) recyclerView.getLayoutManager()).getOrientation() == GridLayoutManager.HORIZONTAL;
 			}
 
+			// For horizontal grid, recalculate cell width from current RecyclerView size
+			// (stored cell_width may be stale if RecyclerView wasn't laid out during buildItemHashMap)
+			if (isHorizontalGrid && recyclerView != null && recyclerView.getWidth() > 0) {
+				int availableWidth = recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight();
+				int correctCellWidth = availableWidth / viewProxy.num_colums - viewProxy.HORIZONTAL_SPACING;
+				if (correctCellWidth > 0) {
+					cellWidth = correctCellWidth;
+					// Also update the itemView LayoutParams width to match
+					ViewGroup.LayoutParams itemViewLp = itemView.getLayoutParams();
+					if (itemViewLp != null && itemViewLp.width != cellWidth) {
+						itemViewLp.width = cellWidth;
+					}
+				}
+			}
+
 			// Force measure to get actual rendered height (including borders, padding).
 			// For StaggeredGridLayoutManager, measure at column (cell) width so content
 			// reflows correctly; for other layout managers, use the full RecyclerView width.
@@ -355,8 +370,8 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				if (lm instanceof GridLayoutManager) {
 					GridLayoutManager glm = (GridLayoutManager) lm;
 					if (glm.getOrientation() == GridLayoutManager.HORIZONTAL) {
-						// Horizontal: measure at the cell width (column width)
-						measureWidth = cellWidth > 0 ? cellWidth : recyclerView.getWidth() / 3;
+						// Horizontal: measure at the correct cell width
+						measureWidth = cellWidth > 0 ? cellWidth : (recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight()) / viewProxy.num_colums - viewProxy.HORIZONTAL_SPACING;
 					} else {
 						// Vertical GridLayoutManager: width / columnCount
 						Object colCount = itemData.get("columnCount");
