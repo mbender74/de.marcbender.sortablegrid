@@ -385,10 +385,14 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 					} else {
 						containerLp.height = cellHeight; // WRAP_CONTENT (-1) or MATCH_PARENT
 					}
-				} else if (cellWidth > 0) {
+				} else {
 					// Horizontal grid: set concrete column width so GridLayoutManager
 					// measures items correctly (WRAP_CONTENT width gets UNSPECIFIED measure spec)
-					containerLp.width = cellWidth;
+					if (cellWidth > 0) {
+						containerLp.width = cellWidth;
+					} else {
+						containerLp.width = measureWidth > 0 ? measureWidth : 200;
+					}
 				}
 				d("onBindViewHolder: pos=" + position + " cellWidth=" + cellWidth + " cellHeight=" + cellHeight +
 				  " measuredWidth=" + measureWidth + " measuredHeight=" + measuredHeight +

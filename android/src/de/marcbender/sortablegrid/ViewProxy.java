@@ -432,7 +432,14 @@ public class ViewProxy extends TiViewProxy
 		// Calculate cell dimensions (fallback for SIZE/FILL)
 		int cellWidthPx = itemWidthPx;
 		if ("fill".equals(widthStr)) {
-			cellWidthPx = ViewGroup.LayoutParams.MATCH_PARENT;
+			if (isHorizontalGrid) {
+				// GridLayoutManager.HORIZONTAL passes UNSPECIFIED(0) width for
+				// MATCH_PARENT items, cascading through TiCompositeLayout to give
+				// autoFillsWidth children 0 width. Use concrete pixel value instead.
+				cellWidthPx = COLUMN_WIDTH > 0 ? COLUMN_WIDTH : 110;
+			} else {
+				cellWidthPx = ViewGroup.LayoutParams.MATCH_PARENT;
+			}
 		} else if (itemWidthPx <= 0) {
 			cellWidthPx = COLUMN_WIDTH > 0 ? COLUMN_WIDTH : 110;
 		}
