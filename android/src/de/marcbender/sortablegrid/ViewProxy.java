@@ -1195,24 +1195,31 @@ public class ViewProxy extends TiViewProxy
 					mSpacingDecoration.setVerticalSpacing(VERTICAL_SPACING);
 				}
 			}
-			if (d.containsKey(PROPERTY_COLUMNS)) {
-				num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
-				if (mRecyclerView != null) {
+				if (d.containsKey(PROPERTY_COLUMNS)) {
+					num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
+					if (mStaggeredGridLayoutManager != null) {
+						mStaggeredGridLayoutManager.setSpanCount(num_colums);
+					}
+					if (mGridLayoutManager != null) {
+						// Horizontal mode uses rowCount as spanCount, vertical uses num_colums
+						int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+						mGridLayoutManager.setSpanCount(spanCount);
+					}
+					if (mSpacingDecoration != null) {
+						int decorationSpanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+						mSpacingDecoration.setSpanCount(decorationSpanCount);
+					}
 				}
-				if (mStaggeredGridLayoutManager != null) {
-					mStaggeredGridLayoutManager.setSpanCount(num_colums);
+				if (d.containsKey(PROPERTY_ROW_COUNT)) {
+					row_count = TiConvert.toInt(d.get(PROPERTY_ROW_COUNT), 4);
+					// rowCount determines spanCount in horizontal mode
+					if (mGridLayoutManager != null && "horizontal".equalsIgnoreCase(scrollType)) {
+						mGridLayoutManager.setSpanCount(row_count);
+					}
+					if (mSpacingDecoration != null && "horizontal".equalsIgnoreCase(scrollType)) {
+						mSpacingDecoration.setSpanCount(row_count);
+					}
 				}
-				if (mGridLayoutManager != null) {
-					mGridLayoutManager.setSpanCount(num_colums);
-				}
-				if (mSpacingDecoration != null) {
-					mSpacingDecoration.setSpanCount(num_colums);
-				}
-			}
-			if (d.containsKey(PROPERTY_ROW_COUNT)) {
-				row_count = TiConvert.toInt(d.get(PROPERTY_ROW_COUNT), 4);
-				// rowCount determines items per page in horizontal mode
-			}
 			if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
 				if (mRecyclerAdapter != null) {
 					mRecyclerAdapter.setDeleteButtonReference(deleteButtonReference);
