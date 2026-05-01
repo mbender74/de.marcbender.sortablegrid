@@ -515,9 +515,8 @@ public class ViewProxy extends TiViewProxy
 		// Delete button
 		if (deleteButtonReference != null && canBeDeleted && showDeleteButtonEnabled) {
 			float factor = context.getResources().getDisplayMetrics().density;
-			int diffWidth = cellWidthPx == ViewGroup.LayoutParams.MATCH_PARENT ? 0 : COLUMN_WIDTH - cellWidthPx;
 			TiCompositeLayout.LayoutParams layoutParamsButton = new TiCompositeLayout.LayoutParams();
-			TiDimension left = new TiDimension(TiConvert.toString(diffWidth / 2 - 5), TiDimension.TYPE_LEFT);
+			TiDimension left = new TiDimension(TiConvert.toString(-5), TiDimension.TYPE_LEFT);
 			TiDimension top = new TiDimension(TiConvert.toString(0), TiDimension.TYPE_TOP);
 			layoutParamsButton.width = (int) (30 * factor);
 			layoutParamsButton.height = (int) (30 * factor);
@@ -544,7 +543,7 @@ public class ViewProxy extends TiViewProxy
 			cellContainer.addView(buttonContainerLayout, layoutParamsButton);
 
 			final int pressedColorValue = TiConvert.toColor("#88d3413c", context);
-			deleteButtonView.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
+			buttonContainerLayout.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
 
 			if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
 				deleteButtonView.setId(8000 + TiConvert.toInt(thisproxy.getProperty(TiC.PROPERTY_ID)));
@@ -580,7 +579,7 @@ public class ViewProxy extends TiViewProxy
 				}
 			});
 
-			itemHashMap.put("delete_button", deleteButtonView);
+			itemHashMap.put("delete_button", buttonContainerLayout);
 			Log.d(LCAT, "buildItemHashMap pos=" + position + ": delete button CREATED");
 		} else {
 			Log.d(LCAT, "buildItemHashMap pos=" + position + ": SKIPPED delete button (deleteButtonRef=" + (deleteButtonReference != null ? "set" : "NULL") + " canBeDeleted=" + canBeDeleted + " showDeleteBtn=" + showDeleteButtonEnabled + ")");
