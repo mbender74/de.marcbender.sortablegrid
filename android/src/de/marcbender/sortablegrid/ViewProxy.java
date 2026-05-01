@@ -489,7 +489,9 @@ public class ViewProxy extends TiViewProxy
 		if (waterFallLayoutFlag || isHorizontalGrid) {
 			layoutParams.width = cellWidthPx > 0 ? cellWidthPx : ViewGroup.LayoutParams.MATCH_PARENT;
 		} else {
-			layoutParams.width = cellWidthPx;
+			// Vertical grid: items should fill the column width regardless of
+			// their explicit width property. GridLayoutManager controls column width.
+			layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
 		}
 
 		TiCompositeLayout cellContainer = new TiCompositeLayout(context);
@@ -624,7 +626,14 @@ public class ViewProxy extends TiViewProxy
 		itemHashMap.put("position", position);
 		itemHashMap.put("columnCount", num_colums);
 		itemHashMap.put("cell_height", cellHeightPx);
-		itemHashMap.put("cell_width", cellWidthPx);
+		// For vertical (non-waterfall) grid, items should fill the column width.
+		// Store MATCH_PARENT instead of a fixed pixel value so onBindViewHolder
+		// treats them as fill-width items.
+		int storedCellWidth = cellWidthPx;
+		if (!isHorizontalGrid && !waterFallLayoutFlag) {
+			storedCellWidth = ViewGroup.LayoutParams.MATCH_PARENT;
+		}
+		itemHashMap.put("cell_width", storedCellWidth);
 		Log.d(LCAT, "buildItemHashMap pos=" + position + " cellHeight=" + cellHeightPx + " cellWidth=" + cellWidthPx + " waterFallLayout=" + waterFallLayoutFlag);
 		thisproxy.setProperty("position", position);
 

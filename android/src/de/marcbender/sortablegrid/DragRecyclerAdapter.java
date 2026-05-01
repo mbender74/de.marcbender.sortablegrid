@@ -332,16 +332,22 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				cellHeight = (Integer) cellHeightObj;
 			}
 
-			// Add item view with WRAP_CONTENT height so it expands naturally
-			// (borders/padding can make content taller than the raw cellHeight)
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cellWidth, FrameLayout.LayoutParams.WRAP_CONTENT);
-			holder.container.addView(itemView, lp);
-
 			// Check if we're in horizontal grid mode
 			boolean isHorizontalGrid = false;
 			if (recyclerView != null && recyclerView.getLayoutManager() instanceof GridLayoutManager) {
 				isHorizontalGrid = ((GridLayoutManager) recyclerView.getLayoutManager()).getOrientation() == GridLayoutManager.HORIZONTAL;
 			}
+
+			// For vertical (non-waterfall) grid, items should fill the column width
+			// regardless of their stored cell_width. GridLayoutManager controls column width.
+			if (!isHorizontalGrid && !viewProxy.waterFallLayoutFlag) {
+				cellWidth = ViewGroup.LayoutParams.MATCH_PARENT;
+			}
+
+			// Add item view with WRAP_CONTENT height so it expands naturally
+			// (borders/padding can make content taller than the raw cellHeight)
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cellWidth, FrameLayout.LayoutParams.WRAP_CONTENT);
+			holder.container.addView(itemView, lp);
 
 			// For horizontal grid, recalculate cell width from current RecyclerView size
 			// (stored cell_width may be stale if RecyclerView wasn't laid out during buildItemHashMap)
