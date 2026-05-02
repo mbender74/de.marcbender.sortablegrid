@@ -332,37 +332,41 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				cellHeight = (Integer) cellHeightObj;
 			}
 
-			// Check if we're in horizontal grid mode
-			boolean isHorizontalGrid = false;
-			if (recyclerView != null && recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-				isHorizontalGrid = ((GridLayoutManager) recyclerView.getLayoutManager()).getOrientation() == GridLayoutManager.HORIZONTAL;
-			}
+				// Check if we are in horizontal scrolling mode (grid or waterfall)
+				boolean isHorizontalGrid = false;
+				boolean isHorizontalWaterfall = false;
+				if (recyclerView != null && recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+					isHorizontalGrid = ((GridLayoutManager) recyclerView.getLayoutManager()).getOrientation() == GridLayoutManager.HORIZONTAL;
+				}
+				if (recyclerView != null && recyclerView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
+					isHorizontalWaterfall = ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).getOrientation() == StaggeredGridLayoutManager.HORIZONTAL;
+				}
+				boolean isHorizontalScroll = isHorizontalGrid || isHorizontalWaterfall;
 
-			// For vertical (non-waterfall) grid, items should fill the column width
-			// regardless of their stored cell_width. GridLayoutManager controls column width.
-			if (!isHorizontalGrid && !viewProxy.waterFallLayoutFlag) {
-				cellWidth = ViewGroup.LayoutParams.MATCH_PARENT;
-			}
+				// For vertical mode (grid or waterfall), items fill the column width
+				// regardless of their stored cell_width. The layout manager controls column width.
+				if (!isHorizontalScroll) {
+					cellWidth = ViewGroup.LayoutParams.MATCH_PARENT;
+				}
 
-			// Add item view with WRAP_CONTENT height so it expands naturally
-			// (borders/padding can make content taller than the raw cellHeight)
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cellWidth, FrameLayout.LayoutParams.WRAP_CONTENT);
-			holder.container.addView(itemView, lp);
+				// Add item view with WRAP_CONTENT height so it expands naturally
+				// (borders/padding can make content taller than the raw cellHeight)
+				FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cellWidth, FrameLayout.LayoutParams.WRAP_CONTENT);
+				holder.container.addView(itemView, lp);
 
-			// For horizontal grid, recalculate cell width from current RecyclerView size
-			// (stored cell_width may be stale if RecyclerView wasn't laid out during buildItemHashMap)
-			if (isHorizontalGrid && recyclerView != null && recyclerView.getWidth() > 0) {
-				int availableWidth = recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight();
-				int correctCellWidth = availableWidth / viewProxy.num_colums - viewProxy.HORIZONTAL_SPACING;
-				if (correctCellWidth > 0) {
-					cellWidth = correctCellWidth;
-					// Also update the itemView LayoutParams width to match
-					ViewGroup.LayoutParams itemViewLp = itemView.getLayoutParams();
-					if (itemViewLp != null && itemViewLp.width != cellWidth) {
-						itemViewLp.width = cellWidth;
+				// For horizontal scrolling (grid or waterfall), recalculate cell width
+				// from current RecyclerView size so items are not too wide
+				if (isHorizontalScroll && recyclerView != null && recyclerView.getWidth() > 0) {
+					int availableWidth = recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight();
+					int correctCellWidth = availableWidth / viewProxy.num_colums - viewProxy.HORIZONTAL_SPACING;
+					if (correctCellWidth > 0) {
+						cellWidth = correctCellWidth;
+						ViewGroup.LayoutParams itemViewLp = itemView.getLayoutParams();
+						if (itemViewLp != null && itemViewLp.width != cellWidth) {
+							itemViewLp.width = cellWidth;
+						}
 					}
 				}
-			}
 
 			// Force measure to get actual rendered height (including borders, padding).
 			// For StaggeredGridLayoutManager, measure at column (cell) width so content
@@ -384,7 +388,18 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 						int cols = (colCount instanceof Number) ? ((Number) colCount).intValue() : glm.getSpanCount();
 						measureWidth = recyclerView.getWidth() / cols;
 					}
-				} else if (!(lm instanceof StaggeredGridLayoutManager)) {
+				} else if (lm instanceof StaggeredGridLayoutManager) {
+					StaggeredGridLayoutManager sgl = (StaggeredGridLayoutManager) lm;
+					if (sgl.getOrientation() == StaggeredGridLayoutManager.HORIZONTAL) {
+						// Horizontal waterfall: measure at the correct cell width
+						measureWidth = cellWidth > 0 ? cellWidth : (recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight()) / viewProxy.num_colums - viewProxy.HORIZONTAL_SPACING;
+					} else {
+						// Vertical waterfall: measure at column width
+						Object colCount = itemData.get("columnCount");
+						int cols = (colCount instanceof Number) ? ((Number) colCount).intValue() : sgl.getSpanCount();
+						measureWidth = recyclerView.getWidth() / cols;
+					}
+				} else {
 					measureWidth = recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight();
 				}
 			}
@@ -397,7 +412,7 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 			// Update container LayoutParams based on measured content
 			ViewGroup.LayoutParams containerLp = holder.container.getLayoutParams();
 			if (containerLp != null) {
-				if (!isHorizontalGrid) {
+				if (!isHorizontalScroll) {
 					// Vertical mode: set height to match measured content
 					if (measuredHeight > 0) {
 						containerLp.height = measuredHeight;
@@ -407,7 +422,7 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 						containerLp.height = cellHeight; // WRAP_CONTENT (-1) or MATCH_PARENT
 					}
 				} else {
-					// Horizontal grid: set concrete column width so GridLayoutManager
+					// Horizontal scroll: set concrete column width so layout manager
 					// measures items correctly (WRAP_CONTENT width gets UNSPECIFIED measure spec)
 					if (cellWidth > 0) {
 						containerLp.width = cellWidth;

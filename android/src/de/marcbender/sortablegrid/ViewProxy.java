@@ -382,13 +382,12 @@ public class ViewProxy extends TiViewProxy
 
 		// Calculate item dimensions based on layout mode
 		boolean isHorizontalGrid = !waterFallLayoutFlag && "horizontal".equalsIgnoreCase(scrollType);
+		boolean isHorizontalScroll = "horizontal".equalsIgnoreCase(scrollType);
 		if (mRecyclerView != null && mRecyclerView.getWidth() > 0) {
 			int availableWidth = mRecyclerView.getWidth() - mRecyclerView.getPaddingLeft() - mRecyclerView.getPaddingRight();
-			if (isHorizontalGrid) {
-				// Horizontal grid: GridLayoutManager gives items UNSPECIFIED width
-				// for MATCH_PARENT, so we must calculate the exact pixel width.
-				// Each column occupies (availableWidth / num_colums) space (item + decoration).
-				// Item width = columnWidth - HORIZONTAL_SPACING (5px decoration each side)
+			if (isHorizontalScroll) {
+				// Horizontal scrolling (grid or waterfall): items scroll left-to-right,
+				// so column width = availableWidth / num_colums - HORIZONTAL_SPACING
 				int calculatedWidth = availableWidth / num_colums - HORIZONTAL_SPACING;
 				if (calculatedWidth > 0) {
 					COLUMN_WIDTH = calculatedWidth;
@@ -400,8 +399,8 @@ public class ViewProxy extends TiViewProxy
 				}
 			}
 		}
-		// For horizontal grid, also calculate item height from rowCount and viewport height
-		if (isHorizontalGrid && mRecyclerView != null && mRecyclerView.getHeight() > 0) {
+		// For horizontal scrolling, calculate item height from rowCount and viewport height
+		if (isHorizontalScroll && mRecyclerView != null && mRecyclerView.getHeight() > 0) {
 			int availableHeight = mRecyclerView.getHeight() - mRecyclerView.getPaddingTop() - mRecyclerView.getPaddingBottom();
 			// Each row occupies (availableHeight / row_count) space (item + decoration).
 			// Item height = rowHeight - VERTICAL_SPACING
@@ -410,6 +409,7 @@ public class ViewProxy extends TiViewProxy
 				itemHashMap.put("row_height", itemHeightPx);
 			}
 		}
+
 
 		// Determine item width
 		Object widthProp = thisproxy.getProperty("width");
@@ -477,20 +477,19 @@ public class ViewProxy extends TiViewProxy
 		Log.d(LCAT, "buildItemHashMap: pageView=" + (pageView != null ? pageView.getClass().getSimpleName() : "null") + " parent=" + (pageView != null && pageView.getParent() != null ? pageView.getParent().getClass().getSimpleName() : "none"));
 		LayoutParams layoutParams = uiView.getLayoutParams();
 
-		// For horizontal grid: use calculated row height if available
-		if (isHorizontalGrid && itemHashMap.containsKey("row_height")) {
+		// For horizontal scrolling: use calculated row height if available
+		if (("horizontal".equalsIgnoreCase(scrollType)) && itemHashMap.containsKey("row_height")) {
 			int rowHeight = (int) itemHashMap.get("row_height");
 			layoutParams.height = rowHeight > 0 ? rowHeight : cellHeightPx;
 		} else {
 			layoutParams.height = cellHeightPx;
 		}
 
-		// Width: waterfall and horizontal grid both fill column width
-		if (waterFallLayoutFlag || isHorizontalGrid) {
+		// Width: in horizontal mode items need explicit pixel width;
+		// in vertical mode (grid or waterfall) items fill the column width.
+		if (isHorizontalScroll) {
 			layoutParams.width = cellWidthPx > 0 ? cellWidthPx : ViewGroup.LayoutParams.MATCH_PARENT;
 		} else {
-			// Vertical grid: items should fill the column width regardless of
-			// their explicit width property. GridLayoutManager controls column width.
 			layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
 		}
 
@@ -626,11 +625,10 @@ public class ViewProxy extends TiViewProxy
 		itemHashMap.put("position", position);
 		itemHashMap.put("columnCount", num_colums);
 		itemHashMap.put("cell_height", cellHeightPx);
-		// For vertical (non-waterfall) grid, items should fill the column width.
-		// Store MATCH_PARENT instead of a fixed pixel value so onBindViewHolder
-		// treats them as fill-width items.
+		// For vertical mode (grid or waterfall), items fill the column width.
+		// Store MATCH_PARENT so onBindViewHolder treats them as fill-width items.
 		int storedCellWidth = cellWidthPx;
-		if (!isHorizontalGrid && !waterFallLayoutFlag) {
+		if (!isHorizontalScroll) {
 			storedCellWidth = ViewGroup.LayoutParams.MATCH_PARENT;
 		}
 		itemHashMap.put("cell_width", storedCellWidth);
@@ -888,12 +886,13 @@ public class ViewProxy extends TiViewProxy
 					int orientation = "horizontal".equalsIgnoreCase(scrollType)
 						? StaggeredGridLayoutManager.HORIZONTAL
 						: StaggeredGridLayoutManager.VERTICAL;
-					mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(num_colums, orientation);
+					int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+					mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(spanCount, orientation);
 					mStaggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
 					mLayoutManager = mStaggeredGridLayoutManager;
 					mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
 
-					Log.d(LCAT, "createRecyclerView: StaggeredGridLayoutManager, columns=" + num_colums +
+					Log.d(LCAT, "createRecyclerView: StaggeredGridLayoutManager, spanCount=" + spanCount +
 					  " orientation=" + (orientation == StaggeredGridLayoutManager.HORIZONTAL ? "HORIZONTAL" : "VERTICAL"));
 				} else {
 					// Regular grid
@@ -1198,7 +1197,8 @@ public class ViewProxy extends TiViewProxy
 				if (d.containsKey(PROPERTY_COLUMNS)) {
 					num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
 					if (mStaggeredGridLayoutManager != null) {
-						mStaggeredGridLayoutManager.setSpanCount(num_colums);
+						int staggeredSpanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+						mStaggeredGridLayoutManager.setSpanCount(staggeredSpanCount);
 					}
 					if (mGridLayoutManager != null) {
 						// Horizontal mode uses rowCount as spanCount, vertical uses num_colums
@@ -1808,10 +1808,12 @@ public class ViewProxy extends TiViewProxy
 		if (count > 0) {
 			num_colums = count;
 			if (mStaggeredGridLayoutManager != null) {
-				mStaggeredGridLayoutManager.setSpanCount(count);
+				int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+				mStaggeredGridLayoutManager.setSpanCount(spanCount);
 			}
 			if (mGridLayoutManager != null) {
-				mGridLayoutManager.setSpanCount(count);
+				int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+				mGridLayoutManager.setSpanCount(spanCount);
 			}
 		}
 	}
