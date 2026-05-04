@@ -1574,13 +1574,14 @@ public class ViewProxy extends TiViewProxy
 		if (options != null) {
 			int index = TiConvert.toInt(options.get("index"));
 			Object itemObj = options.get("item");
-			Log.d(LCAT, "insertItemAtIndex: index=" + index + " itemObj=" + (itemObj != null ? itemObj.getClass().getSimpleName() : "null"));
-			insertItem(itemObj, index);
+			boolean animated = TiConvert.toBoolean(options.get("animated"), false);
+			Log.d(LCAT, "insertItemAtIndex: index=" + index + " itemObj=" + (itemObj != null ? itemObj.getClass().getSimpleName() : "null") + " animated=" + animated);
+			insertItem(itemObj, index, animated);
 		}
 	}
 
-	public void insertItem(Object item, final int index) {
-		Log.d(LCAT, "insertItem called: index=" + index + " item type=" + (item != null ? item.getClass().getSimpleName() : "null"));
+	public void insertItem(Object item, final int index, boolean animated) {
+		Log.d(LCAT, "insertItem called: index=" + index + " item type=" + (item != null ? item.getClass().getSimpleName() : "null") + " animated=" + animated);
 		int clampedIndex = Math.max(0, Math.min(index, dataSourceList.size()));
 		if (index < 0 || index > dataSourceList.size()) {
 			Log.w(LCAT, "insertItem: clamping index from " + index + " to " + clampedIndex);
@@ -1603,15 +1604,22 @@ public class ViewProxy extends TiViewProxy
 		if (viewProxy != null) {
 			HashMap<String, Object> newItem = buildItemHashMap(viewProxy, clampedIndex);
 			if (newItem != null) {
-				dataSourceList.add(clampedIndex, newItem);
-				itemsList.add(clampedIndex, item);
-
-				if (mRecyclerAdapter != null) {
-					mRecyclerView.getRecycledViewPool().clear();
-					mRecyclerAdapter.notifyDataSetChanged();
+				if (animated && mRecyclerAdapter != null) {
+					// Animated insert: adapter's addItem() handles dataSourceList addition + notifyItemInserted
+					itemsList.add(clampedIndex, item);
+					mRecyclerAdapter.addItem(newItem, clampedIndex);
+					updateItemPositions();
+				} else {
+					// Non-animated insert: add to data sources, then full refresh
+					dataSourceList.add(clampedIndex, newItem);
+					itemsList.add(clampedIndex, item);
+					if (mRecyclerAdapter != null) {
+						mRecyclerView.getRecycledViewPool().clear();
+						mRecyclerAdapter.notifyDataSetChanged();
+					}
+					updateItemPositions();
 				}
 
-				updateItemPositions();
 				mRecyclerView.postDelayed(new Runnable() {
 					@Override
 					public void run() {
@@ -1632,12 +1640,17 @@ public class ViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void deleteItemAtIndex(Object args) {
-		// Accept both: deleteItemAtIndex(0) and deleteItemAtIndex({ index: 0 })
+		// Accept both: deleteItemAtIndex(0) and deleteItemAtIndex({ index: 0, animated: true })
 		int index;
+		boolean animated = false;
 		if (args instanceof HashMap) {
 			@SuppressWarnings("unchecked")
 			HashMap<String, Object> map = (HashMap<String, Object>) args;
 			index = TiConvert.toInt(map.get("index"), -1);
+			Object animatedObj = map.get("animated");
+			if (animatedObj != null) {
+				animated = TiConvert.toBoolean(animatedObj, false);
+			}
 		} else if (args instanceof Number) {
 			index = ((Number) args).intValue();
 		} else {
@@ -1656,29 +1669,48 @@ public class ViewProxy extends TiViewProxy
 				}
 			}
 
-			// Remove from data sources
-			dataSourceList.remove(index);
-			if (itemsList != null && index < itemsList.size()) {
-				itemsList.remove(index);
-			}
-
-			if (mRecyclerAdapter != null) {
-				mRecyclerView.getRecycledViewPool().clear();
-				mRecyclerAdapter.notifyDataSetChanged();
-			}
-			updateItemPositions();
-
 			final Object itemId = itemIdObj;
-			mRecyclerView.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					if (pageIndicatorView != null) updatePageIndicator();
-					KrollDict eventDict = new KrollDict();
-					eventDict.put("itemId", itemId);
-					eventDict.put("index", index);
-					fireEvent("itemDeleted", eventDict);
+			final int deleteIndex = index;
+
+			if (animated && mRecyclerAdapter != null) {
+				// Animated delete: adapter's removeItem() handles dataSourceList removal + notifyItemRemoved
+				if (itemsList != null && index < itemsList.size()) {
+					itemsList.remove(index);
 				}
-			}, 300);
+				mRecyclerAdapter.removeItem(index);
+				updateItemPositions();
+				mRecyclerView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (pageIndicatorView != null) updatePageIndicator();
+						KrollDict eventDict = new KrollDict();
+						eventDict.put("itemId", itemId);
+						eventDict.put("index", deleteIndex);
+						fireEvent("itemDeleted", eventDict);
+					}
+				}, 300);
+			} else {
+				// Non-animated delete: remove from data sources, then full refresh
+				dataSourceList.remove(index);
+				if (itemsList != null && index < itemsList.size()) {
+					itemsList.remove(index);
+				}
+				if (mRecyclerAdapter != null) {
+					mRecyclerView.getRecycledViewPool().clear();
+					mRecyclerAdapter.notifyDataSetChanged();
+				}
+				updateItemPositions();
+				mRecyclerView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (pageIndicatorView != null) updatePageIndicator();
+						KrollDict eventDict = new KrollDict();
+						eventDict.put("itemId", itemId);
+						eventDict.put("index", deleteIndex);
+						fireEvent("itemDeleted", eventDict);
+					}
+				}, 300);
+			}
 		}
 	}
 
@@ -1726,10 +1758,15 @@ public class ViewProxy extends TiViewProxy
 	public void scrollToItemAtIndex(Object args) {
 		// Accept both: scrollToItemAtIndex(0) and scrollToItemAtIndex({ index: 0, animated: true })
 		int index;
+		boolean animated = true;
 		if (args instanceof HashMap) {
 			@SuppressWarnings("unchecked")
 			HashMap<String, Object> map = (HashMap<String, Object>) args;
 			index = TiConvert.toInt(map.get("index"), -1);
+			Object animatedObj = map.get("animated");
+			if (animatedObj != null) {
+				animated = TiConvert.toBoolean(animatedObj, true);
+			}
 		} else if (args instanceof Number) {
 			index = ((Number) args).intValue();
 		} else {
@@ -1737,8 +1774,21 @@ public class ViewProxy extends TiViewProxy
 			return;
 		}
 
+		final int scrollIndex = index;
+		final boolean scrollAnimated = animated;
+
 		if (mRecyclerView != null && index >= 0 && index < dataSourceList.size()) {
-			mRecyclerView.smoothScrollToPosition(index);
+			// Post to ensure layout is complete before scrolling
+			mRecyclerView.post(new Runnable() {
+				@Override
+				public void run() {
+					if (scrollAnimated) {
+						mRecyclerView.smoothScrollToPosition(scrollIndex);
+					} else {
+						mRecyclerView.scrollToPosition(scrollIndex);
+					}
+				}
+			});
 		}
 	}
 
