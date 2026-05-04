@@ -382,34 +382,22 @@ public class ViewProxy extends TiViewProxy
 
 		// Calculate item dimensions based on layout mode
 		boolean isHorizontalGrid = !waterFallLayoutFlag && "horizontal".equalsIgnoreCase(scrollType);
-		boolean isHorizontalScroll = "horizontal".equalsIgnoreCase(scrollType);
 		if (mRecyclerView != null && mRecyclerView.getWidth() > 0) {
 			int availableWidth = mRecyclerView.getWidth() - mRecyclerView.getPaddingLeft() - mRecyclerView.getPaddingRight();
-			if (isHorizontalScroll) {
-				// Horizontal scrolling (grid or waterfall): items scroll left-to-right,
-				// so column width = availableWidth / num_colums - HORIZONTAL_SPACING
-				int calculatedWidth = availableWidth / num_colums - HORIZONTAL_SPACING;
-				if (calculatedWidth > 0) {
-					COLUMN_WIDTH = calculatedWidth;
-				}
-			} else {
-				int itemWidthPx = (availableWidth - (num_colums - 1) * HORIZONTAL_SPACING) / num_colums;
-				if (itemWidthPx > 0 && itemWidthPx != COLUMN_WIDTH) {
-					COLUMN_WIDTH = itemWidthPx;
-				}
+			int itemWidthPx = (availableWidth - (num_colums - 1) * HORIZONTAL_SPACING) / num_colums;
+			if (itemWidthPx > 0 && itemWidthPx != COLUMN_WIDTH) {
+				COLUMN_WIDTH = itemWidthPx;
 			}
 		}
-		// For horizontal scrolling, calculate item height from rowCount and viewport height
-		if (isHorizontalScroll && mRecyclerView != null && mRecyclerView.getHeight() > 0) {
+		// For horizontal grid, also calculate item height from rowCount and viewport height
+		if (isHorizontalGrid && mRecyclerView != null && mRecyclerView.getHeight() > 0) {
 			int availableHeight = mRecyclerView.getHeight() - mRecyclerView.getPaddingTop() - mRecyclerView.getPaddingBottom();
-			// Each row occupies (availableHeight / row_count) space (item + decoration).
-			// Item height = rowHeight - VERTICAL_SPACING
-			int itemHeightPx = availableHeight / row_count - VERTICAL_SPACING;
+			int itemHeightPx = (availableHeight - (row_count - 1) * VERTICAL_SPACING) / row_count;
 			if (itemHeightPx > 0) {
+				// Store this as a separate baseline; cell height may get overridden by content
 				itemHashMap.put("row_height", itemHeightPx);
 			}
 		}
-
 
 		// Determine item width
 		Object widthProp = thisproxy.getProperty("width");
@@ -444,14 +432,7 @@ public class ViewProxy extends TiViewProxy
 		// Calculate cell dimensions (fallback for SIZE/FILL)
 		int cellWidthPx = itemWidthPx;
 		if ("fill".equals(widthStr)) {
-			if (isHorizontalGrid) {
-				// GridLayoutManager.HORIZONTAL passes UNSPECIFIED(0) width for
-				// MATCH_PARENT items, cascading through TiCompositeLayout to give
-				// autoFillsWidth children 0 width. Use concrete pixel value instead.
-				cellWidthPx = COLUMN_WIDTH > 0 ? COLUMN_WIDTH : 110;
-			} else {
-				cellWidthPx = ViewGroup.LayoutParams.MATCH_PARENT;
-			}
+			cellWidthPx = ViewGroup.LayoutParams.MATCH_PARENT;
 		} else if (itemWidthPx <= 0) {
 			cellWidthPx = COLUMN_WIDTH > 0 ? COLUMN_WIDTH : 110;
 		}
@@ -477,20 +458,19 @@ public class ViewProxy extends TiViewProxy
 		Log.d(LCAT, "buildItemHashMap: pageView=" + (pageView != null ? pageView.getClass().getSimpleName() : "null") + " parent=" + (pageView != null && pageView.getParent() != null ? pageView.getParent().getClass().getSimpleName() : "none"));
 		LayoutParams layoutParams = uiView.getLayoutParams();
 
-		// For horizontal scrolling: use calculated row height if available
-		if (("horizontal".equalsIgnoreCase(scrollType)) && itemHashMap.containsKey("row_height")) {
+		// For horizontal grid: use calculated row height if available
+		if (isHorizontalGrid && itemHashMap.containsKey("row_height")) {
 			int rowHeight = (int) itemHashMap.get("row_height");
 			layoutParams.height = rowHeight > 0 ? rowHeight : cellHeightPx;
 		} else {
 			layoutParams.height = cellHeightPx;
 		}
 
-		// Width: in horizontal mode items need explicit pixel width;
-		// in vertical mode (grid or waterfall) items fill the column width.
-		if (isHorizontalScroll) {
+		// Width: waterfall and horizontal grid both fill column width
+		if (waterFallLayoutFlag || isHorizontalGrid) {
 			layoutParams.width = cellWidthPx > 0 ? cellWidthPx : ViewGroup.LayoutParams.MATCH_PARENT;
 		} else {
-			layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+			layoutParams.width = cellWidthPx;
 		}
 
 		TiCompositeLayout cellContainer = new TiCompositeLayout(context);
@@ -516,8 +496,9 @@ public class ViewProxy extends TiViewProxy
 		// Delete button
 		if (deleteButtonReference != null && canBeDeleted && showDeleteButtonEnabled) {
 			float factor = context.getResources().getDisplayMetrics().density;
+			int diffWidth = cellWidthPx == ViewGroup.LayoutParams.MATCH_PARENT ? 0 : COLUMN_WIDTH - cellWidthPx;
 			TiCompositeLayout.LayoutParams layoutParamsButton = new TiCompositeLayout.LayoutParams();
-			TiDimension left = new TiDimension(TiConvert.toString(-5), TiDimension.TYPE_LEFT);
+			TiDimension left = new TiDimension(TiConvert.toString(diffWidth / 2 - 5), TiDimension.TYPE_LEFT);
 			TiDimension top = new TiDimension(TiConvert.toString(0), TiDimension.TYPE_TOP);
 			layoutParamsButton.width = (int) (30 * factor);
 			layoutParamsButton.height = (int) (30 * factor);
@@ -544,7 +525,7 @@ public class ViewProxy extends TiViewProxy
 			cellContainer.addView(buttonContainerLayout, layoutParamsButton);
 
 			final int pressedColorValue = TiConvert.toColor("#88d3413c", context);
-			buttonContainerLayout.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
+			deleteButtonView.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
 
 			if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
 				deleteButtonView.setId(8000 + TiConvert.toInt(thisproxy.getProperty(TiC.PROPERTY_ID)));
@@ -580,7 +561,7 @@ public class ViewProxy extends TiViewProxy
 				}
 			});
 
-			itemHashMap.put("delete_button", buttonContainerLayout);
+			itemHashMap.put("delete_button", deleteButtonView);
 			Log.d(LCAT, "buildItemHashMap pos=" + position + ": delete button CREATED");
 		} else {
 			Log.d(LCAT, "buildItemHashMap pos=" + position + ": SKIPPED delete button (deleteButtonRef=" + (deleteButtonReference != null ? "set" : "NULL") + " canBeDeleted=" + canBeDeleted + " showDeleteBtn=" + showDeleteButtonEnabled + ")");
@@ -594,27 +575,41 @@ public class ViewProxy extends TiViewProxy
 				badgeTintColor = TiConvert.toColor(thisproxy.getProperty(PROPERTY_BADGE_TINT_COLOR).toString(), context);
 			}
 
-			FrameLayout badgeViewLayout = new FrameLayout(context);
-			cellContainer.addView(badgeViewLayout);
+			float factor = context.getResources().getDisplayMetrics().density;
+			int badgeSizePx = (int) (28 * factor);
+			int badgeMarginPx = (int) (-5 * factor);
+
+			TiCompositeLayout badgeContainerLayout = new TiCompositeLayout(context);
+			RelativeLayout badgeRelativeLayout = new RelativeLayout(context);
+			RelativeLayout.LayoutParams layoutParamsBadgeInner = new RelativeLayout.LayoutParams(badgeSizePx, badgeSizePx);
 
 			View badgeView = BadgeFactory.create(context)
 				.setTextColor(Color.WHITE)
 				.setWidthAndHeight(28, 28)
 				.setBadgeBackground(badgeTintColor)
 				.setTextSize(13)
-				.setBadgeGravity(Gravity.RIGHT | Gravity.TOP)
 				.setBadgeCount(badgeValue)
-				.setShape(BadgeView.SHAPE_CIRCLE)
-				.setSpace((cellWidthPx == ViewGroup.LayoutParams.MATCH_PARENT ? COLUMN_WIDTH : cellWidthPx) + 12, cellHeightPx + 5)
-				.bind(badgeViewLayout);
+				.setShape(BadgeView.SHAPE_CIRCLE);
+			badgeRelativeLayout.addView(badgeView, layoutParamsBadgeInner);
 
+			badgeContainerLayout.setClipChildren(false);
+			badgeContainerLayout.setClipToPadding(false);
+			badgeRelativeLayout.setClipChildren(false);
+			badgeRelativeLayout.setClipToPadding(false);
+			badgeContainerLayout.addView(badgeRelativeLayout);
+
+			FrameLayout.LayoutParams badgeLp = new FrameLayout.LayoutParams(badgeSizePx, badgeSizePx);
+			badgeLp.gravity = Gravity.RIGHT | Gravity.TOP;
+			badgeLp.rightMargin = badgeMarginPx;
 			itemHashMap.put("badge_view", badgeView);
+			itemHashMap.put("badge_container", badgeContainerLayout);
+			itemHashMap.put("badge_lp", badgeLp);
 
 			if (thisproxy.hasProperty(TiC.PROPERTY_ID)) {
 				badgeView.setId(10000 + TiConvert.toInt(thisproxy.getProperty(TiC.PROPERTY_ID)));
 			}
 
-			badgeView.setVisibility(isInEditMode ? View.INVISIBLE : View.VISIBLE);
+			badgeContainerLayout.setVisibility(isInEditMode ? View.INVISIBLE : View.VISIBLE);
 		}
 
 		// canBeMoved support
@@ -625,13 +620,7 @@ public class ViewProxy extends TiViewProxy
 		itemHashMap.put("position", position);
 		itemHashMap.put("columnCount", num_colums);
 		itemHashMap.put("cell_height", cellHeightPx);
-		// For vertical mode (grid or waterfall), items fill the column width.
-		// Store MATCH_PARENT so onBindViewHolder treats them as fill-width items.
-		int storedCellWidth = cellWidthPx;
-		if (!isHorizontalScroll) {
-			storedCellWidth = ViewGroup.LayoutParams.MATCH_PARENT;
-		}
-		itemHashMap.put("cell_width", storedCellWidth);
+		itemHashMap.put("cell_width", cellWidthPx);
 		Log.d(LCAT, "buildItemHashMap pos=" + position + " cellHeight=" + cellHeightPx + " cellWidth=" + cellWidthPx + " waterFallLayout=" + waterFallLayoutFlag);
 		thisproxy.setProperty("position", position);
 
@@ -886,13 +875,12 @@ public class ViewProxy extends TiViewProxy
 					int orientation = "horizontal".equalsIgnoreCase(scrollType)
 						? StaggeredGridLayoutManager.HORIZONTAL
 						: StaggeredGridLayoutManager.VERTICAL;
-					int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
-					mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(spanCount, orientation);
+					mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(num_colums, orientation);
 					mStaggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
 					mLayoutManager = mStaggeredGridLayoutManager;
 					mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
 
-					Log.d(LCAT, "createRecyclerView: StaggeredGridLayoutManager, spanCount=" + spanCount +
+					Log.d(LCAT, "createRecyclerView: StaggeredGridLayoutManager, columns=" + num_colums +
 					  " orientation=" + (orientation == StaggeredGridLayoutManager.HORIZONTAL ? "HORIZONTAL" : "VERTICAL"));
 				} else {
 					// Regular grid
@@ -1194,32 +1182,24 @@ public class ViewProxy extends TiViewProxy
 					mSpacingDecoration.setVerticalSpacing(VERTICAL_SPACING);
 				}
 			}
-				if (d.containsKey(PROPERTY_COLUMNS)) {
-					num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
-					if (mStaggeredGridLayoutManager != null) {
-						int staggeredSpanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
-						mStaggeredGridLayoutManager.setSpanCount(staggeredSpanCount);
-					}
-					if (mGridLayoutManager != null) {
-						// Horizontal mode uses rowCount as spanCount, vertical uses num_colums
-						int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
-						mGridLayoutManager.setSpanCount(spanCount);
-					}
-					if (mSpacingDecoration != null) {
-						int decorationSpanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
-						mSpacingDecoration.setSpanCount(decorationSpanCount);
-					}
+			if (d.containsKey(PROPERTY_COLUMNS)) {
+				num_colums = TiConvert.toInt(d.get(PROPERTY_COLUMNS));
+				if (mRecyclerView != null) {
 				}
-				if (d.containsKey(PROPERTY_ROW_COUNT)) {
-					row_count = TiConvert.toInt(d.get(PROPERTY_ROW_COUNT), 4);
-					// rowCount determines spanCount in horizontal mode
-					if (mGridLayoutManager != null && "horizontal".equalsIgnoreCase(scrollType)) {
-						mGridLayoutManager.setSpanCount(row_count);
-					}
-					if (mSpacingDecoration != null && "horizontal".equalsIgnoreCase(scrollType)) {
-						mSpacingDecoration.setSpanCount(row_count);
-					}
+				if (mStaggeredGridLayoutManager != null) {
+					mStaggeredGridLayoutManager.setSpanCount(num_colums);
 				}
+				if (mGridLayoutManager != null) {
+					mGridLayoutManager.setSpanCount(num_colums);
+				}
+				if (mSpacingDecoration != null) {
+					mSpacingDecoration.setSpanCount(num_colums);
+				}
+			}
+			if (d.containsKey(PROPERTY_ROW_COUNT)) {
+				row_count = TiConvert.toInt(d.get(PROPERTY_ROW_COUNT), 4);
+				// rowCount determines items per page in horizontal mode
+			}
 			if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
 				if (mRecyclerAdapter != null) {
 					mRecyclerAdapter.setDeleteButtonReference(deleteButtonReference);
@@ -1515,12 +1495,13 @@ public class ViewProxy extends TiViewProxy
 			View itemView = (View) item.get("item_view");
 			View deleteButton = (View) item.get("delete_button");
 			View badgeView = (View) item.get("badge_view");
+			View badgeContainer = (View) item.get("badge_container");
 
 			if (deleteButton != null) {
 				deleteButton.setVisibility(View.INVISIBLE);
 			}
-			if (badgeView != null && itemsBadgeEnabledFlag) {
-				badgeView.setVisibility(View.VISIBLE);
+			if (badgeContainer != null && itemsBadgeEnabledFlag) {
+				badgeContainer.setVisibility(View.VISIBLE);
 			}
 			if (itemView != null && wobbleEnabled) {
 				itemView.setRotation(0f);
@@ -1546,14 +1527,15 @@ public class ViewProxy extends TiViewProxy
 			View itemView = (View) item.get("item_view");
 			View deleteButton = (View) item.get("delete_button");
 			View badgeView = (View) item.get("badge_view");
+			View badgeContainer = (View) item.get("badge_container");
 
 			Log.d(LCAT, "startEditing item[" + i + "]: delete_button=" + (deleteButton != null ? "exists" : "NULL") + " badge_view=" + (badgeView != null ? "exists" : "NULL"));
 
 			if (deleteButton != null) {
 				deleteButton.setVisibility(showDeleteButtonEnabled ? View.VISIBLE : View.INVISIBLE);
 			}
-			if (badgeView != null) {
-				badgeView.setVisibility(View.INVISIBLE);
+			if (badgeContainer != null) {
+				badgeContainer.setVisibility(View.INVISIBLE);
 			}
 			if (itemView != null && wobbleEnabled) {
 				int rotation = (i % 2 == 0) ? 2 : -2;
@@ -1788,10 +1770,13 @@ public class ViewProxy extends TiViewProxy
 		if (index >= 0 && index < dataSourceList.size()) {
 			HashMap<String, Object> item = dataSourceList.get(index);
 			Object badgeViewObj = item.get("badge_view");
+			Object badgeContainerObj = item.get("badge_container");
 			if (badgeViewObj instanceof BadgeView) {
 				BadgeView badgeView = (BadgeView) badgeViewObj;
 				badgeView.setBadgeCount(value);
-				badgeView.setVisibility(value > 0 ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
+				if (badgeContainerObj instanceof View) {
+					((View) badgeContainerObj).setVisibility(value > 0 ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
+				}
 			}
 		}
 	}
@@ -1808,12 +1793,10 @@ public class ViewProxy extends TiViewProxy
 		if (count > 0) {
 			num_colums = count;
 			if (mStaggeredGridLayoutManager != null) {
-				int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
-				mStaggeredGridLayoutManager.setSpanCount(spanCount);
+				mStaggeredGridLayoutManager.setSpanCount(count);
 			}
 			if (mGridLayoutManager != null) {
-				int spanCount = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
-				mGridLayoutManager.setSpanCount(spanCount);
+				mGridLayoutManager.setSpanCount(count);
 			}
 		}
 	}
@@ -2094,8 +2077,9 @@ public class ViewProxy extends TiViewProxy
 		for (int i = 0; i < dataSourceList.size(); i++) {
 			HashMap<String, Object> item = dataSourceList.get(i);
 			Object badgeView = item.get("badge_view");
-			if (badgeView instanceof View) {
-				((View) badgeView).setVisibility(value ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
+			Object badgeContainer = item.get("badge_container");
+			if (badgeContainer instanceof View) {
+				((View) badgeContainer).setVisibility(value ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
 			}
 		}
 	}
@@ -2279,17 +2263,14 @@ public class ViewProxy extends TiViewProxy
 	}
 
 	/**
-	 * Recursively finds all FrameLayout children with ID > 10000 (badges) and sets visibility.
+	 * Sets visibility on all badge containers in the data source.
 	 */
 	private void findAndSetBadgeVisibility(View view, int visibility) {
-		if (view == null) return;
-		if (view instanceof FrameLayout && view.getId() > 10000) {
-			view.setVisibility(visibility);
-		}
-		if (view instanceof ViewGroup) {
-			ViewGroup vg = (ViewGroup) view;
-			for (int i = 0; i < vg.getChildCount(); i++) {
-				findAndSetBadgeVisibility(vg.getChildAt(i), visibility);
+		for (int i = 0; i < dataSourceList.size(); i++) {
+			HashMap<String, Object> item = dataSourceList.get(i);
+			Object badgeContainer = item.get("badge_container");
+			if (badgeContainer instanceof View) {
+				((View) badgeContainer).setVisibility(visibility);
 			}
 		}
 	}

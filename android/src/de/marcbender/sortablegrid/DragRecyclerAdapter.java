@@ -354,6 +354,26 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cellWidth, FrameLayout.LayoutParams.WRAP_CONTENT);
 				holder.container.addView(itemView, lp);
 
+				// Add badge container on top in the holder container (FrameLayout)
+				// so it draws above neighboring cells and isn't clipped.
+				// Elevation ensures cells with badges draw above cells without.
+				Object badgeContainerObj = itemData.get("badge_container");
+				Object badgeLpObj = itemData.get("badge_lp");
+				boolean hasBadge = false;
+				if (badgeContainerObj instanceof View && badgeLpObj instanceof FrameLayout.LayoutParams) {
+					View badgeContainer = (View) badgeContainerObj;
+					FrameLayout.LayoutParams badgeLp = (FrameLayout.LayoutParams) badgeLpObj;
+					if (badgeContainer.getParent() != null) {
+						((ViewGroup) badgeContainer.getParent()).removeView(badgeContainer);
+					}
+					holder.container.addView(badgeContainer, badgeLp);
+					badgeContainer.bringToFront();
+					hasBadge = badgeContainer.getVisibility() == View.VISIBLE;
+				}
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+					holder.container.setElevation(hasBadge ? context.getResources().getDisplayMetrics().density : 0f);
+				}
+
 				// For horizontal scrolling (grid or waterfall), recalculate cell width
 				// from current RecyclerView size so items are not too wide
 				if (isHorizontalScroll && recyclerView != null && recyclerView.getWidth() > 0) {
@@ -562,7 +582,7 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		if (deleteBtnObj instanceof View) {
 			((View) deleteBtnObj).setVisibility(isInEditMode && showDeleteButtons ? View.VISIBLE : View.INVISIBLE);
 		}
-		Object badgeObj = itemData.get("badge_view");
+		Object badgeObj = itemData.get("badge_container");
 		if (badgeObj instanceof View) {
 			((View) badgeObj).setVisibility(isInEditMode ? View.INVISIBLE : (itemsBadgeEnabled ? View.VISIBLE : View.GONE));
 		}
@@ -735,7 +755,7 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		for (int i = 0; i < dataSourceList.size(); i++) {
 			HashMap<String, Object> item = dataSourceList.get(i);
 			Object deleteBtnObj = item.get("delete_button");
-			Object badgeObj = item.get("badge_view");
+			Object badgeObj = item.get("badge_container");
 
 			if (deleteBtnObj instanceof View) {
 				((View) deleteBtnObj).setVisibility(isInEditMode && showDeleteButtons ? View.VISIBLE : View.INVISIBLE);
