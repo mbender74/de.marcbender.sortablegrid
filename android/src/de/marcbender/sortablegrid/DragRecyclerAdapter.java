@@ -595,7 +595,7 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		}
 		Object badgeObj = itemData.get("badge_container");
 		if (badgeObj instanceof View) {
-			((View) badgeObj).setVisibility(isInEditMode ? View.INVISIBLE : (itemsBadgeEnabled ? View.VISIBLE : View.GONE));
+			((View) badgeObj).setVisibility(itemsBadgeEnabled ? View.VISIBLE : View.GONE);
 		}
 	}
 
@@ -771,7 +771,7 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				((View) deleteContainerObj).setVisibility(isInEditMode && showDeleteButtons ? View.VISIBLE : View.INVISIBLE);
 			}
 			if (badgeObj instanceof View) {
-				((View) badgeObj).setVisibility(isInEditMode ? View.INVISIBLE : (itemsBadgeEnabled ? View.VISIBLE : View.GONE));
+				((View) badgeObj).setVisibility(itemsBadgeEnabled ? View.VISIBLE : View.GONE);
 			}
 		}
 		d("updateEditState: done");

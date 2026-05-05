@@ -606,7 +606,7 @@ public class ViewProxy extends TiViewProxy
 				badgeView.setId(10000 + TiConvert.toInt(thisproxy.getProperty(TiC.PROPERTY_ID)));
 			}
 
-			badgeContainerLayout.setVisibility(isInEditMode ? View.INVISIBLE : View.VISIBLE);
+			badgeContainerLayout.setVisibility(View.VISIBLE);
 		}
 
 		// canBeMoved support
@@ -1543,7 +1543,7 @@ public class ViewProxy extends TiViewProxy
 				deleteContainer.setVisibility(showDeleteButtonEnabled ? View.VISIBLE : View.INVISIBLE);
 			}
 			if (badgeContainer != null) {
-				badgeContainer.setVisibility(View.INVISIBLE);
+				// Badge stays visible in edit mode;
 			}
 		}
 
@@ -1829,7 +1829,7 @@ public class ViewProxy extends TiViewProxy
 				BadgeView badgeView = (BadgeView) badgeViewObj;
 				badgeView.setBadgeCount(value);
 				if (badgeContainerObj instanceof View) {
-					((View) badgeContainerObj).setVisibility(value > 0 ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
+					((View) badgeContainerObj).setVisibility(value > 0 ? View.VISIBLE : View.GONE);
 				}
 			}
 		}
@@ -2137,7 +2137,7 @@ public class ViewProxy extends TiViewProxy
 			Object badgeView = item.get("badge_view");
 			Object badgeContainer = item.get("badge_container");
 			if (badgeContainer instanceof View) {
-				((View) badgeContainer).setVisibility(value ? (isInEditMode ? View.INVISIBLE : View.VISIBLE) : View.GONE);
+				((View) badgeContainer).setVisibility(value ? View.VISIBLE : View.GONE);
 			}
 		}
 	}
