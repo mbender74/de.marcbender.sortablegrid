@@ -25,6 +25,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.TiDimension;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -493,21 +494,14 @@ public class ViewProxy extends TiViewProxy
 
 		Log.d(LCAT, "buildItemHashMap pos=" + position + ": deleteButtonRef=" + (deleteButtonReference != null ? "non-null" : "NULL") + " canBeDeleted=" + canBeDeleted + " showDeleteBtn=" + showDeleteButtonEnabled + " hasProp_canBeDeleted=" + thisproxy.hasProperty(PROPERTY_CAN_BE_DELETED));
 
-		// Delete button
+		// Delete button — stored separately, added to holder.container in onBindViewHolder
 		if (deleteButtonReference != null && canBeDeleted && showDeleteButtonEnabled) {
 			float factor = context.getResources().getDisplayMetrics().density;
-			int diffWidth = cellWidthPx == ViewGroup.LayoutParams.MATCH_PARENT ? 0 : COLUMN_WIDTH - cellWidthPx;
-			TiCompositeLayout.LayoutParams layoutParamsButton = new TiCompositeLayout.LayoutParams();
-			TiDimension left = new TiDimension(TiConvert.toString(diffWidth / 2 - 5), TiDimension.TYPE_LEFT);
-			TiDimension top = new TiDimension(TiConvert.toString(0), TiDimension.TYPE_TOP);
-			layoutParamsButton.width = (int) (30 * factor);
-			layoutParamsButton.height = (int) (30 * factor);
-			layoutParamsButton.optionLeft = left;
-			layoutParamsButton.optionTop = top;
+			int buttonSizePx = (int) (30 * factor);
+			int buttonMarginPx = (int) (-5 * factor);
 
-			TiCompositeLayout buttonContainerLayout = new TiCompositeLayout(context);
 			RelativeLayout relativeLayout = new RelativeLayout(context);
-			RelativeLayout.LayoutParams layoutParamsImage = new RelativeLayout.LayoutParams((int) (30 * factor), (int) (30 * factor));
+			RelativeLayout.LayoutParams layoutParamsImage = new RelativeLayout.LayoutParams(buttonSizePx, buttonSizePx);
 
 			Bitmap b = deleteButtonReference.getBitmap(false, true);
 			final ImageView deleteButtonView = new ImageView(context);
@@ -517,12 +511,13 @@ public class ViewProxy extends TiViewProxy
 			deleteButtonView.setScaleType(ScaleType.CENTER_INSIDE);
 			relativeLayout.addView(deleteButtonView, layoutParamsImage);
 
-			buttonContainerLayout.setClipChildren(false);
-			buttonContainerLayout.setClipToPadding(false);
+			FrameLayout.LayoutParams deleteLp = new FrameLayout.LayoutParams(buttonSizePx, buttonSizePx);
+			deleteLp.gravity = Gravity.LEFT | Gravity.TOP;
+			deleteLp.leftMargin = buttonMarginPx;
+			deleteLp.topMargin = buttonMarginPx;
+
 			relativeLayout.setClipChildren(false);
 			relativeLayout.setClipToPadding(false);
-			buttonContainerLayout.addView(relativeLayout);
-			cellContainer.addView(buttonContainerLayout, layoutParamsButton);
 
 			final int pressedColorValue = TiConvert.toColor("#88d3413c", context);
 			deleteButtonView.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
@@ -562,6 +557,8 @@ public class ViewProxy extends TiViewProxy
 			});
 
 			itemHashMap.put("delete_button", deleteButtonView);
+			itemHashMap.put("delete_container", relativeLayout);
+			itemHashMap.put("delete_lp", deleteLp);
 			Log.d(LCAT, "buildItemHashMap pos=" + position + ": delete button CREATED");
 		} else {
 			Log.d(LCAT, "buildItemHashMap pos=" + position + ": SKIPPED delete button (deleteButtonRef=" + (deleteButtonReference != null ? "set" : "NULL") + " canBeDeleted=" + canBeDeleted + " showDeleteBtn=" + showDeleteButtonEnabled + ")");
@@ -1494,17 +1491,24 @@ public class ViewProxy extends TiViewProxy
 			HashMap<String, Object> item = dataSourceList.get(i);
 			View itemView = (View) item.get("item_view");
 			View deleteButton = (View) item.get("delete_button");
+			View deleteContainer = (View) item.get("delete_container");
 			View badgeView = (View) item.get("badge_view");
 			View badgeContainer = (View) item.get("badge_container");
 
 			if (deleteButton != null) {
 				deleteButton.setVisibility(View.INVISIBLE);
 			}
+			if (deleteContainer != null) {
+				deleteContainer.setVisibility(View.INVISIBLE);
+			}
 			if (badgeContainer != null && itemsBadgeEnabledFlag) {
 				badgeContainer.setVisibility(View.VISIBLE);
 			}
 			if (itemView != null && wobbleEnabled) {
 				itemView.setRotation(0f);
+				if (deleteContainer != null) {
+					deleteContainer.setRotation(0f);
+				}
 			}
 		}
 
@@ -1522,24 +1526,24 @@ public class ViewProxy extends TiViewProxy
 			mRecyclerAdapter.setShowDeleteButtons(showDeleteButtonEnabled);
 		}
 
+		// Set visibility immediately for responsive UI feedback.
+		// onBindViewHolder (triggered by notifyDataSetChanged below) handles
+		// wobble animation via ValueAnimator — do NOT call animateItem() here,
+		// as it creates duplicate animators that conflict with onBindViewHolder.
 		for (int i = 0; i < dataSourceList.size(); i++) {
 			HashMap<String, Object> item = dataSourceList.get(i);
-			View itemView = (View) item.get("item_view");
 			View deleteButton = (View) item.get("delete_button");
-			View badgeView = (View) item.get("badge_view");
+			View deleteContainer = (View) item.get("delete_container");
 			View badgeContainer = (View) item.get("badge_container");
-
-			Log.d(LCAT, "startEditing item[" + i + "]: delete_button=" + (deleteButton != null ? "exists" : "NULL") + " badge_view=" + (badgeView != null ? "exists" : "NULL"));
 
 			if (deleteButton != null) {
 				deleteButton.setVisibility(showDeleteButtonEnabled ? View.VISIBLE : View.INVISIBLE);
 			}
+			if (deleteContainer != null) {
+				deleteContainer.setVisibility(showDeleteButtonEnabled ? View.VISIBLE : View.INVISIBLE);
+			}
 			if (badgeContainer != null) {
 				badgeContainer.setVisibility(View.INVISIBLE);
-			}
-			if (itemView != null && wobbleEnabled) {
-				int rotation = (i % 2 == 0) ? 2 : -2;
-				animateItem(itemView, rotation);
 			}
 		}
 
@@ -2108,8 +2112,12 @@ public class ViewProxy extends TiViewProxy
 		for (int i = 0; i < dataSourceList.size(); i++) {
 			HashMap<String, Object> item = dataSourceList.get(i);
 			Object deleteBtn = item.get("delete_button");
+			Object deleteContainerObj = item.get("delete_container");
 			if (deleteBtn instanceof View) {
 				((View) deleteBtn).setVisibility(value && isInEditMode ? View.VISIBLE : View.INVISIBLE);
+			}
+			if (deleteContainerObj instanceof View) {
+				((View) deleteContainerObj).setVisibility(value && isInEditMode ? View.VISIBLE : View.INVISIBLE);
 			}
 		}
 	}
