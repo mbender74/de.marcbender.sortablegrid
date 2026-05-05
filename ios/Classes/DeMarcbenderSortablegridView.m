@@ -582,8 +582,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             [self pushWithGroup:1 sizeObj:nil itemsCount:(int)cellData.count];
         }
         else {
-            //NSLog(@"[ERROR] empty Data set  ");
-
+            cellData = [NSMutableArray array];
+            [self pushWithGroup:1 sizeObj:nil itemsCount:0];
         }
 
     }

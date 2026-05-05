@@ -35,6 +35,7 @@ public class ItemProxy extends TiViewProxy
 	private boolean canBeDeleted = true;
 	private boolean canBeMoved = true;
 	private int badgeTintColor = 0xFFFF0000; // red
+	private ViewProxy gridViewProxy = null;
 
 	public ItemProxy()
 	{
@@ -108,7 +109,10 @@ public class ItemProxy extends TiViewProxy
 	{
 		badgeValue = value;
 		// If the item is already in the grid, update the badge view
-		ViewProxy parentProxy = getParentViewProxy();
+		ViewProxy parentProxy = gridViewProxy;
+		if (parentProxy == null) {
+			parentProxy = getParentViewProxy();
+		}
 		if (parentProxy != null) {
 			int pos = getPosition();
 			if (pos >= 0) {
@@ -129,6 +133,16 @@ public class ItemProxy extends TiViewProxy
 	public void setBadge(boolean value)
 	{
 		badgeEnabled = value;
+		ViewProxy parentProxy = gridViewProxy;
+		if (parentProxy == null) {
+			parentProxy = getParentViewProxy();
+		}
+		if (parentProxy != null) {
+			int pos = getPosition();
+			if (pos >= 0) {
+				parentProxy.updateBadgeVisibility(pos, value && badgeValue > 0);
+			}
+		}
 	}
 
 	// ---- canBeDeleted property ----
@@ -172,6 +186,16 @@ public class ItemProxy extends TiViewProxy
 	{
 		if (color != null) {
 			badgeTintColor = TiConvert.toColor(color, getActivity());
+			ViewProxy parentProxy = gridViewProxy;
+			if (parentProxy == null) {
+				parentProxy = getParentViewProxy();
+			}
+			if (parentProxy != null) {
+				int pos = getPosition();
+				if (pos >= 0) {
+					parentProxy.updateBadgeTintColor(pos, badgeTintColor);
+				}
+			}
 		}
 	}
 
@@ -195,5 +219,10 @@ public class ItemProxy extends TiViewProxy
 			return (ViewProxy) getParent();
 		}
 		return null;
+	}
+
+	public void setGridViewProxy(ViewProxy proxy)
+	{
+		gridViewProxy = proxy;
 	}
 }

@@ -176,6 +176,7 @@ public class ViewProxy extends TiViewProxy
 						mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 						if (dataPending || dataSourceList.size() == 0) {
 							dataPending = false;
+							linkItemsToGridProxy();
 							dataSourceList.clear();
 							if (skipGenericRebuild) {
 								Log.d(LCAT, "buildGridItems (deferred): skipping generic rebuild");
@@ -1340,6 +1341,7 @@ public class ViewProxy extends TiViewProxy
 						itemsList.add(o);
 					}
 				}
+				linkItemsToGridProxy();
 				buildGridItems();
 			}
 
@@ -1625,6 +1627,7 @@ public class ViewProxy extends TiViewProxy
 		if (viewProxy != null) {
 			HashMap<String, Object> newItem = buildItemHashMap(viewProxy, clampedIndex);
 			if (newItem != null) {
+				if (item instanceof ItemProxy) { ((ItemProxy) item).setGridViewProxy(this); }
 				if (animated && mRecyclerAdapter != null) {
 					// Animated insert: adapter's addItem() handles dataSourceList addition + notifyItemInserted
 					itemsList.add(clampedIndex, item);
@@ -1855,6 +1858,26 @@ public class ViewProxy extends TiViewProxy
 				if (badgeContainerObj instanceof View) {
 					((View) badgeContainerObj).setVisibility(value > 0 ? View.VISIBLE : View.GONE);
 				}
+			}
+		}
+	}
+
+	public void updateBadgeTintColor(int index, int color) {
+		if (index >= 0 && index < dataSourceList.size()) {
+			HashMap<String, Object> item = dataSourceList.get(index);
+			Object badgeViewObj = item.get("badge_view");
+			if (badgeViewObj instanceof BadgeView) {
+				((BadgeView) badgeViewObj).setBadgeBackground(color);
+			}
+		}
+	}
+
+	public void updateBadgeVisibility(int index, boolean visible) {
+		if (index >= 0 && index < dataSourceList.size()) {
+			HashMap<String, Object> item = dataSourceList.get(index);
+			Object badgeContainerObj = item.get("badge_container");
+			if (badgeContainerObj instanceof View) {
+				((View) badgeContainerObj).setVisibility(visible ? View.VISIBLE : View.GONE);
 			}
 		}
 	}
@@ -2099,6 +2122,15 @@ public class ViewProxy extends TiViewProxy
 
 	// Property setters and getters
 
+	private void linkItemsToGridProxy() {
+		if (itemsList == null) return;
+		for (Object item : itemsList) {
+			if (item instanceof ItemProxy) {
+				((ItemProxy) item).setGridViewProxy(this);
+			}
+		}
+	}
+
 	@Kroll.setProperty
 	@Kroll.method
 	public void setData(Object[] items) {
@@ -2111,6 +2143,7 @@ public class ViewProxy extends TiViewProxy
 				itemsList.add(item);
 			}
 		}
+		linkItemsToGridProxy();
 		dataSourceList.clear();
 		if (items == null || items.length == 0) {
 			// Empty data: notify adapter so RecyclerView clears
