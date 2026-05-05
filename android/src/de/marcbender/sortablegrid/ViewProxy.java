@@ -872,7 +872,8 @@ public class ViewProxy extends TiViewProxy
 					int orientation = "horizontal".equalsIgnoreCase(scrollType)
 						? StaggeredGridLayoutManager.HORIZONTAL
 						: StaggeredGridLayoutManager.VERTICAL;
-					mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(num_colums, orientation);
+					int staggerSpan = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+					mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(staggerSpan, orientation);
 					mStaggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
 					mLayoutManager = mStaggeredGridLayoutManager;
 					mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
@@ -1184,7 +1185,8 @@ public class ViewProxy extends TiViewProxy
 				if (mRecyclerView != null) {
 				}
 				if (mStaggeredGridLayoutManager != null) {
-					mStaggeredGridLayoutManager.setSpanCount(num_colums);
+					int staggerSpan = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+					mStaggeredGridLayoutManager.setSpanCount(staggerSpan);
 				}
 				if (mGridLayoutManager != null) {
 					// In horizontal mode, spanCount = rowCount (rows are the span direction)
@@ -1200,6 +1202,9 @@ public class ViewProxy extends TiViewProxy
 				// rowCount determines items per page in horizontal mode
 				if (mGridLayoutManager != null && "horizontal".equalsIgnoreCase(scrollType)) {
 					mGridLayoutManager.setSpanCount(row_count);
+				}
+				if (mStaggeredGridLayoutManager != null && "horizontal".equalsIgnoreCase(scrollType)) {
+					mStaggeredGridLayoutManager.setSpanCount(row_count);
 				}
 			}
 			if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
@@ -1382,7 +1387,10 @@ public class ViewProxy extends TiViewProxy
 			if (options.containsKey(PROPERTY_COLUMNS)) {
 				num_colums = TiConvert.toInt(options.get(PROPERTY_COLUMNS), 3);
 			}
-			Log.d(LCAT, "handleCreationDict: waterFallLayoutFlag=" + waterFallLayoutFlag + " scrollType=" + scrollType + " num_colums=" + num_colums);
+			if (options.containsKey(PROPERTY_ROW_COUNT)) {
+				row_count = TiConvert.toInt(options.get(PROPERTY_ROW_COUNT), 4);
+			}
+			Log.d(LCAT, "handleCreationDict: waterFallLayoutFlag=" + waterFallLayoutFlag + " scrollType=" + scrollType + " num_colums=" + num_colums + " row_count=" + row_count);
 		}
 	}
 
@@ -1852,7 +1860,8 @@ public class ViewProxy extends TiViewProxy
 		if (count > 0) {
 			num_colums = count;
 			if (mStaggeredGridLayoutManager != null) {
-				mStaggeredGridLayoutManager.setSpanCount(count);
+				int staggerSpan = "horizontal".equalsIgnoreCase(scrollType) ? row_count : count;
+				mStaggeredGridLayoutManager.setSpanCount(staggerSpan);
 			}
 			if (mGridLayoutManager != null) {
 				// In horizontal mode, spanCount = rowCount (rows are the span direction)
