@@ -19,10 +19,13 @@
 @interface TopAlignedCollectionViewFlowLayout : UICollectionViewFlowLayout {
     NSInteger lastPagesCount;
     CGSize lastContentSize;
-
+    NSArray *cachedAttributes;
+    CGSize cachedContentSize;
 }
 @property (nonatomic, assign) ScrollDirection scrolldirection;
 @property (nonatomic, assign) BOOL pagingEnabled;
+@property (nonatomic, assign) NSInteger rowCount;
+@property (nonatomic, assign) NSInteger columnCount;
 
 @end
 
@@ -31,24 +34,30 @@
 -(id)init {
     if (!(self = [super init])) return nil;
     lastPagesCount = 1;
+    _rowCount = 0;
+    _columnCount = 0;
 
     return self;
 }
 
+- (void)invalidateLayout {
+    cachedAttributes = nil;
+    [super invalidateLayout];
+}
+
 - (CGSize)collectionViewContentSize
 {
+    if (self.scrolldirection == mkScrollHorizontal && self.rowCount > 0 && cachedAttributes != nil) {
+        return cachedContentSize;
+    }
+
     CGSize size = [super collectionViewContentSize];
     if (self.scrolldirection == mkScrollVertical) {
-        //if (self.pagingEnabled == YES){
             NSInteger pagesCount = ceil(size.height / self.collectionView.frame.size.height);
-            
-        
-            if (pagesCount != lastPagesCount){
-               // NSLog(@"[WARN] pagesCount: %i ",pagesCount);
-              //  NSLog(@"[WARN] lastPagesCount: %i ",lastPagesCount);
 
+            if (pagesCount != lastPagesCount){
                 CGFloat contentHeight;
-                
+
                 contentHeight = (pagesCount * (self.collectionView.frame.size.height))-self.collectionView.contentInset.top-self.collectionView.contentInset.bottom;
                 lastPagesCount = pagesCount;
 
@@ -59,15 +68,10 @@
 
                 lastContentSize = size;
             }
-        //}
-       // else {
-        //    lastContentSize = size;
-       // }
-        
+
         return lastContentSize;
     }
     else {
-        //if (self.pagingEnabled == YES){
             NSInteger pagesCount = ceil(size.width / self.collectionView.frame.size.width);
             if (pagesCount != lastPagesCount){
                 CGFloat contentWidth = (pagesCount * (self.collectionView.frame.size.width))-self.collectionView.contentInset.left-self.collectionView.contentInset.right;
@@ -79,16 +83,83 @@
 
                 lastContentSize = size;
             }
-        //}
-       // else {
-        //    lastContentSize = size;
-        //}
         return lastContentSize;
     }
 }
 
-@end
+- (void)prepareLayout {
+    [super prepareLayout];
 
+    if (self.scrolldirection != mkScrollHorizontal || self.rowCount <= 0) return;
+
+    NSUInteger count = [self.collectionView numberOfItemsInSection:0];
+    if (count == 0) {
+        cachedAttributes = @[];
+        cachedContentSize = CGSizeZero;
+        return;
+    }
+
+    CGFloat viewWidth = self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
+    CGFloat viewHeight = self.collectionView.frame.size.height - self.sectionInset.top - self.sectionInset.bottom;
+
+    NSInteger itemsPerPage = self.columnCount * self.rowCount;
+    if (itemsPerPage <= 0) itemsPerPage = 1;
+
+    CGFloat itemW = (viewWidth - self.minimumLineSpacing * (self.columnCount - 1)) / self.columnCount;
+    CGFloat itemH = (viewHeight - self.minimumInteritemSpacing * (self.rowCount - 1)) / self.rowCount;
+
+    NSMutableArray *attrs = [NSMutableArray arrayWithCapacity:count];
+    CGFloat maxRight = 0;
+
+    for (NSUInteger i = 0; i < count; i++) {
+        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+        UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+
+        NSInteger page = i / itemsPerPage;
+        NSInteger posInPage = i % itemsPerPage;
+        NSInteger col = posInPage / self.rowCount;
+        NSInteger row = posInPage % self.rowCount;
+
+        CGFloat pageOffset = page * (self.collectionView.frame.size.width);
+        CGFloat x = pageOffset + self.sectionInset.left + col * (itemW + self.minimumLineSpacing);
+        CGFloat y = self.sectionInset.top + row * (itemH + self.minimumInteritemSpacing);
+
+        attr.frame = CGRectMake(x, y, itemW, itemH);
+        [attrs addObject:attr];
+
+        CGFloat itemRight = x + itemW;
+        if (itemRight > maxRight) maxRight = itemRight;
+    }
+
+    cachedAttributes = attrs.copy;
+    NSInteger pagesCount = (count + itemsPerPage - 1) / itemsPerPage;
+    CGFloat contentWidth = pagesCount * self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
+    cachedContentSize = CGSizeMake(contentWidth, self.collectionView.frame.size.height - self.collectionView.contentInset.top - self.collectionView.contentInset.bottom);
+}
+
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+    if (self.scrolldirection == mkScrollHorizontal && self.rowCount > 0 && cachedAttributes != nil) {
+        NSMutableArray *result = [NSMutableArray array];
+        for (UICollectionViewLayoutAttributes *attr in cachedAttributes) {
+            if (CGRectIntersectsRect(rect, attr.frame)) {
+                [result addObject:attr];
+            }
+        }
+        return result.copy;
+    }
+    return [super layoutAttributesForElementsInRect:rect];
+}
+
+- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (self.scrolldirection == mkScrollHorizontal && self.rowCount > 0 && cachedAttributes != nil) {
+        if (indexPath.item < (NSInteger)cachedAttributes.count) {
+            return cachedAttributes[indexPath.item];
+        }
+    }
+    return [super layoutAttributesForItemAtIndexPath:indexPath];
+}
+
+@end
 
 
 
@@ -127,6 +198,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
       canScroll = YES;
       scrollToBottomAfterSetData = NO;
       columnCount = 1;
+      rowCount = 2;
       _columnsCount = 1;
       _initDone = NO;
       self.leftInset = 0;
@@ -210,6 +282,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
       
       horizontalSpacing = [TiUtils floatValue:[self.proxy valueForKey:@"minHorizontalSpacing"] def:kGridDefaultHorizonatalSpacing];
       verticalSpacing = [TiUtils floatValue:[self.proxy valueForKey:@"minVerticalSpacing"] def:kGridDefaultVerticalSpacing];
+      rowCount = [TiUtils floatValue:[self.proxy valueForKey:@"rowCount"] def:2];
       
       
       if (showDeleteButton == YES && horizontalSpacing <= 20 || itemsBadgeEnabled == YES && horizontalSpacing <= 20){
@@ -238,6 +311,8 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
           
           layout.direction = scrollDirection;
           layout.columnCount = [self numberOfColumns];
+          layout.visualColumnCount = columnCount;
+          layout.rowCount = rowCount;
           layout.showDeleteButton = showDeleteButton;
           waterfallLayout = layout;
 
@@ -280,8 +355,22 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
            TopAlignedCollectionViewFlowLayout *layout = [[TopAlignedCollectionViewFlowLayout alloc] init];
           layout.scrollDirection = self.collectionViewScrollDirection;
           layout.scrolldirection = scrollDirection;
-          layout.minimumLineSpacing = verticalSpacing;
-          layout.minimumInteritemSpacing = horizontalSpacing;
+          // For horizontal scroll, UICollectionViewFlowLayout swaps the meaning:
+          // minimumLineSpacing = gap between columns (horizontal), minimumInteritemSpacing = gap between items in column (vertical)
+          if (scrollDirection == mkScrollHorizontal) {
+              layout.minimumLineSpacing = horizontalSpacing;
+              layout.minimumInteritemSpacing = verticalSpacing;
+              // Set sectionInset for vertical padding so flow layout's available height matches item sizing
+              CGFloat topPad = (showDeleteButton == YES || itemsBadgeEnabled == YES) ? (verticalSpacing/2) : 0;
+              CGFloat bottomPad = 0;
+              if (pagerEnabled == YES) { bottomPad = 30; }
+              layout.sectionInset = UIEdgeInsetsMake(topPad, 0, bottomPad, 0);
+              layout.rowCount = (NSInteger)rowCount;
+              layout.columnCount = (NSInteger)columnCount;
+          } else {
+              layout.minimumLineSpacing = verticalSpacing;
+              layout.minimumInteritemSpacing = horizontalSpacing;
+          }
           layout.pagingEnabled = pagingEnabled;
           
        //   layout.estimatedItemSize = UICollectionViewFlowLayoutAutomaticSize;
@@ -292,12 +381,23 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
           
           if (showDeleteButton == YES || itemsBadgeEnabled == YES) {
               UIEdgeInsets sectionInset;
-              
-              if (pagerEnabled == YES){
-                  sectionInset = UIEdgeInsetsMake((verticalSpacing/2), (horizontalSpacing/2), 30, (horizontalSpacing/2));
+
+              if (scrollDirection == mkScrollHorizontal){
+                  // For horizontal scroll, vertical padding is handled by layout.sectionInset, not contentInset
+                  if (pagerEnabled == YES){
+                      sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 30, (horizontalSpacing/2));
+                  }
+                  else {
+                      sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 0, (horizontalSpacing/2));
+                  }
               }
               else {
-                  sectionInset = UIEdgeInsetsMake((verticalSpacing/2), (horizontalSpacing/2), 0, (horizontalSpacing/2));
+                  if (pagerEnabled == YES){
+                      sectionInset = UIEdgeInsetsMake((verticalSpacing/2), (horizontalSpacing/2), 30, (horizontalSpacing/2));
+                  }
+                  else {
+                      sectionInset = UIEdgeInsetsMake((verticalSpacing/2), (horizontalSpacing/2), 0, (horizontalSpacing/2));
+                  }
               }
               [launcher setContentInset:sectionInset];
 
@@ -311,12 +411,23 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
           }
           else {
               UIEdgeInsets sectionInset;
-              
-              if (pagerEnabled == YES){
-                  sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 30, (horizontalSpacing/2));
+
+              if (scrollDirection == mkScrollHorizontal){
+                  // For horizontal scroll, vertical padding is handled by layout.sectionInset, not contentInset
+                  if (pagerEnabled == YES){
+                      sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 30, (horizontalSpacing/2));
+                  }
+                  else {
+                      sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 0, (horizontalSpacing/2));
+                  }
               }
               else {
-                  sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 0, (horizontalSpacing/2));
+                  if (pagerEnabled == YES){
+                      sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 30, (horizontalSpacing/2));
+                  }
+                  else {
+                      sectionInset = UIEdgeInsetsMake(0, (horizontalSpacing/2), 0, (horizontalSpacing/2));
+                  }
               }
               [launcher setContentInset:sectionInset];
 
@@ -393,6 +504,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
   return columnCount;
 }
 
+
 - (void)setRefreshControl_:(id)refreshControl
 {
 #ifdef USE_TI_UIREFRESHCONTROL
@@ -410,6 +522,34 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 - (void)setColumnCount_:(id)value
 {
     columnCount = [TiUtils floatValue:value];
+}
+
+- (void)setRowCount_:(id)value
+{
+    rowCount = [TiUtils floatValue:value];
+    if (launcher != nil && scrollDirection == mkScrollHorizontal) {
+        if (waterfallLayout != nil) {
+            waterfallLayout.columnCount = [self numberOfColumns];
+            waterfallLayout.visualColumnCount = columnCount;
+            waterfallLayout.rowCount = rowCount;
+            [waterfallLayout doPrepareLayout];
+        } else {
+            // For non-waterfall layout, update flow layout properties and invalidate
+            TopAlignedCollectionViewFlowLayout *flowLayout = (TopAlignedCollectionViewFlowLayout *)launcher.collectionViewLayout;
+            if (flowLayout) {
+                flowLayout.rowCount = (NSInteger)rowCount;
+                flowLayout.columnCount = (NSInteger)columnCount;
+                // Update sectionInset top padding for the new rowCount
+                CGFloat topPad = (showDeleteButton == YES || itemsBadgeEnabled == YES) ? (verticalSpacing/2) : 0;
+                CGFloat bottomPad = flowLayout.sectionInset.bottom;
+                flowLayout.sectionInset = UIEdgeInsetsMake(topPad, flowLayout.sectionInset.left, bottomPad, flowLayout.sectionInset.right);
+                [flowLayout invalidateLayout];
+            }
+        }
+        insetsCalcDone = NO;
+        cellWidth = [self calcMaxCellWidth];
+        [launcher reloadData];
+    }
 }
 
 - (void)setScrollType_:(id)value
@@ -1244,7 +1384,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             cellFrame.size.width = cellWidth - 40 - launcher.contentInset.left;
             
             cellFrame.size.height = [cellItemProxy minimumParentHeightForSize:CGSizeMake(cellFrame.size.width, launcher.frame.size.height)];
-            
+
         }
         else {
             cellFrame.size.width = newWidth;
@@ -1303,6 +1443,19 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     [cellItemProxy windowDidOpen];
 
     
+    CGFloat storedHeight = cellViewContainer.frame.size.height;
+    if (scrollDirection == mkScrollHorizontal && rowCount > 0 && self.waterFallLayout == NO) {
+        // Use the layout's sectionInset so item sizing matches the flow layout's available space
+        UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)launcher.collectionViewLayout;
+        CGFloat availableHeight = launcher.frame.size.height - flowLayout.sectionInset.top - flowLayout.sectionInset.bottom;
+        CGFloat verticalGap = flowLayout.minimumInteritemSpacing;
+        CGFloat maxCellH = floorf((availableHeight - (verticalGap * (rowCount - 1))) / rowCount);
+        if (storedHeight != maxCellH) {
+            cellViewContainer.frame = CGRectMake(cellViewContainer.frame.origin.x, cellViewContainer.frame.origin.y, cellViewContainer.frame.size.width, maxCellH);
+            storedHeight = maxCellH;
+        }
+    }
+
     return @{@"id" : [NSNumber numberWithInteger:index],
              @"canBeDeleted" : [NSNumber numberWithInt:canBeDeleted],
              @"canBeMoved" : [NSNumber numberWithInt:canBeMoved],
@@ -1312,7 +1465,7 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
              @"cellview" : cellViewContainer,
              @"cellOriginX" : [NSNumber numberWithFloat:cellOriginX],
              @"cellItemProxy" : cellItemProxy,
-             @"size" :[NSValue valueWithCGSize:CGSizeMake(cellWidth,cellViewContainer.frame.size.height)]};
+             @"size" :[NSValue valueWithCGSize:CGSizeMake(cellWidth,storedHeight)]};
 }
 
 
@@ -1837,9 +1990,17 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    
+
     CGSize cellSizeForItem = [self.dataSource[indexPath.section][indexPath.item][@"size"] CGSizeValue];
-    
+
+    if (scrollDirection == mkScrollHorizontal && rowCount > 0 && self.waterFallLayout == NO) {
+        // Use the layout's sectionInset so item sizing matches the flow layout's available space
+        CGFloat availableHeight = collectionView.frame.size.height - collectionViewLayout.sectionInset.top - collectionViewLayout.sectionInset.bottom;
+        CGFloat verticalGap = collectionViewLayout.minimumInteritemSpacing;
+        CGFloat maxCellH = floorf((availableHeight - (verticalGap * (rowCount - 1))) / rowCount);
+        cellSizeForItem.height = maxCellH;
+    }
+
     return cellSizeForItem;
 }
 
