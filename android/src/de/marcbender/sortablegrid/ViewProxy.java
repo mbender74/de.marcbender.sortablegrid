@@ -1434,8 +1434,12 @@ public class ViewProxy extends TiViewProxy
 				}
 				if (position >= 0) {
 					Log.d(LCAT, "deleteItem: removing position=" + position + " id=" + id);
+					if (itemsList != null && position < itemsList.size()) {
+						itemsList.remove(position);
+					}
 					if (mRecyclerAdapter != null) {
 						mRecyclerAdapter.removeItem(position);
+						updateItemPositions();
 						final Object itemId = id;
 						mRecyclerView.post(new Runnable() {
 							@Override
@@ -1829,7 +1833,14 @@ public class ViewProxy extends TiViewProxy
 			itemsList = new ArrayList<Object>(listData);
 		}
 		dataSourceList.clear();
-		buildGridItems();
+		if (itemsList == null || itemsList.isEmpty()) {
+			if (mRecyclerAdapter != null) {
+				mRecyclerAdapter.notifyDataSetChanged();
+			}
+			updateItemPositions();
+		} else {
+			buildGridItems();
+		}
 	}
 
 	@Kroll.method
@@ -2091,6 +2102,7 @@ public class ViewProxy extends TiViewProxy
 	@Kroll.setProperty
 	@Kroll.method
 	public void setData(Object[] items) {
+		skipGenericRebuild = false;
 		Log.d(LCAT, "setData called with " + (items != null ? items.length : "null") + " items");
 		itemsList = new ArrayList<Object>();
 		if (items != null) {
@@ -2100,7 +2112,18 @@ public class ViewProxy extends TiViewProxy
 			}
 		}
 		dataSourceList.clear();
-		buildGridItems();
+		if (items == null || items.length == 0) {
+			// Empty data: notify adapter so RecyclerView clears
+			if (mRecyclerAdapter != null) {
+				mRecyclerAdapter.notifyDataSetChanged();
+			}
+			if (mRecyclerView != null) {
+				mRecyclerView.getRecycledViewPool().clear();
+			}
+			updateItemPositions();
+		} else {
+			buildGridItems();
+		}
 	}
 
 	@Kroll.getProperty
