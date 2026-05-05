@@ -121,7 +121,11 @@
 
     */
 
-    itemwidth = ((contentWidth) - (self.minimumInteritemSpacing * (CGFloat)(self.columnCount - 1))) / (CGFloat)self.columnCount;
+    NSInteger widthColumnCount = self.columnCount;
+    if (scrolldirection == mkScrollHorizontal && self.visualColumnCount > 0) {
+        widthColumnCount = self.visualColumnCount;
+    }
+    itemwidth = ((contentWidth) - (self.minimumInteritemSpacing * (CGFloat)(widthColumnCount - 1))) / (CGFloat)widthColumnCount;
     
    // TiThreadPerformOnMainThread(^{
         [self computeAttributesWithItemWidth:itemwidth];
@@ -176,7 +180,39 @@
 
         }
         else {
-            column = [self shortestColumnHorizontal:columnHeight];
+            // When rowCount is set, use count-based column selection
+            if (self.rowCount > 0) {
+                // Find first column with fewer than rowCount items on this page
+                NSInteger fitColumn = -1;
+                for (int i = 0; i < self.columnCount; i++) {
+                    if (columnItemCount[i] < self.rowCount) {
+                        fitColumn = i;
+                        break;
+                    }
+                }
+                if (fitColumn >= 0) {
+                    column = fitColumn;
+                } else {
+                    // All columns full — start new page
+                    self.contentWidth = self.contentWidth + (self.collectionView.frame.size.width);
+                    self.pagesCount = self.pagesCount + 1;
+
+                    if (columnHeight) free(columnHeight);
+                    if (columnItemCount) free(columnItemCount);
+
+                    columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
+                    columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
+
+                    for (int k = 0; k < self.columnCount; k++) {
+                        columnHeight[k] = topInset;
+                        columnItemCount[k] = 0;
+                    }
+                    column = 0;
+                }
+            }
+            else {
+                column = [self shortestColumnHorizontal:columnHeight];
+            }
 
             if (self.showDeleteButton == NO){
                 itemX = roundf(self.contentWidth + (itemWidth+(self.minimumInteritemSpacing)) * column);
@@ -219,8 +255,13 @@
 
         }
         else {
-
-            if ((columnHeight[column]+(itemH)) > maxHeight){
+            // When rowCount is set, column selection is count-based (handled above),
+            // so skip the height-based page check
+            if (self.rowCount > 0) {
+                columnItemCount[column]++;
+                columnHeight[column] += (itemH + self.minimumLineSpacing);
+            }
+            else if ((columnHeight[column]+(itemH)) > maxHeight){
                 
              //   NSLog(@"[WARN] computeAttributesWithItemWidth Horizontal GREATER %f  %f: ",columnHeight[column]+(itemH + self.minimumLineSpacing), self.contentHeight);
                 NSInteger newcolumn = [self shortestColumnThatFitsPage:columnHeight withPageHeight:maxHeight withItemHeight:(itemH)];
@@ -244,7 +285,7 @@
                     columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
 
                     for (int k = 0; k < self.columnCount; k++) {
-                        columnHeight[k] = 0;
+                        columnHeight[k] = topInset;
                         columnItemCount[k] = 0;
                     }
                     column = [self shortestColumnHorizontal:columnHeight];
