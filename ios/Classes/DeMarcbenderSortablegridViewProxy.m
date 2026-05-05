@@ -95,12 +95,12 @@
 
 - (void)startEditing:(id)args
 {
-  [self makeViewPerformSelector:@selector(startEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(startEditing) withObject:nil createIfNeeded:YES waitUntilDone:YES];
 }
 
 - (void)stopEditing:(id)args
 {
-  [self makeViewPerformSelector:@selector(stopEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(stopEditing) withObject:nil createIfNeeded:YES waitUntilDone:YES];
 }
 
 - (void)initData:(id)args
