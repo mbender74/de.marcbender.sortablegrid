@@ -1187,7 +1187,9 @@ public class ViewProxy extends TiViewProxy
 					mStaggeredGridLayoutManager.setSpanCount(num_colums);
 				}
 				if (mGridLayoutManager != null) {
-					mGridLayoutManager.setSpanCount(num_colums);
+					// In horizontal mode, spanCount = rowCount (rows are the span direction)
+					int gridSpan = "horizontal".equalsIgnoreCase(scrollType) ? row_count : num_colums;
+					mGridLayoutManager.setSpanCount(gridSpan);
 				}
 				if (mSpacingDecoration != null) {
 					mSpacingDecoration.setSpanCount(num_colums);
@@ -1196,6 +1198,9 @@ public class ViewProxy extends TiViewProxy
 			if (d.containsKey(PROPERTY_ROW_COUNT)) {
 				row_count = TiConvert.toInt(d.get(PROPERTY_ROW_COUNT), 4);
 				// rowCount determines items per page in horizontal mode
+				if (mGridLayoutManager != null && "horizontal".equalsIgnoreCase(scrollType)) {
+					mGridLayoutManager.setSpanCount(row_count);
+				}
 			}
 			if (d.containsKey(PROPERTY_DELETE_BUTTON_IMAGE)) {
 				if (mRecyclerAdapter != null) {
@@ -1850,7 +1855,9 @@ public class ViewProxy extends TiViewProxy
 				mStaggeredGridLayoutManager.setSpanCount(count);
 			}
 			if (mGridLayoutManager != null) {
-				mGridLayoutManager.setSpanCount(count);
+				// In horizontal mode, spanCount = rowCount (rows are the span direction)
+				int gridSpan = "horizontal".equalsIgnoreCase(scrollType) ? row_count : count;
+				mGridLayoutManager.setSpanCount(gridSpan);
 			}
 		}
 	}
