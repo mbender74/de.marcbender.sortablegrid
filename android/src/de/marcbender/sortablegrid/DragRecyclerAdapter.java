@@ -354,6 +354,18 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cellWidth, FrameLayout.LayoutParams.WRAP_CONTENT);
 				holder.container.addView(itemView, lp);
 
+				// Add delete button container on top in the holder container (FrameLayout)
+				Object deleteContainerObj = itemData.get("delete_container");
+				Object deleteLpObj = itemData.get("delete_lp");
+				if (deleteContainerObj instanceof View && deleteLpObj instanceof FrameLayout.LayoutParams) {
+					View deleteContainer = (View) deleteContainerObj;
+					FrameLayout.LayoutParams deleteLp = (FrameLayout.LayoutParams) deleteLpObj;
+					if (deleteContainer.getParent() != null) {
+						((ViewGroup) deleteContainer.getParent()).removeView(deleteContainer);
+					}
+					holder.container.addView(deleteContainer, deleteLp);
+				}
+
 				// Add badge container on top in the holder container (FrameLayout)
 				// so it draws above neighboring cells and isn't clipped.
 				// Elevation ensures cells with badges draw above cells without.
@@ -469,19 +481,16 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		// Update visibility for delete button and badge
 		updateItemVisibility(itemData);
 
-		// Wobble animation in edit mode (native ValueAnimator with listener)
-		if (isInEditMode && wobbleEnabled) {
-			Object itemViewObj2 = itemData.get("item_view");
-			if (itemViewObj2 instanceof View) {
-				View itemView = (View) itemViewObj2;
+			// Wobble animation in edit mode: animate holder.container so all children
+			// (item_view, delete_container, badge) wobble together.
+			if (isInEditMode && wobbleEnabled) {
+				View containerView = holder.container;
 				int rotation = (position % 2 == 0) ? 2 : -2;
-				// Cancel any existing animator for this view before creating a new one
-				Animator existingAnimator = viewAnimations.remove(itemView);
+				// Cancel any existing animator for this container before creating a new one
+				Animator existingAnimator = viewAnimations.remove(containerView);
 				if (existingAnimator != null && existingAnimator.isRunning()) {
 					existingAnimator.cancel();
 				}
-				// Use ValueAnimator with a listener that manually sets rotation.
-				// This gives us full control over the animation state.
 				final int finalRotation = rotation;
 				ValueAnimator animator = new ValueAnimator();
 				animator.setFloatValues(finalRotation, -finalRotation);
@@ -489,19 +498,17 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 				animator.setRepeatMode(ValueAnimator.REVERSE);
 				animator.setRepeatCount(ValueAnimator.INFINITE);
 				animator.addUpdateListener(animation -> {
-					if (itemView != null) {
-						itemView.setRotation((Float) animation.getAnimatedValue());
+					if (containerView != null) {
+						containerView.setRotation((Float) animation.getAnimatedValue());
 					}
 				});
 				animator.start();
-				viewAnimations.put(itemView, animator);
+				viewAnimations.put(containerView, animator);
 				animationsList.add(animator);
 				d("onBindViewHolder: started wobble animation on pos=" + position + " rotation=" + rotation);
+			} else if (!isInEditMode && wobbleEnabled) {
+				holder.container.setRotation(0f);
 			}
-		} else if (!isInEditMode && wobbleEnabled && itemViewObj instanceof View) {
-			((View) itemViewObj).setRotation(0f);
-		}
-
 		holder.setCanBeDeleted(itemData.containsKey("canBeDeleted") && Boolean.TRUE.equals(itemData.get("canBeDeleted")));
 		holder.setCanBeMoved(itemData.containsKey("canBeMoved") && Boolean.TRUE.equals(itemData.get("canBeMoved")));
 		holder.setItemPosition(position);
@@ -581,6 +588,10 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		Object deleteBtnObj = itemData.get("delete_button");
 		if (deleteBtnObj instanceof View) {
 			((View) deleteBtnObj).setVisibility(isInEditMode && showDeleteButtons ? View.VISIBLE : View.INVISIBLE);
+		}
+		Object deleteContainerObj = itemData.get("delete_container");
+		if (deleteContainerObj instanceof View) {
+			((View) deleteContainerObj).setVisibility(isInEditMode && showDeleteButtons ? View.VISIBLE : View.INVISIBLE);
 		}
 		Object badgeObj = itemData.get("badge_container");
 		if (badgeObj instanceof View) {
@@ -707,17 +718,18 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		}
 		viewAnimations.clear();
 
-		// Explicitly reset rotation to 0 on all item views.
-		// ValueAnimator doesn't modify view properties directly,
-		// so the rotation stays at the last animated value.
-		for (int i = 0; i < dataSourceList.size(); i++) {
-			HashMap<String, Object> item = dataSourceList.get(i);
-			Object itemViewObj = item.get("item_view");
-			if (itemViewObj instanceof View) {
-				((View) itemViewObj).setRotation(0f);
+		// Reset rotation on visible containers (we animate holder.container for wobble).
+		if (recyclerView != null) {
+			for (int i = 0; i < recyclerView.getChildCount(); i++) {
+				View child = recyclerView.getChildAt(i);
+				if (child != null) {
+					DragViewHolder holder = (DragViewHolder) recyclerView.getChildViewHolder(child);
+					if (holder != null && holder.container != null) {
+						holder.container.setRotation(0f);
+					}
+				}
 			}
 		}
-		d("stopWobble: done, reset rotation on " + dataSourceList.size() + " items");
 	}
 
 	/**
@@ -733,13 +745,7 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 			if (child != null) {
 				DragViewHolder holder = (DragViewHolder) recyclerView.getChildViewHolder(child);
 				if (holder != null && holder.container != null) {
-					// The item_view is the first child of the container
-					if (holder.container.getChildCount() > 0) {
-						View itemView = holder.container.getChildAt(0);
-						if (itemView != null) {
-							itemView.setRotation(0f);
-						}
-					}
+					holder.container.setRotation(0f);
 				}
 			}
 		}
@@ -755,10 +761,14 @@ public class DragRecyclerAdapter extends RecyclerView.Adapter<DragRecyclerAdapte
 		for (int i = 0; i < dataSourceList.size(); i++) {
 			HashMap<String, Object> item = dataSourceList.get(i);
 			Object deleteBtnObj = item.get("delete_button");
+			Object deleteContainerObj = item.get("delete_container");
 			Object badgeObj = item.get("badge_container");
 
 			if (deleteBtnObj instanceof View) {
 				((View) deleteBtnObj).setVisibility(isInEditMode && showDeleteButtons ? View.VISIBLE : View.INVISIBLE);
+			}
+			if (deleteContainerObj instanceof View) {
+				((View) deleteContainerObj).setVisibility(isInEditMode && showDeleteButtons ? View.VISIBLE : View.INVISIBLE);
 			}
 			if (badgeObj instanceof View) {
 				((View) badgeObj).setVisibility(isInEditMode ? View.INVISIBLE : (itemsBadgeEnabled ? View.VISIBLE : View.GONE));
