@@ -10,7 +10,7 @@ SortableGridView (like iOS Dashboard) for Titanium.
 - Grid and waterfall (Pinterest-style) layouts
 - Badge support on items
 - Paging with page indicator
-- Pull-to-refresh (iOS)
+- Pull-to-refresh
 
 ## Demo
 
@@ -88,7 +88,7 @@ win.add(gridView);
 | Set / clear / re-add data | ✅ | ✅ |
 | `scrollToItemAtIndex` | ✅ | ✅ |
 | `scrollToBottom` / `scrollToTop` | ✅ | ✅ |
-| Pull-to-refresh | ✅ | ✖️ |
+| Pull-to-refresh | ✅ | ✅ |
 | Scroll events | ✅ | ✅ |
 | Page change events | ✅ | ✅ |
 
