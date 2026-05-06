@@ -250,8 +250,8 @@
     dragCollectionViewContentSize = CGSizeZero;
     _scrollDirection = BMDragCellCollectionViewScrollDirectionNone;
     [self addGestureRecognizer:self.longGesture];
-    self.prefetchingEnabled = YES;
-    super.prefetchingEnabled = YES;
+    self.prefetchingEnabled = NO;
+    super.prefetchingEnabled = NO;
     inDeletingItem = NO;
     
     [self addObserver:self forKeyPath:@"contentSize" options:NSKeyValueObservingOptionOld context:NULL];

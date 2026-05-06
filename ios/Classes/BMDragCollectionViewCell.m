@@ -23,7 +23,6 @@ static  BOOL wobbleEnabled = NO;
 {
     self = [super initWithFrame:frame];
     if (self) {
-       // NSLog(@"[INFO] cell initWithFrame");
         _playerViewAnimator = [[UIViewPropertyAnimator alloc] init];
         [_playerViewAnimator setInterruptible:YES];
 
@@ -32,6 +31,7 @@ static  BOOL wobbleEnabled = NO;
         isWobbeling = NO;
         delay = 0.0;
         _stopByUser = NO;
+        _displayedItemId = -1;
         _doesWobblesLeft = wobblesLeft;
         wobblesLeft = !wobblesLeft;
         _rotation = (kGridLauncherViewWobbleRadians * M_PI) / 180.0;
@@ -50,6 +50,18 @@ static  BOOL wobbleEnabled = NO;
         }
     }
     return self;
+}
+
+- (void)prepareForReuse {
+    [super prepareForReuse];
+    _displayedItemId = -1;
+    _cellWobbeling = NO;
+    isWobbeling = NO;
+    _stopByUser = NO;
+    [[self contentView].subviews.firstObject.layer removeAllAnimations];
+    [self contentView].subviews.firstObject.transform = _normalTransform;
+    [self contentView].alpha = 1.0;
+    self.hidden = NO;
 }
 
 - (void)dealloc {

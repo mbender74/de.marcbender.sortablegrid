@@ -23,6 +23,7 @@
 
 @property (nonatomic, assign) BOOL doesWobblesLeft;
 @property (nonatomic, assign) NSInteger cellId;
+@property (nonatomic, assign) NSInteger displayedItemId;
 @property (nonatomic, assign) UIViewPropertyAnimator *playerViewAnimator;
 
 @property (nonatomic, assign) CGFloat rotation;
@@ -40,6 +41,5 @@
 - (void)fadeIn;
 - (void)stopWobbleHide;
 - (void)hide;
-
 
 @end
