@@ -371,7 +371,7 @@ item.add(card);
 | `scrollToItemAtIndex` | ✅ | ✅ |
 | `scrollToBottom` | ✅ | ✅ |
 | `scrollToTop` | ✅ | ✅ |
-| **Pull to Refresh** | ✅ | ✖️ |
+| **Pull to Refresh** | ✅ | ✅ |
 | **Drag shadow opacity** | ✅ | ✅ |
 | **Lazy loading** | ✅ | ✅ (placeholder) |
 | **Scroll event** | ✅ | ✅ |
