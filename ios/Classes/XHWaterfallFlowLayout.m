@@ -43,8 +43,19 @@
         self.itemsInPage = 0;
         self.rowCount = 0;
         self.initDone = NO;
+        bufferColumnCount = 0;
    }
     return self;
+}
+
+- (void)dealloc {
+    if (columnHeight) { free(columnHeight); columnHeight = NULL; }
+    if (columnItemCount) { free(columnItemCount); columnItemCount = NULL; }
+}
+
+- (void)invalidateLayout {
+    self.layoutAttributesArray = nil;
+    [super invalidateLayout];
 }
 
 - (void)setMinLineSpacing:(CGFloat)minimumLineSpacing {
@@ -149,12 +160,16 @@
         topInset = self.sectionInset.top;
     }
 
-    // Free previously allocated memory before reallocating
-    if (columnHeight) free(columnHeight);
-    if (columnItemCount) free(columnItemCount);
-
-    columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
-    columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
+    // Reuse buffers if columnCount hasn't changed, otherwise reallocate
+    if (bufferColumnCount != self.columnCount || columnHeight == NULL) {
+        if (columnHeight) free(columnHeight);
+        columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
+        bufferColumnCount = self.columnCount;
+    }
+    if (bufferColumnCount != self.columnCount || columnItemCount == NULL) {
+        if (columnItemCount) free(columnItemCount);
+        columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
+    }
     
     for (int i = 0; i < self.columnCount; i++) {
         columnHeight[i] = topInset;
@@ -197,11 +212,7 @@
                     self.contentWidth = self.contentWidth + (self.collectionView.frame.size.width);
                     self.pagesCount = self.pagesCount + 1;
 
-                    if (columnHeight) free(columnHeight);
-                    if (columnItemCount) free(columnItemCount);
-
-                    columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
-                    columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
+                    // Reuse buffers — just reset values instead of free/malloc
 
                     for (int k = 0; k < self.columnCount; k++) {
                         columnHeight[k] = topInset;
@@ -272,17 +283,12 @@
                 
                 if (newcolumn > self.columnCount) {
                   //  NSLog(@"[WARN] all columns height greater than page height: ");
-                    
+
                     self.contentWidth = self.contentWidth + (self.collectionView.frame.size.width);
-                    
+
                     self.pagesCount = self.pagesCount + 1;
 
-                    // Free old column data before reallocating for new page
-                    if (columnHeight) free(columnHeight);
-                    if (columnItemCount) free(columnItemCount);
-
-                    columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
-                    columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
+                    // Reuse buffers — just reset values instead of free/malloc
 
                     for (int k = 0; k < self.columnCount; k++) {
                         columnHeight[k] = topInset;
@@ -349,9 +355,7 @@
         
     self.layoutAttributesArray = attributesArray.copy;
 
-    // Free allocated memory to prevent leaks on subsequent calls
-    if (columnHeight) { free(columnHeight); columnHeight = NULL; }
-    if (columnItemCount) { free(columnItemCount); columnItemCount = NULL; }
+    // Keep buffers alive for reuse — they'll be reused or reallocated on next prepareLayout
 
 
 }
@@ -426,9 +430,22 @@
     if (!self.layoutAttributesArray) {
         self.layoutAttributesArray = [super layoutAttributesForElementsInRect:rect];
     }
-    return self.layoutAttributesArray;
+    // Filter to only attributes within the requested rect for better performance
+    NSMutableArray *result = [NSMutableArray array];
+    for (UICollectionViewLayoutAttributes *attr in self.layoutAttributesArray) {
+        if (CGRectIntersectsRect(rect, attr.frame)) {
+            [result addObject:attr];
+        }
+    }
+    return result;
 }
 
+- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (self.layoutAttributesArray && indexPath.item < (NSInteger)self.layoutAttributesArray.count) {
+        return self.layoutAttributesArray[indexPath.item];
+    }
+    return [super layoutAttributesForItemAtIndexPath:indexPath];
+}
 
 
 - (CGSize)collectionViewContentSize
