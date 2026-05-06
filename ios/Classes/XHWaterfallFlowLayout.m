@@ -423,16 +423,9 @@
 
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
-   // NSLog(@"[WARN] layoutAttributesForElementsInRect");
     if (!self.layoutAttributesArray) {
         self.layoutAttributesArray = [super layoutAttributesForElementsInRect:rect];
     }
-    
-    
-    [self.collectionView setCollectionViewLayout:self.collectionView.collectionViewLayout animated:NO];
-
-    
-//    [self.collectionView reloadItemsAtIndexPaths:[self.collectionView indexPathsForVisibleItems]];
     return self.layoutAttributesArray;
 }
 

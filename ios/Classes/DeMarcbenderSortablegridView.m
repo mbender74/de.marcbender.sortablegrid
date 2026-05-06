@@ -1945,31 +1945,33 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
     cell.translatesAutoresizingMaskIntoConstraints = NO;
 
-    NSInteger id = [TiUtils intValue:_dataSource[indexPath.section][indexPath.item][@"id"]];
-    cell.cellId = id;
+    NSInteger itemId = [TiUtils intValue:_dataSource[indexPath.section][indexPath.item][@"id"]];
+    cell.cellId = itemId;
     cell.columnCount = [self numberOfColumns];
-    
-    
+
+    // Skip view swap if this cell already displays the correct item
+    if (cell.displayedItemId != itemId) {
+        if ([cell contentView].subviews.count > 0){
+            NSArray *viewsToRemove = [cell contentView].subviews;
+            for (UIView *v in viewsToRemove) {
+                [v removeFromSuperview];
+            }
+        }
+        [cell contentView].frame = cell.bounds;
+        [cell contentView].clipsToBounds = NO;
+        cell.clipsToBounds = NO;
+
+        UIView *content = (UIView *)_dataSource[indexPath.section][indexPath.item][@"cellview"];
+        [[cell contentView] addSubview:content];
+
+        cell.displayedItemId = itemId;
+    }
+
     BOOL canBeDeleted = [TiUtils boolValue:_dataSource[indexPath.section][indexPath.item][@"canBeDeleted"]];
     BOOL canBeMoved = [TiUtils boolValue:_dataSource[indexPath.section][indexPath.item][@"canBeMoved"]];
-
-    if ([cell contentView].subviews.count > 0){
-        NSArray *viewsToRemove = [cell contentView].subviews;
-        for (UIView *v in viewsToRemove) {
-            [v removeFromSuperview];
-        }
-    }
-    [cell contentView].frame = cell.bounds;
-    [cell contentView].clipsToBounds = NO;
-    cell.clipsToBounds = NO;
-
-    UIView *content = (UIView *)_dataSource[indexPath.section][indexPath.item][@"cellview"];
-    
-    [[cell contentView] addSubview:content];
-
     cell.canBeDeleted = canBeDeleted;
     cell.canBeMoved = canBeMoved;
-    
+
     return cell;
 }
 
@@ -2028,13 +2030,14 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 
 -(void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (editing == YES && _wobble == YES){
+    if (_wobble == NO) return;
+    if (editing == YES){
         TiThreadPerformOnMainThread(
          ^{
         [cell stopWobble];
     },NO);
     }
-    else if (editing == NO && _wobble == YES){
+    else {
         TiThreadPerformOnMainThread(
          ^{
         [cell stopWobble];
@@ -2044,14 +2047,14 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 }
 
 -(void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-        
-    if (editing == YES && _wobble == YES){
+    if (_wobble == NO) return;
+    if (editing == YES){
         TiThreadPerformOnMainThread(
          ^{
         [cell wobble];
          },NO);
     }
-    else if (editing == NO && _wobble == YES){
+    else {
         TiThreadPerformOnMainThread(
          ^{
         [cell stopWobble];
