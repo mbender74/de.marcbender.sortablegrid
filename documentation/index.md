@@ -60,7 +60,7 @@ Creates the grid view with the specified properties.
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `columnCount` | Number | 3 | Number of columns in vertical layout, or number of rows in horizontal layout |
-| `rowCount` | Number | 4 | Number of rows in horizontal layout (Android only) |
+| `rowCount` | Number | 0 | Number of rows per page in horizontal layout. On iOS with `waterFallLayout: false`, items use natural heights within rows. On iOS with `waterFallLayout: true`, items keep natural heights with rowCount items per column per page |
 | `minHorizontalSpacing` | Number | 0 | Minimum horizontal spacing between cells |
 | `minVerticalSpacing` | Number | 0 | Minimum vertical spacing between cells |
 | `wobble` | Boolean | false | Wobble animation in edit mode |
@@ -99,9 +99,9 @@ gridView.scrollType = 'horizontal';
 ```
 
 When `scrollType` is `"horizontal"`:
-- `columnCount` controls the number of rows visible
-- `rowCount` controls the number of rows on Android
-- Items scroll horizontally
+- `columnCount` controls the number of columns visible per page
+- `rowCount` controls the number of rows per column per page (iOS and Android)
+- Items scroll horizontally, with `rowCount × columnCount` items per page
 
 ### Waterfall Layout
 
@@ -376,3 +376,17 @@ item.add(card);
 | **Lazy loading** | ✅ | ✅ (placeholder) |
 | **Scroll event** | ✅ | ✅ |
 | **Page events** | ✅ | ✅ |
+
+## Performance
+
+### iOS Optimizations
+
+The module includes several optimizations for smooth scrolling performance:
+
+- **Cell reuse** — Cells are reused efficiently when scrolling; only cells whose content actually changes are reconfigured
+- **Layout caching** — Waterfall and non-waterfall layouts cache computed attributes and only recompute when data changes
+- **Wobble optimization** — Wobble animations are skipped entirely when `wobble` is not enabled, avoiding unnecessary main thread work during scrolling
+- **Scroll event throttling** — `scroll` events are throttled to ~30fps to reduce JavaScript bridge overhead
+- **Prefetching disabled** — UICollectionView prefetching is disabled since the module doesn't implement prefetch data source conformance, eliminating wasted prefetch work
+- **Direct position updates during drag** — Drag reordering sets the snapshot view position directly instead of creating overlapping animation blocks that cause lag
+- **Rect-filtered layout attributes** — Layout attribute queries return only items within the visible rect rather than all items, reducing per-frame work during scrolling
