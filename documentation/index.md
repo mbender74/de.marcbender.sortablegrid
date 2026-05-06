@@ -49,100 +49,451 @@ gridView.data = items;
 win.add(gridView);
 ```
 
-## Creating the Grid View
-
-### `sortableGridModule.createView(properties)`
-
-Creates the grid view with the specified properties.
-
 ## Grid View Properties
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `columnCount` | Number | 3 | Number of columns in vertical layout, or number of rows in horizontal layout |
-| `rowCount` | Number | 0 | Number of rows per page in horizontal layout. On iOS with `waterFallLayout: false`, items use natural heights within rows. On iOS with `waterFallLayout: true`, items keep natural heights with rowCount items per column per page |
-| `minHorizontalSpacing` | Number | 0 | Minimum horizontal spacing between cells |
-| `minVerticalSpacing` | Number | 0 | Minimum vertical spacing between cells |
-| `wobble` | Boolean | false | Wobble animation in edit mode |
-| `showDeleteButton` | Boolean | false | Show delete buttons on items in edit mode |
-| `deleteButtonImage` | Image | null | Custom image for the delete button |
-| `itemsBadgeEnabled` | Boolean | false | Enable badge display on items |
-| `scrollType` | String | "vertical" | Scroll direction: `"vertical"` or `"horizontal"` |
-| `waterFallLayout` | Boolean | false | Enable waterfall (Pinterest-style) staggered layout |
-| `pagingEnabled` | Boolean | false | Enable snap-to-page scrolling |
-| `pagerEnabled` | Boolean | false | Show a page indicator (UIPageControl) |
-| `pagerFollowsBottomInset` | Boolean | false | Pager repositions when content insets change (e.g., keyboard) |
-| `pageIndicatorTintColor` | Color | — | Color for inactive page indicator dots |
-| `currentPageIndicatorTintColor` | Color | — | Color for the current page indicator dot |
-| `contentInsets` | Object | — | Content insets `{top, left, bottom, right}` |
-| `scrollIndicatorInsets` | Object | — | Scroll indicator insets `{top, left, bottom, right}` |
-| `disableBounce` | Boolean | false | Disable scroll view bounce |
-| `showVerticalScrollIndicator` | Boolean | false | Show vertical scroll indicator |
-| `showHorizontalScrollIndicator` | Boolean | false | Show horizontal scroll indicator |
-| `lazyLoadingEnabled` | Boolean | true | Suspend image loading during scrolling (iOS only) |
-| `scrollToBottomAfterSetData` | Boolean | false | Auto-scroll to bottom after setting data |
-| `dragItemShadowOpacity` | Number | 1.0 | Opacity of the drag item shadow (0.0–1.0) |
-| `scrollEnabled` | Boolean | true | Enable or disable scrolling |
-| `backgroundColor` | String | — | Background color of the grid |
-| `refreshControl` | Ti.UI.RefreshControl | null | Pull-to-refresh control (iOS only) |
+All properties can be set at creation time or changed at runtime.
 
-### Layout Direction
+### columnCount
 
-Use `scrollType` to control the layout direction:
+Number of columns in vertical layout. In horizontal layout, controls the number of columns per page.
+
+- **Type:** Number
+- **Default:** 3
+- **Platforms:** iOS, Android
+
+```javascript
+// At creation
+var gridView = sortableGridModule.createView({ columnCount: 4 });
+
+// At runtime
+gridView.columnCount = 4;
+```
+
+### rowCount
+
+Number of rows per page in horizontal layout. When `waterFallLayout` is `false`, items are arranged in a grid with `rowCount` rows and `columnCount` columns per page. When `waterFallLayout` is `true`, items keep their natural heights with `rowCount` items per column per page.
+
+- **Type:** Number
+- **Default:** 0 (disabled)
+- **Platforms:** iOS, Android
+
+```javascript
+// 3 columns × 4 rows per page in horizontal mode
+var gridView = sortableGridModule.createView({
+    scrollType: 'horizontal',
+    columnCount: 3,
+    rowCount: 4
+});
+
+// At runtime
+gridView.rowCount = 4;
+```
+
+### minHorizontalSpacing
+
+Minimum horizontal spacing between cells.
+
+- **Type:** Number
+- **Default:** 0
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ minHorizontalSpacing: 10 });
+
+// At runtime
+gridView.minHorizontalSpacing = 10;
+```
+
+### minVerticalSpacing
+
+Minimum vertical spacing between cells.
+
+- **Type:** Number
+- **Default:** 0
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ minVerticalSpacing: 10 });
+
+// At runtime
+gridView.minVerticalSpacing = 10;
+```
+
+### scrollType
+
+Scroll direction of the grid.
+
+- **Type:** String
+- **Default:** `"vertical"`
+- **Values:** `"vertical"` or `"horizontal"`
+- **Platforms:** iOS, Android
 
 ```javascript
 // Vertical scrolling (default)
 gridView.scrollType = 'vertical';
 
-// Horizontal scrolling — items flow left to right, wrapping to next row
+// Horizontal scrolling
 gridView.scrollType = 'horizontal';
 ```
 
 When `scrollType` is `"horizontal"`:
 - `columnCount` controls the number of columns visible per page
-- `rowCount` controls the number of rows per column per page (iOS and Android)
+- `rowCount` controls the number of rows per column per page
 - Items scroll horizontally, with `rowCount × columnCount` items per page
 
-### Waterfall Layout
+### waterFallLayout
+
+Enable waterfall (Pinterest-style) staggered layout where items have varying heights.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
 
 ```javascript
 var gridView = sortableGridModule.createView({
-    waterFallLayout: true,  // Pinterest-style staggered layout
+    waterFallLayout: true,
     columnCount: 3,
     scrollType: 'vertical'
 });
 ```
 
-## Grid View Methods
+### wobble
 
-| Method | Parameters | Description |
-|--------|-----------|-------------|
-| `startEditing()` | none | Enter edit mode — shows delete buttons, enables drag reordering |
-| `stopEditing()` | none | Exit edit mode — hides delete buttons, stops wobble |
-| `insertItemAtIndex({item, index, animated})` | ItemProxy, Number, Boolean | Insert an item at the given index |
-| `deleteItemAtIndex({index, animated})` | Number, Boolean | Delete the item at the given index |
-| `scrollToItemAtIndex({index, animated})` | Number, Boolean | Scroll to make the item at index visible |
-| `scrollToBottom({animated})` | Boolean | Scroll to the bottom of the grid |
-| `scrollToTop({animated})` | Boolean | Scroll to the top of the grid |
-| `createItem(options)` | Object | Create an item HashMap (Android only — on iOS use `sortableGridModule.createItem()`) |
+Enable wobble animation on items when in edit mode.
 
-### Edit Mode
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
 
 ```javascript
-// Enter edit mode
-gridView.startEditing();
+var gridView = sortableGridModule.createView({ wobble: true });
 
-// Exit edit mode
+// At runtime
+gridView.wobble = true;
+```
+
+### showDeleteButton
+
+Show delete buttons on items when in edit mode.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ showDeleteButton: true });
+
+// At runtime
+gridView.showDeleteButton = true;
+```
+
+### deleteButtonImage
+
+Custom image for the delete button. If not set, a default red circle is used.
+
+- **Type:** Image (Ti.Blob or String path)
+- **Default:** null (red circle)
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({
+    showDeleteButton: true,
+    deleteButtonImage: '/images/close.png'
+});
+
+// At runtime
+gridView.deleteButtonImage = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'images/close.png').read();
+```
+
+### itemsBadgeEnabled
+
+Enable badge display on items.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ itemsBadgeEnabled: true });
+
+// At runtime
+gridView.itemsBadgeEnabled = true;
+```
+
+### pagingEnabled
+
+Enable snap-to-page scrolling. Each page fits `rowCount × columnCount` items (horizontal) or a screenful of items (vertical).
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ pagingEnabled: true });
+```
+
+### pagerEnabled
+
+Show a page indicator (UIPageControl on iOS, PageIndicatorView on Android) at the bottom of the grid.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ pagerEnabled: true });
+```
+
+### pagerFollowsBottomInset
+
+Pager repositions when content insets change (e.g., when the keyboard appears). Useful for grids inside scrollable containers.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS
+
+```javascript
+var gridView = sortableGridModule.createView({
+    pagerEnabled: true,
+    pagerFollowsBottomInset: true
+});
+```
+
+### pageIndicatorTintColor
+
+Color for inactive page indicator dots.
+
+- **Type:** String (hex color)
+- **Default:** System default
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.pageIndicatorTintColor = '#cccccc';
+```
+
+### currentPageIndicatorTintColor
+
+Color for the current page indicator dot.
+
+- **Type:** String (hex color)
+- **Default:** System default
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.currentPageIndicatorTintColor = '#3498db';
+```
+
+### currentPage
+
+Get or set the current page (0-based index).
+
+- **Type:** Number (read/write)
+- **Platforms:** iOS, Android
+
+```javascript
+// Set current page
+gridView.currentPage = 2;
+
+// Get current page
+var page = gridView.currentPage;
+```
+
+### pageCount
+
+Get the total number of pages (read-only).
+
+- **Type:** Number (read-only)
+- **Platforms:** iOS, Android
+
+```javascript
+var totalPages = gridView.pageCount;
+```
+
+### contentInsets
+
+Content insets for the grid — padding inside the scroll view.
+
+- **Type:** Object `{ top, left, bottom, right }`
+- **Default:** `{ top: 0, left: 0, bottom: 0, right: 0 }`
+- **Platforms:** iOS, Android
+
+```javascript
+// At creation
+var gridView = sortableGridModule.createView({
+    contentInsets: { top: 20, left: 10, bottom: 20, right: 10 }
+});
+
+// At runtime
+gridView.setContentInsets({ top: 20, left: 10, bottom: 20, right: 10 });
+
+// With animated option (iOS only)
+gridView.setContentInsets({
+    top: 20, left: 10, bottom: 20, right: 10
+}, { animated: true, duration: 300 });
+```
+
+### scrollIndicatorInsets
+
+Insets for the scroll indicator, allowing it to be offset from the content area.
+
+- **Type:** Object `{ top, left, bottom, right }`
+- **Default:** `{ top: 0, left: 0, bottom: 0, right: 0 }`
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.setScrollIndicatorInsets({ top: 20, left: 0, bottom: 0, right: 0 });
+```
+
+### disableBounce
+
+Disable the scroll view bounce effect.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ disableBounce: true });
+```
+
+### showVerticalScrollIndicator
+
+Show the vertical scroll indicator.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.showVerticalScrollIndicator = true;
+```
+
+### showHorizontalScrollIndicator
+
+Show the horizontal scroll indicator.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.showHorizontalScrollIndicator = true;
+```
+
+### scrollEnabled
+
+Enable or disable scrolling.
+
+- **Type:** Boolean
+- **Default:** true
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.scrollEnabled = false;
+```
+
+### scrollToBottomAfterSetData
+
+Automatically scroll to the bottom after setting data.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+var gridView = sortableGridModule.createView({ scrollToBottomAfterSetData: true });
+```
+
+### dragItemShadowOpacity
+
+Opacity of the shadow shown beneath the item being dragged (0.0 = invisible, 1.0 = fully opaque).
+
+- **Type:** Number
+- **Default:** 1.0
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.dragItemShadowOpacity = 0.5;
+```
+
+### lazyLoadingEnabled
+
+Suspend image loading during scrolling to improve performance.
+
+- **Type:** Boolean
+- **Default:** true
+- **Platforms:** iOS, Android (placeholder on Android)
+
+```javascript
+var gridView = sortableGridModule.createView({ lazyLoadingEnabled: true });
+```
+
+### refreshControl
+
+A Titanium RefreshControl for pull-to-refresh functionality.
+
+- **Type:** Ti.UI.RefreshControl
+- **Default:** null
+- **Platforms:** iOS, Android
+
+```javascript
+var refreshControl = Ti.UI.createRefreshControl({
+    tintColor: '#3498db'
+});
+
+var gridView = sortableGridModule.createView({
+    refreshControl: refreshControl
+});
+
+refreshControl.addEventListener('refreshstart', function() {
+    // Fetch new data
+    loadNewData(function(items) {
+        gridView.data = items;
+        refreshControl.endRefreshing();
+    });
+});
+```
+
+### editable
+
+Set whether the grid is in edit mode. Prefer using `startEditing()` / `stopEditing()` methods.
+
+- **Type:** Boolean
+- **Default:** false
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.editable = true;
+```
+
+## Grid View Methods
+
+### startEditing()
+
+Enter edit mode — shows delete buttons, enables drag reordering, starts wobble animation (if enabled).
+
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.startEditing();
+```
+
+### stopEditing()
+
+Exit edit mode — hides delete buttons, stops wobble, saves reordered data.
+
+- **Platforms:** iOS, Android
+
+```javascript
 gridView.stopEditing();
 ```
 
-In edit mode:
-- Delete buttons appear on items where `canBeDeleted` is true
-- Items wobble if `wobble` is true
-- Items can be drag-reordered if `canBeMoved` is true
-- Badges remain visible
+### insertItemAtIndex(args)
 
-### Inserting Items
+Insert an item at a specific index.
+
+- **Parameters:** `{ item: ItemProxy, index: Number, animated: Boolean }`
+- **Platforms:** iOS, Android
 
 ```javascript
 var newItem = sortableGridModule.createItem({
@@ -150,9 +501,7 @@ var newItem = sortableGridModule.createItem({
     height: Ti.UI.SIZE,
     width: Ti.UI.FILL,
     canBeDeleted: true,
-    canBeMoved: true,
-    badge: true,
-    badgeValue: 42
+    canBeMoved: true
 });
 
 newItem.add(Ti.UI.createLabel({ text: 'New Cell' }));
@@ -164,26 +513,50 @@ gridView.insertItemAtIndex({
 });
 ```
 
-### Deleting Items
+### deleteItemAtIndex(args)
+
+Delete the item at a specific index.
+
+- **Parameters:** `{ index: Number, animated: Boolean }`
+- **Platforms:** iOS, Android
 
 ```javascript
-// Delete the first item with animation
 gridView.deleteItemAtIndex({ index: 0, animated: true });
 ```
 
-### Scrolling
+### scrollToItemAtIndex(args)
+
+Scroll to make the item at the given index visible.
+
+- **Parameters:** `{ index: Number, animated: Boolean }`
+- **Platforms:** iOS, Android
 
 ```javascript
-// Scroll to the last item
 gridView.scrollToItemAtIndex({
     index: gridView.data.length - 1,
     animated: true
 });
+```
 
-// Scroll to bottom
+### scrollToBottom(args)
+
+Scroll to the bottom of the grid.
+
+- **Parameters:** `{ animated: Boolean }`
+- **Platforms:** iOS, Android
+
+```javascript
 gridView.scrollToBottom({ animated: true });
+```
 
-// Scroll to top
+### scrollToTop(args)
+
+Scroll to the top of the grid.
+
+- **Parameters:** `{ animated: Boolean }`
+- **Platforms:** iOS, Android
+
+```javascript
 gridView.scrollToTop({ animated: true });
 ```
 
@@ -237,18 +610,11 @@ gridView.data[0].canBeMoved = false;
 
 ## Grid View Events
 
-| Event | Event Data | Description |
-|-------|-----------|-------------|
-| `itemsReordered` | — | Fired after a drag-and-drop reorder completes |
-| `itemAdded` | `{ itemId }` (iOS) / `{ itemId, index }` (Android) | Fired after an item is inserted |
-| `itemDeleted` | `{ itemId }` | Fired after an item is deleted |
-| `editingStart` | — | Fired when edit mode begins |
-| `editingEnd` | — | Fired when edit mode ends |
-| `pageChanged` | `{ pageNo }` | Fired when the current page changes |
-| `pageCountChanged` | `{ pageCount }` | Fired when the total page count changes |
-| `scroll` | `{ contentOffset: {x, y}, contentSize: {width, height} }` | Fired on scroll (throttled to ~30fps on iOS) |
+### itemsReordered
 
-### Listening for Events
+Fired after a drag-and-drop reorder completes.
+
+- **Platforms:** iOS, Android
 
 ```javascript
 gridView.addEventListener('itemsReordered', function(e) {
@@ -256,21 +622,94 @@ gridView.addEventListener('itemsReordered', function(e) {
         console.log('Item ' + item.id + ' is now at position ' + item.position);
     });
 });
+```
 
+### itemAdded
+
+Fired after an item is inserted.
+
+- **Event data:** `{ itemId }` (iOS) / `{ itemId, index }` (Android)
+- **Platforms:** iOS, Android
+
+```javascript
 gridView.addEventListener('itemAdded', function(e) {
     console.log('Item added: ' + e.itemId);
 });
+```
 
+### itemDeleted
+
+Fired after an item is deleted.
+
+- **Event data:** `{ itemId }`
+- **Platforms:** iOS, Android
+
+```javascript
 gridView.addEventListener('itemDeleted', function(e) {
     console.log('Item deleted: ' + e.itemId);
 });
+```
 
+### editingStart
+
+Fired when edit mode begins.
+
+- **Platforms:** iOS, Android
+
+```javascript
 gridView.addEventListener('editingStart', function(e) {
     console.log('Editing started');
 });
+```
 
+### editingEnd
+
+Fired when edit mode ends.
+
+- **Platforms:** iOS, Android
+
+```javascript
 gridView.addEventListener('editingEnd', function(e) {
     console.log('Editing ended');
+});
+```
+
+### pageChanged
+
+Fired when the current page changes.
+
+- **Event data:** `{ pageNo }`
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.addEventListener('pageChanged', function(e) {
+    console.log('Current page: ' + e.pageNo);
+});
+```
+
+### pageCountChanged
+
+Fired when the total number of pages changes.
+
+- **Event data:** `{ pageCount }`
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.addEventListener('pageCountChanged', function(e) {
+    console.log('Total pages: ' + e.pageCount);
+});
+```
+
+### scroll
+
+Fired on scroll, throttled to ~30fps on iOS to reduce overhead.
+
+- **Event data:** `{ contentOffset: { x, y }, contentSize: { width, height } }`
+- **Platforms:** iOS, Android
+
+```javascript
+gridView.addEventListener('scroll', function(e) {
+    console.log('Scrolled to x:' + e.contentOffset.x + ' y:' + e.contentOffset.y);
 });
 ```
 
@@ -285,7 +724,7 @@ Creates a grid item proxy. Items are standard Ti.UI.View containers that can hol
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `id` | Number | — | Optional identifier for the item |
-| `width` | Number / Ti.UI.FILL / Ti.UI.SIZE | Ti.UI.FILL | Item width. Use Ti.UI.FILL to fill the column width |
+| `width` | Number / Ti.UI.FILL / Ti.UI.SIZE | Ti.UI.FILL | Item width. Use `Ti.UI.FILL` to fill the column width |
 | `height` | Number / Ti.UI.SIZE | Ti.UI.SIZE | Item height |
 | `canBeDeleted` | Boolean | true | Whether the delete button is shown in edit mode |
 | `canBeMoved` | Boolean | true | Whether the item can be drag-reordered |
