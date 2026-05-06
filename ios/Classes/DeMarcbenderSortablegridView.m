@@ -100,41 +100,74 @@
     }
 
     CGFloat viewWidth = self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
-    CGFloat viewHeight = self.collectionView.frame.size.height - self.sectionInset.top - self.sectionInset.bottom;
-
-    NSInteger itemsPerPage = self.columnCount * self.rowCount;
-    if (itemsPerPage <= 0) itemsPerPage = 1;
 
     CGFloat itemW = (viewWidth - self.minimumLineSpacing * (self.columnCount - 1)) / self.columnCount;
-    CGFloat itemH = (viewHeight - self.minimumInteritemSpacing * (self.rowCount - 1)) / self.rowCount;
+
+    // Track column heights for positioning items with natural heights
+    CGFloat *columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
+    NSInteger *columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
+    for (int c = 0; c < self.columnCount; c++) {
+        columnHeight[c] = self.sectionInset.top;
+        columnItemCount[c] = 0;
+    }
+
+    CGFloat contentWidth = 0;
+    NSInteger pagesCount = 1;
+
+    id<UICollectionViewDelegateFlowLayout> flowDelegate = (id<UICollectionViewDelegateFlowLayout>)self.collectionView.delegate;
 
     NSMutableArray *attrs = [NSMutableArray arrayWithCapacity:count];
-    CGFloat maxRight = 0;
 
     for (NSUInteger i = 0; i < count; i++) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
         UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
 
-        NSInteger page = i / itemsPerPage;
-        NSInteger posInPage = i % itemsPerPage;
-        NSInteger col = posInPage / self.rowCount;
-        NSInteger row = posInPage % self.rowCount;
+        // Find the column for this item (rowCount items per column per page)
+        NSInteger col = -1;
+        for (int c = 0; c < self.columnCount; c++) {
+            if (columnItemCount[c] < self.rowCount) {
+                col = c;
+                break;
+            }
+        }
 
-        CGFloat pageOffset = page * (self.collectionView.frame.size.width);
-        CGFloat x = pageOffset + self.sectionInset.left + col * (itemW + self.minimumLineSpacing);
-        CGFloat y = self.sectionInset.top + row * (itemH + self.minimumInteritemSpacing);
+        // All columns full — start new page
+        if (col < 0) {
+            contentWidth += self.collectionView.frame.size.width;
+            pagesCount++;
 
-        attr.frame = CGRectMake(x, y, itemW, itemH);
+            for (int c = 0; c < self.columnCount; c++) {
+                columnHeight[c] = self.sectionInset.top;
+                columnItemCount[c] = 0;
+            }
+            col = 0;
+        }
+
+        // Get natural item height from delegate
+        CGFloat itemH = 0;
+        if (flowDelegate && [flowDelegate respondsToSelector:@selector(collectionView:layout:sizeForItemAtIndexPath:)]) {
+            CGSize size = [flowDelegate collectionView:self.collectionView layout:self sizeForItemAtIndexPath:indexPath];
+            itemH = size.height;
+        }
+        CGFloat itemWidth = itemW;
+
+        CGFloat x = contentWidth + self.sectionInset.left + col * (itemWidth + self.minimumLineSpacing);
+        CGFloat y = columnHeight[col];
+
+        attr.frame = CGRectMake(x, y, itemWidth, itemH);
         [attrs addObject:attr];
 
-        CGFloat itemRight = x + itemW;
-        if (itemRight > maxRight) maxRight = itemRight;
+        columnItemCount[col]++;
+        columnHeight[col] += itemH + self.minimumInteritemSpacing;
     }
 
+    free(columnHeight);
+    free(columnItemCount);
+
     cachedAttributes = attrs.copy;
-    NSInteger pagesCount = (count + itemsPerPage - 1) / itemsPerPage;
-    CGFloat contentWidth = pagesCount * self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
-    cachedContentSize = CGSizeMake(contentWidth, self.collectionView.frame.size.height - self.collectionView.contentInset.top - self.collectionView.contentInset.bottom);
+    // Add one more page width for the last page
+    CGFloat totalContentWidth = contentWidth + self.collectionView.frame.size.width - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
+    cachedContentSize = CGSizeMake(totalContentWidth, self.collectionView.frame.size.height - self.collectionView.contentInset.top - self.collectionView.contentInset.bottom);
 }
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
@@ -1332,7 +1365,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     closeButton.tag = index;
     
     UIView *cellViewContainer = [[UIView alloc] init];
-    [cellViewContainer setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+    if (scrollDirection == mkScrollHorizontal && rowCount > 0 && self.waterFallLayout == NO) {
+        // For horizontal rowCount layout, don't stretch height — content keeps its natural height
+        [cellViewContainer setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+    } else {
+        [cellViewContainer setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+    }
     cellViewContainer.translatesAutoresizingMaskIntoConstraints = YES;
 
     cellViewContainer.frame = cellView.bounds;
@@ -1416,18 +1454,22 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
     closeButton.hidden = YES;
     closeButton.frame = CGRectMake(cellViewContainer.bounds.origin.x-(closeButton.frame.size.width/4), cellViewContainer.bounds.origin.y-(closeButton.frame.size.height/3), closeButton.frame.size.width, closeButton.frame.size.height);
+    // Stay at top-left corner when container resizes
+    closeButton.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
     [closeButton addTarget:self action:@selector(closeButtonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
 
     [cellViewContainer addSubview:closeButton];
     badge.hidden = YES;
 
-   
+
     if (value > 99) {
         badge.frame = CGRectMake(cellViewContainer.bounds.origin.x+cellViewContainer.frame.size.width-(badge.bounds.size.width/1.3)-3, cellViewContainer.bounds.origin.y-(badge.bounds.size.height/4), badge.bounds.size.width, badge.bounds.size.height);
     }
     else {
         badge.frame = CGRectMake(cellViewContainer.bounds.origin.x+cellViewContainer.frame.size.width-(badge.bounds.size.width/1.3), cellViewContainer.bounds.origin.y-(badge.bounds.size.height/4), badge.bounds.size.width, badge.bounds.size.height);
     }
+    // Stay at top-right corner when container resizes
+    badge.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
     
 
     if (itemsBadgeEnabled == YES && hasBadge == YES){
@@ -1437,24 +1479,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
     }
   
     [cellViewContainer addSubview:badge];
-
     [cellItemProxy _addBadgeButton:badge];
 
     [cellItemProxy windowDidOpen];
 
     
     CGFloat storedHeight = cellViewContainer.frame.size.height;
-    if (scrollDirection == mkScrollHorizontal && rowCount > 0 && self.waterFallLayout == NO) {
-        // Use the layout's sectionInset so item sizing matches the flow layout's available space
-        UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)launcher.collectionViewLayout;
-        CGFloat availableHeight = launcher.frame.size.height - flowLayout.sectionInset.top - flowLayout.sectionInset.bottom;
-        CGFloat verticalGap = flowLayout.minimumInteritemSpacing;
-        CGFloat maxCellH = floorf((availableHeight - (verticalGap * (rowCount - 1))) / rowCount);
-        if (storedHeight != maxCellH) {
-            cellViewContainer.frame = CGRectMake(cellViewContainer.frame.origin.x, cellViewContainer.frame.origin.y, cellViewContainer.frame.size.width, maxCellH);
-            storedHeight = maxCellH;
-        }
-    }
 
     return @{@"id" : [NSNumber numberWithInteger:index],
              @"canBeDeleted" : [NSNumber numberWithInt:canBeDeleted],
@@ -1992,14 +2022,6 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
 
     CGSize cellSizeForItem = [self.dataSource[indexPath.section][indexPath.item][@"size"] CGSizeValue];
-
-    if (scrollDirection == mkScrollHorizontal && rowCount > 0 && self.waterFallLayout == NO) {
-        // Use the layout's sectionInset so item sizing matches the flow layout's available space
-        CGFloat availableHeight = collectionView.frame.size.height - collectionViewLayout.sectionInset.top - collectionViewLayout.sectionInset.bottom;
-        CGFloat verticalGap = collectionViewLayout.minimumInteritemSpacing;
-        CGFloat maxCellH = floorf((availableHeight - (verticalGap * (rowCount - 1))) / rowCount);
-        cellSizeForItem.height = maxCellH;
-    }
 
     return cellSizeForItem;
 }
