@@ -37,6 +37,7 @@ typedef enum {
     CGFloat itemY;
     CGFloat topInset;
     ScrollDirection scrolldirection;
+    NSInteger bufferColumnCount;
 }
 
 - (void)doPrepareLayout;
@@ -45,6 +46,7 @@ typedef enum {
 @property (nonatomic, assign) BOOL showDeleteButton;
 @property (nonatomic, assign) NSInteger columnCount;
 @property (nonatomic, assign) NSInteger rowCount;
+@property (nonatomic, assign) NSInteger visualColumnCount;
 @property (nonatomic, assign) ScrollDirection direction;
 @property (nonatomic, assign) CGFloat minInteritemSpacing;
 @property (nonatomic, assign) CGFloat minLineSpacing;
