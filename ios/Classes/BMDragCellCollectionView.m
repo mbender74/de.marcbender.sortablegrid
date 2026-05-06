@@ -24,6 +24,25 @@
 #import "BMDragCellCollectionView.h"
 #import "BMDragCollectionViewCell.h"
 
+@class BMDragCellCollectionView;
+
+#pragma mark - Weak proxy for CADisplayLink (breaks retain cycle)
+
+@interface BMDragCellWeakProxy : NSObject {
+@public
+    __unsafe_unretained BMDragCellCollectionView *target;
+}
+- (void)edgeScrollAction;
+@end
+
+@implementation BMDragCellWeakProxy
+- (void)edgeScrollAction {
+    if (target && [target respondsToSelector:@selector(_edgeScroll)]) {
+        [target _edgeScroll];
+    }
+}
+@end
+
 #pragma mark - UICollectionView (BMDragCellCollectionViewRect)
 
 /**
@@ -79,6 +98,7 @@
 
 @interface BMDragCellCollectionView (){
     BOOL inDeletingItem;
+    BMDragCellWeakProxy *_edgeScrollProxy;
 }
 
 
@@ -138,7 +158,15 @@
 - (void)dealloc {
     [self removeObserver:self forKeyPath:@"contentSize" context:NULL];
     [self _stopEdgeTimer];
+    [_edgeScrollProxy release];
     [super dealloc];
+}
+
+- (void)willMoveToSuperview:(UIView *)newSuperview {
+    if (!newSuperview) {
+        [self _stopEdgeTimer];
+    }
+    [super willMoveToSuperview:newSuperview];
 }
 
 #pragma mark - getters setters
@@ -347,7 +375,11 @@
 
 - (void)_setEdgeTimer{
     if (!_edgeTimer) {
-        _edgeTimer = [CADisplayLink displayLinkWithTarget:self selector:@selector(_edgeScroll)];
+        if (!_edgeScrollProxy) {
+            _edgeScrollProxy = [[BMDragCellWeakProxy alloc] init];
+        }
+        _edgeScrollProxy->target = self;
+        _edgeTimer = [CADisplayLink displayLinkWithTarget:_edgeScrollProxy selector:@selector(edgeScrollAction)];
         [_edgeTimer addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     }
 }
@@ -410,9 +442,7 @@
         return;
     }
 
-    [UIView animateWithDuration:0.016 animations:^{
-        _snapedView.center = _lastPoint;
-    }];
+    _snapedView.center = _lastPoint;
 
     NSIndexPath *index = [self _firstNearlyIndexPath];
 
@@ -431,18 +461,15 @@
     }
 
     _currentIndexPath = index;
-    
+
     UICollectionViewCell *cell = [self cellForItemAtIndexPath:_currentIndexPath];
-    
-   // self.oldPoint = [self cellForItemAtIndexPath:_currentIndexPath].center;
 
-    
-    
-    self.oldPoint =  CGPointMake(cell.center.x - (cell.frame.size.width/2) + [cell contentView].subviews.firstObject.frame.origin.x + ([cell contentView].subviews.firstObject.frame.size.width / 2) +4,cell.center.y - (cell.frame.size.height/2) + ([cell contentView].subviews.firstObject.frame.size.height / 2) +4);
+    if (cell) {
+        self.oldPoint =  CGPointMake(cell.center.x - (cell.frame.size.width/2) + [cell contentView].subviews.firstObject.frame.origin.x + ([cell contentView].subviews.firstObject.frame.size.width / 2) +4,cell.center.y - (cell.frame.size.height/2) + ([cell contentView].subviews.firstObject.frame.size.height / 2) +4);
+    }
 
-    
-    
-    
+
+
     [self _updateSourceData];
 
     [self moveItemAtIndexPath:_oldIndexPath toIndexPath:_currentIndexPath];
@@ -574,18 +601,13 @@
                         //point = CGPointMake(_snapedView.center.x, _snapedView.center.y);
 
                         if (!CGPointEqualToPoint(point,orgPoint)){
-                       
+
                             _lastPoint = point;
-                            [UIView animateWithDuration:0.25 animations:^{
-                                _snapedView.center = _lastPoint;
-                            }];
+                            _snapedView.center = _lastPoint;
                         }
                         else {
                             _lastPoint = point;
-                            [UIView animateWithDuration:0.016 animations:^{
-                                _snapedView.center = _lastPoint;
-                            }];
-
+                            _snapedView.center = _lastPoint;
                         }
                         
                         NSIndexPath *index = [self _firstNearlyIndexPath];
@@ -603,7 +625,10 @@
 
                         
                         _currentIndexPath = index;
-                        self.oldPoint = [self cellForItemAtIndexPath:_currentIndexPath].center;
+                        UICollectionViewCell *moveCell = [self cellForItemAtIndexPath:_currentIndexPath];
+                        if (moveCell) {
+                            self.oldPoint = moveCell.center;
+                        }
                         
                         
                         [self _updateSourceData];
@@ -720,7 +745,9 @@
 
 
     UICollectionViewCell *cell = [self cellForItemAtIndexPath:_oldIndexPath];
-    cell.hidden = YES;
+    if (cell) {
+        cell.hidden = YES;
+    }
 
     self.userInteractionEnabled = NO;
     self.isEndDrag = YES;

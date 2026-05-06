@@ -318,12 +318,12 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
       rowCount = [TiUtils floatValue:[self.proxy valueForKey:@"rowCount"] def:2];
       
       
-      if (showDeleteButton == YES && horizontalSpacing <= 20 || itemsBadgeEnabled == YES && horizontalSpacing <= 20){
+      if ((showDeleteButton && horizontalSpacing <= 20) || (itemsBadgeEnabled && horizontalSpacing <= 20)){
           horizontalSpacing = 20;
           [self.proxy replaceValue:[NSNumber numberWithFloat:horizontalSpacing] forKey:@"minHorizontalSpacing" notification:NO];
       }
 
-      if (showDeleteButton == YES && verticalSpacing <= 10 || itemsBadgeEnabled == YES && verticalSpacing <= 10){
+      if ((showDeleteButton && verticalSpacing <= 10) || (itemsBadgeEnabled && verticalSpacing <= 10)){
           verticalSpacing = 10;
           [self.proxy replaceValue:[NSNumber numberWithFloat:verticalSpacing] forKey:@"minVerticalSpacing" notification:NO];
       }
@@ -925,28 +925,20 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
 
 - (UIPageControl *)pager
 {
-    
-    if (pagerEnabled == YES){
+
+    if (pagerEnabled == YES && pager == nil){
         pager = [[UIPageControl alloc] init];
-        //pager.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
         [pager addTarget:self action:@selector(pageChanged) forControlEvents:UIControlEventValueChanged];
-        
+
         if ([self.proxy valueForKey:@"pageIndicatorTintColor"]){
             pager.pageIndicatorTintColor = [[TiUtils colorValue:[self.proxy valueForKey:@"pageIndicatorTintColor"]] _color];
         }
         if ([self.proxy valueForKey:@"currentPageIndicatorTintColor"]){
             pager.currentPageIndicatorTintColor = [[TiUtils colorValue:[self.proxy valueForKey:@"currentPageIndicatorTintColor"]] _color];
         }
-        
-       
     }
-    
-    if (pager != nil){
-        return pager;
-    }
-    else {
-        return nil;
-    }
+
+    return pager;
 }
 
 - (void)initData

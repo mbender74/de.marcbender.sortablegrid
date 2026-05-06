@@ -14,7 +14,6 @@ static const CGFloat kGridLauncherViewWobbleRadians = 1.5;
 #define kAnimationTranslateX 1.0
 #define kAnimationTranslateY 1.0
 static  BOOL wobblesLeft = YES;
-static  NSInteger lastIndex = 0;
 static  BOOL wobbleEnabled = NO;
 
 @implementation BMDragCollectionViewCell
@@ -23,9 +22,6 @@ static  BOOL wobbleEnabled = NO;
 {
     self = [super initWithFrame:frame];
     if (self) {
-        _playerViewAnimator = [[UIViewPropertyAnimator alloc] init];
-        [_playerViewAnimator setInterruptible:YES];
-
         _normalTransform = CGAffineTransformMakeRotation(0.0);
         _cellWobbeling = NO;
         isWobbeling = NO;
@@ -65,7 +61,6 @@ static  BOOL wobbleEnabled = NO;
 }
 
 - (void)dealloc {
-    _playerViewAnimator = nil;
     _cellWobbeling = NO;
     isWobbeling = NO;
     _stopByUser = NO;
