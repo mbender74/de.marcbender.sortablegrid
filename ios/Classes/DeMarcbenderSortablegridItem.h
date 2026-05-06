@@ -13,7 +13,7 @@
 @interface DeMarcbenderSortablegridItem : TiUIView {
 
 }
-@property (nonatomic, assign) UIView *contentView;
+@property (nonatomic, retain) UIView *contentView;
 
 @end
 

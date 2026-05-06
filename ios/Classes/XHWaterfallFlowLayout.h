@@ -37,7 +37,8 @@ typedef enum {
     CGFloat itemY;
     CGFloat topInset;
     ScrollDirection scrolldirection;
-    NSInteger bufferColumnCount;
+    NSInteger columnHeightBufferCount;
+    NSInteger columnItemCountBufferCount;
 }
 
 - (void)doPrepareLayout;

@@ -43,7 +43,8 @@
         self.itemsInPage = 0;
         self.rowCount = 0;
         self.initDone = NO;
-        bufferColumnCount = 0;
+        columnHeightBufferCount = 0;
+        columnItemCountBufferCount = 0;
    }
     return self;
 }
@@ -51,6 +52,8 @@
 - (void)dealloc {
     if (columnHeight) { free(columnHeight); columnHeight = NULL; }
     if (columnItemCount) { free(columnItemCount); columnItemCount = NULL; }
+    columnHeightBufferCount = 0;
+    columnItemCountBufferCount = 0;
 }
 
 - (void)invalidateLayout {
@@ -161,14 +164,15 @@
     }
 
     // Reuse buffers if columnCount hasn't changed, otherwise reallocate
-    if (bufferColumnCount != self.columnCount || columnHeight == NULL) {
+    if (columnHeightBufferCount != self.columnCount || columnHeight == NULL) {
         if (columnHeight) free(columnHeight);
         columnHeight = (CGFloat *) malloc(self.columnCount * sizeof(CGFloat));
-        bufferColumnCount = self.columnCount;
+        columnHeightBufferCount = self.columnCount;
     }
-    if (bufferColumnCount != self.columnCount || columnItemCount == NULL) {
+    if (columnItemCountBufferCount != self.columnCount || columnItemCount == NULL) {
         if (columnItemCount) free(columnItemCount);
         columnItemCount = (NSInteger *) malloc(self.columnCount * sizeof(NSInteger));
+        columnItemCountBufferCount = self.columnCount;
     }
     
     for (int i = 0; i < self.columnCount; i++) {
@@ -450,9 +454,6 @@
 
 - (CGSize)collectionViewContentSize
 {
-
-
-    [super collectionViewContentSize];
 
    if (scrolldirection == mkScrollVertical) {
         // Content height includes items + bottom inset for full scroll range
