@@ -14,6 +14,10 @@ SortableGridView (like iOS Dashboard) for Titanium.
 
 ## Demo
 
+| iOS | Android |
+|-----|---------|
+| ![iOS Screenshot](documentation/iOS-Screenshot.png) | ![Android Screenshot](documentation/Android-Screenshot.png) |
+
 <img src="./sortablegrid-demo.gif" width="600" alt="Example" />
 
 ## Quick Start
