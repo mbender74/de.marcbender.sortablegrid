@@ -470,7 +470,7 @@ gridView.editable = true;
 
 ### startEditing()
 
-Enter edit mode — shows delete buttons, enables drag reordering, starts wobble animation (if enabled).
+Enter edit mode — shows delete buttons, enables drag reordering, starts wobble animation (if enabled). Items remain tappable during edit mode; click events on child views continue to fire.
 
 - **Platforms:** iOS, Android
 
