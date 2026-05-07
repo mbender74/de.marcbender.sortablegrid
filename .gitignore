@@ -4,3 +4,5 @@ Carthage/
 ios/ti.sortablegrid.xcodeproj/xcuserdata/*.xcuserdatad
 ios/ti.sortablegrid.xcodeproj/project.xcworkspace/xcuserdata/*.xcuserdatad
 ios/build
+android/build
+testapp/build
