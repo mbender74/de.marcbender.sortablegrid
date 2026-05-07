@@ -1,0 +1,36 @@
+moduledependenciestarget: \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CFNetwork.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/Darwin.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFNetwork.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreFoundation.framework/Modules/module.modulemap \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_AvailabilityInternal-B83DVIVMGL1MEX9CLRMW4Q2CK.pcm \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/module.modulemap \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/ptrcheck-DW2L41383KI888GETUFZKA1V9.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation1-10MFF6I262HRRYYAJCYVHOIWI.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stddef-EQJ6GMWHV3BS4L4KJ2LUHCV0A.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stdarg-1CAMREEEP7BJALWF0KJRKQ9H8.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation2-ER8FAVT8FOY92I920KRGEDNXQ.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_float-BUSZTMNRRTW3ORRHTB8XIVB6Y.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_limits-5SC0IOM4UM7B6LTYUA1X6WT8V.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stdint-7CE53W10WS3KCRFTJ635WYJY4.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation3-AA64IO3C3EIB2UTMX5ZXT8K2N.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_inttypes-D21VI8F7JMZ7OXP68YW28FEKG.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stdbool-BI1QQQA9JA3XC2O8P0FN0XLZX.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Darwin-C9NBG9GRER209N8DRTXB6GXUT.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/ptrauth-DRBRAWHQOHH09JU9YFN5NXTLM.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/ObjectiveC-5X0GPG3PZXYN7QOL7IBHFJD1H.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/os_object-3D6B8J6PQCD7PD9DCOA8SKDVN.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/os_workgroup-EXAOHX09NZ99EH6US1PZ2O4VM.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Dispatch-5KJIRUWGCVI2C7HRH5ZQM86TC.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreFoundation-3R0FI7KQ5MBTE5FZQV0CSTWT5.pcm \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFNetworkDefs.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFNetworkErrors.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFSocketStream.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFHost.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFNetServices.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFFTPStream.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFHTTPMessage.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFHTTPStream.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFHTTPAuthentication.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFNetDiagnostics.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CFNetwork.framework/Headers/CFProxySupport.h

@@ -9,7 +9,7 @@ MERGED from /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build
 INJECTED from /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:2:1-6:28
 INJECTED from /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:2:1-6:28
 INJECTED from /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:2:1-6:28
-MERGED from [de.marcbender:sortablegrid:2.0.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/903645e1c2eacb4d91c7b97df1773717/transformed/jetified-sortablegrid-2.0.0/AndroidManifest.xml:2:1-8:12
+MERGED from [de.marcbender:sortablegrid:2.0.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/0d809428dc92d5a5040829d8fbb52c5a/transformed/jetified-sortablegrid-2.0.0/AndroidManifest.xml:2:1-8:12
 MERGED from [org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:2:1-43:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/6b4e7b75c50135c4c955897301837cff/transformed/jetified-appcompat-resources-1.7.0/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.12.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/8214d9a41455b72dfb2e710783aa10b0/transformed/material-1.12.0/AndroidManifest.xml:17:1-24:12
@@ -144,8 +144,8 @@ uses-sdk
 ADDED from /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:3:19-87
 INJECTED from /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:3:19-87
 INJECTED from /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/src/debug/AndroidManifest.xml:3:19-87
-MERGED from [de.marcbender:sortablegrid:2.0.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/903645e1c2eacb4d91c7b97df1773717/transformed/jetified-sortablegrid-2.0.0/AndroidManifest.xml:6:5-44
-MERGED from [de.marcbender:sortablegrid:2.0.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/903645e1c2eacb4d91c7b97df1773717/transformed/jetified-sortablegrid-2.0.0/AndroidManifest.xml:6:5-44
+MERGED from [de.marcbender:sortablegrid:2.0.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/0d809428dc92d5a5040829d8fbb52c5a/transformed/jetified-sortablegrid-2.0.0/AndroidManifest.xml:6:5-44
+MERGED from [de.marcbender:sortablegrid:2.0.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/0d809428dc92d5a5040829d8fbb52c5a/transformed/jetified-sortablegrid-2.0.0/AndroidManifest.xml:6:5-44
 MERGED from [org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:5:5-44
 MERGED from [org.appcelerator:titanium:13.3.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/1803510c0b39a3e8169415a1f6e478cd/transformed/jetified-titanium-13.3.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] /Users/marcbender/.gradle/caches/8.14.3/transforms/6b4e7b75c50135c4c955897301837cff/transformed/jetified-appcompat-resources-1.7.0/AndroidManifest.xml:5:5-44

@@ -4,6 +4,6 @@ Android NDK:     or LOCAL_SHARED_LIBRARIES instead to list the library dependenc
 Android NDK:     current module    
 [x86] Compile++      : de.marcbender.sortablegrid <= de.marcbender.sortablegrid.ItemProxy.cpp
 [x86] Compile++      : de.marcbender.sortablegrid <= de.marcbender.sortablegrid.TiSortablegridModule.cpp
-[x86] Compile++      : de.marcbender.sortablegrid <= TiModuleBootstrap.cpp
 [x86] Compile++      : de.marcbender.sortablegrid <= de.marcbender.sortablegrid.ViewProxy.cpp
+[x86] Compile++      : de.marcbender.sortablegrid <= TiModuleBootstrap.cpp
 [x86] SharedLibrary  : libde.marcbender.sortablegrid.so

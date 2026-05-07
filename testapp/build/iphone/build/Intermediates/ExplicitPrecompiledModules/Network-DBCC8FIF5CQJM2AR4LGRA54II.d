@@ -1,0 +1,23 @@
+moduledependenciestarget: \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation1-10MFF6I262HRRYYAJCYVHOIWI.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/os_object-3D6B8J6PQCD7PD9DCOA8SKDVN.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation3-AA64IO3C3EIB2UTMX5ZXT8K2N.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stdbool-BI1QQQA9JA3XC2O8P0FN0XLZX.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_Builtin_stdint-7CE53W10WS3KCRFTJ635WYJY4.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation2-ER8FAVT8FOY92I920KRGEDNXQ.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Darwin-C9NBG9GRER209N8DRTXB6GXUT.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Dispatch-5KJIRUWGCVI2C7HRH5ZQM86TC.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreFoundation-3R0FI7KQ5MBTE5FZQV0CSTWT5.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Security-50O4T89GOW0ZPRIO8JV6KWDTG.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Foundation-98XWHOIEHGYTXXHTURVVHSNEY.pcm \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/Darwin.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/DarwinFoundation1.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/os.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/DarwinFoundation2.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/DarwinFoundation3.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/dispatch.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreFoundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/Security.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/dnssd.modulemap

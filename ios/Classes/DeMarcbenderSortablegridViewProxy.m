@@ -80,7 +80,7 @@
     static dispatch_once_t onceToken;
     static NSArray *keySequence = nil;
     dispatch_once(&onceToken, ^{
-        keySequence = [[NSArray alloc] initWithObjects:@"scrollToBottomAfterSetData",@"columnCount", @"minHorizontalSpacing", @"minVerticalSpacing", @"cellWidth", @"scrollIndicatorInsets",@"waterFallLayout",@"pagingEnabled",@"pagerEnabled",@"pagerFollowsBottomInset",@"scrollType",@"lazyLoadingEnabled",@"showVerticalScrollIndicator",@"showHorizontalScrollIndicator",@"disableBounce",@"pageIndicatorTintColor",@"currentPageIndicatorTintColor",@"itemsBadgeEnabled",@"showDeleteButton",@"deleteButtonImage",nil];
+        keySequence = [[NSArray alloc] initWithObjects:@"scrollToBottomAfterSetData",@"columnCount", @"rowCount", @"minHorizontalSpacing", @"minVerticalSpacing", @"cellWidth", @"scrollIndicatorInsets",@"waterFallLayout",@"pagingEnabled",@"pagerEnabled",@"pagerFollowsBottomInset",@"scrollType",@"lazyLoadingEnabled",@"showVerticalScrollIndicator",@"showHorizontalScrollIndicator",@"disableBounce",@"pageIndicatorTintColor",@"currentPageIndicatorTintColor",@"itemsBadgeEnabled",@"showDeleteButton",@"deleteButtonImage",nil];
         
        // NSLog(@"[WARN] in keySequence ");
 

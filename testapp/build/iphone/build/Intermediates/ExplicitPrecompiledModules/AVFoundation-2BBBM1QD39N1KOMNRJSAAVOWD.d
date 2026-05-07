@@ -1,0 +1,21 @@
+moduledependenciestarget: \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/Foundation-98XWHOIEHGYTXXHTURVVHSNEY.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreFoundation-3R0FI7KQ5MBTE5FZQV0CSTWT5.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreGraphics-DCMXMHEEM3GFWBECQ8DZN7UAX.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/CoreVideo-E5MGQ5XWXK8DTDZPA4SIA13XH.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/_DarwinFoundation1-10MFF6I262HRRYYAJCYVHOIWI.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/QuartzCore-HWXG507OH3XDJPIU1WYJI862.pcm \
+  /Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/ExplicitPrecompiledModules/ImageIO-770FHZS84GE4SXNPKGQJ8360P.pcm \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreFoundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/DarwinFoundation1.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreVideo.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/QuartzCore.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/ImageIO.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/CoreMedia.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/UniformTypeIdentifiers.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/MediaToolbox.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/AVRouting.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/System/Library/Frameworks/AVFAudio.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/usr/include/simd/module.modulemap

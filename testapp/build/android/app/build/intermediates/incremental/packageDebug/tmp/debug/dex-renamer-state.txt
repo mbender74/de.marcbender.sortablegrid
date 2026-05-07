@@ -1,4 +1,4 @@
-#Wed Apr 29 09:03:53 CEST 2026
+#Thu May 07 09:21:21 CEST 2026
 base.1=/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/build/intermediates/dex/debug/mergeDexDebug/classes2.dex
 path.1=classes2.dex
 base.0=/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/android/app/build/intermediates/dex/debug/mergeDexDebug/classes.dex

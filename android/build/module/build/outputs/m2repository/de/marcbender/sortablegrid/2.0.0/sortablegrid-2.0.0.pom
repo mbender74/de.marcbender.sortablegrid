@@ -16,5 +16,10 @@
       <artifactId>kotlin-stdlib-jdk8</artifactId>
       <version>2.3.0</version>
     </dependency>
+    <dependency>
+      <groupId>androidx.viewpager2</groupId>
+      <artifactId>viewpager2</artifactId>
+      <version>1.0.0</version>
+    </dependency>
   </dependencies>
 </project>

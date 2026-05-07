@@ -186,22 +186,22 @@ gridView = sortableGridModule.createView({
 	contentInsets:{top: 10, bottom:20, left:10,right:10},
 	scrollIndicatorInsets:{top: 10, bottom:10,left:10,right:10},
 	columnCount:3,
-	rowCount:4,
+	rowCount:4, // only used when scrollType is 'horizontal'
 	wobble:true, // wobble animation in edit mode
 	minHorizontalSpacing:10,
 	minVerticalSpacing:10,
 	showDeleteButton:true,
 	deleteButtonImage:deleteButtonImage,  // this should be an image, this demo function that will create the image works only after the view is loaded (because of toImage() function), you can also set the property "deleteButtonImage" after the view did focus with: gridView.deleteButtonImage = yourImage;  
 	itemsBadgeEnabled:true,
-	waterFallLayout:false,
+	waterFallLayout:true,
 	pagingEnabled:false, // scroll will do paging instead of normal scrolling
 	pagerEnabled:true, // display page indicator
 	pagerFollowsBottomInset:true, // pager will reposition to bottomInset - per example if you set bottomInset when keyboard is visible....
 	pageIndicatorTintColor:'#dddddd',
 	currentPageIndicatorTintColor:'red',
-	showVerticalScrollIndicator: true,
+	showVerticalScrollIndicator: false,
 	showHorizontalScrollIndicator: true,
-	scrollType:'horizontal', // 'horizontal' or 'vertical'
+	scrollType:'vertical', // 'horizontal' or 'vertical'
 	disableBounce:false, // disable bouncing of gridview, refreshControl will not work if this is set to true on iOS, on Android it will work, but you will not have the bounce effect when you reach the end of the scrollview
 	backgroundColor:'#cdcdcd',
 	refreshControl:refreshControlView
@@ -212,21 +212,23 @@ gridView = sortableGridModule.createView({
 
 function createGridDashBoardViews(size){
 	var sortableViewData = [];
+
 	for (var i = 0; i < size; i++){
-	   var v = sortableGridModule.createItem({
-		id:(i+1), // usefull,but not needed, if you will do something with the gridView.data, to identify your item view, the gridView will automaticly add a 'position' property the the item, that reflects the item positon in the gridView, updated each time you move, add, delete an item
-		height:Ti.UI.SIZE,
-        //width:Ti.UI.FILL,
-		width:130,
-        badge:true,
-        canBeDeleted:true,
-        canBeMoved:true,
-		badgeValue:generateRandomInteger(0,200),
-		badgeTintColor:'#ccd3413d'
+	
+		var v = sortableGridModule.createItem({
+			id:(i+1), // usefull,but not needed, if you will do something with the gridView.data, to identify your item view, the gridView will automaticly add a 'position' property the the item, that reflects the item positon in the gridView, updated each time you move, add, delete an item
+			height:Ti.UI.SIZE,
+			width:Ti.UI.FILL,
+			badge:true,
+			canBeDeleted:true,
+			canBeMoved:true,
+			badgeValue:generateRandomInteger(0,200),
+			badgeTintColor:'#ccd3413d',
+			backgroundColor:getRandomColor()
 		});
 
 	   v.addEventListener("click",function(e){
-			 	console.log("this.position:"+(this.position+1));
+			 	console.log("#### CLICK #### this.position:"+(this.position+1));
 				//gridView.deleteItemAtIndex({index:this.position});
 	   });
 	   v.addEventListener('touchstart', function(e){
@@ -253,8 +255,9 @@ function createGridDashBoardViews(size){
 		right:10,
 		top:10,
 		bottom:10,
-		width:Ti.UI.SIZE,
-		height:100,
+		//width:120,
+		width:Ti.UI.FILL,
+		height:140,
 		borderRadius: 8,
 		backgroundColor:getRandomColor(),
 		viewShadowColor: '#000000',
@@ -362,7 +365,7 @@ deleteItemButton.addEventListener('touchcancel', function () { this.opacity = 1.
 
 deleteItemButton.addEventListener('click', function () {
 	if (gridView.data.length > 0) {
-		gridView.deleteItemAtIndex({index:0});
+		gridView.deleteItemAtIndex({index:0,animated:true});
 	}
 });
 
@@ -394,10 +397,10 @@ deleteItemButton.addEventListener('click', function () {
 		id:(index+1),
 		height:generateRandomInteger(120,210),
 		// width:generateRandomInteger(120,120),
-		width:Ti.UI.FILL,
+		//width:Ti.UI.FILL,
+		width:130,
 		canBeDeleted:true,
 		canBeMoved:true,
-		borderRadius: 0,
 		borderWidth:4,
 		borderColor:'#11000000',
 		badge:true,
@@ -407,7 +410,7 @@ deleteItemButton.addEventListener('click', function () {
    });
 
 	v.addEventListener("click",function(e){
-		console.log("this.position:"+(this.position+1));
+		console.log("##### CLICK #####. this.position:"+(this.position+1));
 	});
 	v.addEventListener('touchstart', function(e){
 		this.opacity = 0.7;
@@ -472,10 +475,10 @@ deleteItemButton.addEventListener('click', function () {
 
 
  addItemButton.addEventListener("click",function(e){
-	//gridView.data[0].badgeValue = generateRandomInteger(0,120);
+	gridView.data[0].badgeValue = generateRandomInteger(0,120);
 
 	var newItem = addItemAtIndex((gridView.data.length));
-	gridView.insertItemAtIndex({item:newItem,index:generateRandomInteger(0,gridView.data.length)});
+	gridView.insertItemAtIndex({item:newItem,index:generateRandomInteger(0,gridView.data.length),animated:true});
 
 
  });
@@ -523,20 +526,26 @@ var setNewDataButton = Ti.UI.createView({
 
 	console.log("gridView.data length" + gridView.data.length);
 	console.log("gridCells length" + gridCells.length);
+
 	gridCells = gridView.data;
+
 	console.log("gridCells length after" + gridCells.length);
 
 
 	gridView.data = [];
 
-
-	gridCells.forEach(function(entry) {
-	 	entry.backgroundColor = getRandomColor();
-	});
-
 	setTimeout(function() {
-		gridView.data = gridCells;
-	},1000);
+		gridCells.forEach(function(entry) {
+			entry.backgroundColor = getRandomColor();
+		});
+		setTimeout(function() {
+			gridView.data = gridCells;
+			console.log("gridView.data length after" + gridView.data.length);
+		},2000);
+	},500);
+
+
+
 
 
  });

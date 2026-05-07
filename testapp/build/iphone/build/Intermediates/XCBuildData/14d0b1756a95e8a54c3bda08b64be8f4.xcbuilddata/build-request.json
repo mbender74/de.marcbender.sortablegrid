@@ -1,0 +1,65 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildOnly"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "ea0e8d48bd1afb82b98d69bce69775da0fa8628908142c1784945aff676e527f"
+    }
+  ],
+  "containerPath" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/testapp.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "undefined_arch",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : true,
+      "platform" : "iphonesimulator",
+      "sdk" : "iphonesimulator26.2",
+      "sdkVariant" : "iphonesimulator",
+      "supportedArchitectures" : [
+        "i386",
+        "x86_64"
+      ],
+      "targetArchitecture" : "undefined_arch"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/DerivedData/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/DerivedData/Build/Products",
+      "derivedDataPath" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/DerivedData/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/DerivedData/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/DerivedData/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+          "OBJROOT" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates",
+          "ONLY_ACTIVE_ARCH" : "1",
+          "SHARED_PRECOMPS_DIR" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Intermediates/PrecompiledHeaders",
+          "SYMROOT" : "/Users/marcbender/gridmodul/de.marcbender.sortablegrid/testapp/build/iphone/build/Products"
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ACTION" : "build",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
