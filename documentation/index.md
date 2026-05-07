@@ -4,9 +4,9 @@ A Titanium module providing a sortable grid view (similar to the iOS home screen
 
 ## Demo
 
-| iOS | Android |
-|-----|---------|
-| ![iOS Screenshot](iOS-Screenshot.png) | ![Android Screenshot](Android-Screenshot.png) |
+<img src="./iOS-Screenshot.png" width="600" alt="iOS Example" />
+
+<img src="./Android-Screenshot.png" width="600" alt="Android Example" />
 
 ## Quick Start
 
