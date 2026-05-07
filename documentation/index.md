@@ -2,6 +2,12 @@
 
 A Titanium module providing a sortable grid view (similar to the iOS home screen) with drag-and-drop reordering, edit mode, badges, and both vertical and horizontal scroll layouts.
 
+## Demo
+
+| iOS | Android |
+|-----|---------|
+| ![iOS Screenshot](iOS-Screenshot.png) | ![Android Screenshot](Android-Screenshot.png) |
+
 ## Quick Start
 
 ```javascript
