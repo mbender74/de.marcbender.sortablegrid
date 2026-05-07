@@ -991,8 +991,6 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
                             [(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:NO];
                         }
                     }
-                    
-                    [(UIView*)self.dataSource[0][thisIndexPath.item][@"cellview"] subviews].firstObject.userInteractionEnabled = NO;
                 }
             
             
@@ -1029,15 +1027,13 @@ static NSString *reuseIdentifier = @"forCellWithReuseIdentifier";
             }
             
             if (itemsBadgeEnabled == YES){
-                
+
                 if (hasBadge == YES && badgeValue > 0){
                     [(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:NO];
                 }
-                
+
                 //[(UIButton*)self.dataSource[0][thisIndexPath.item][@"badge"] setHidden:YES];
             }
-
-            [(UIView*)self.dataSource[0][thisIndexPath.item][@"cellview"] subviews].firstObject.userInteractionEnabled = YES;
 
             [thisProxy replaceValue:[NSNumber numberWithInt:index] forKey:@"position" notification:NO];
             [self.proxy rememberProxy:thisProxy];
