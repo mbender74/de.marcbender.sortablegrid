@@ -719,6 +719,215 @@ gridView.addEventListener('scroll', function(e) {
 });
 ```
 
+## Item Events
+
+Items inherit all standard Titanium touch and gesture events from `Ti.UI.View`. The following events are supported on items created with `sortableGridModule.createItem()`:
+
+### click
+
+Fired when the item is tapped.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('click', function(e) {
+    console.log('Item ' + this.id + ' clicked at position ' + this.position);
+});
+```
+
+### touchstart
+
+Fired when a touch starts on the item.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('touchstart', function(e) {
+    this.opacity = 0.7;
+});
+```
+
+### touchend
+
+Fired when a touch ends on the item.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('touchend', function(e) {
+    this.opacity = 1.0;
+});
+```
+
+### touchcancel
+
+Fired when a touch is cancelled on the item (e.g., incoming phone call).
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('touchcancel', function(e) {
+    this.opacity = 1.0;
+});
+```
+
+### touchmove
+
+Fired when a touch moves across the item.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('touchmove', function(e) {
+    console.log('Touch moved: x=' + e.x + ' y=' + e.y);
+});
+```
+
+### singletap
+
+Fired when the item is tapped once (distinguishes from double tap).
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('singletap', function(e) {
+    console.log('Single tap on item ' + this.id);
+});
+```
+
+### longpress
+
+Fired when the item is long-pressed. Note: in edit mode, long press initiates drag reordering instead.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('longpress', function(e) {
+    console.log('Long press on item ' + this.id);
+});
+```
+
+### dblclick
+
+Fired when the item is double-tapped.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('dblclick', function(e) {
+    console.log('Double click on item ' + this.id);
+});
+```
+
+### swipe
+
+Fired when a swipe gesture is detected on the item.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('swipe', function(e) {
+    console.log('Swiped direction: ' + e.direction);
+});
+```
+
+### twofingertap
+
+Fired when the item is tapped with two fingers.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('twofingertap', function(e) {
+    console.log('Two finger tap on item ' + this.id);
+});
+```
+
+### pinch
+
+Fired when a pinch gesture is detected on the item.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('pinch', function(e) {
+    console.log('Pinch scale: ' + e.scale);
+});
+```
+
+### rotate
+
+Fired when a rotation gesture is detected on the item.
+
+- **Platforms:** iOS, Android
+
+```javascript
+item.addEventListener('rotate', function(e) {
+    console.log('Rotation: ' + e.rotation);
+});
+```
+
+### Event Data
+
+All touch events provide the following properties in the event object:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `x` | Number | X position of the touch relative to the item |
+| `y` | Number | Y position of the touch relative to the item |
+| `globalX` | Number | X position relative to the window (iOS only) |
+| `globalY` | Number | Y position relative to the window (iOS only) |
+
+The `click` event additionally provides:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `source` | Object | The source object that fired the event |
+
+### Events During Edit Mode
+
+Items remain tappable during edit mode — click and touch events continue to fire normally while the grid is in edit mode.
+
+### Complete Example
+
+```javascript
+var item = sortableGridModule.createItem({
+    id: 1,
+    height: Ti.UI.SIZE,
+    width: Ti.UI.FILL,
+    canBeDeleted: true,
+    canBeMoved: true
+});
+
+// Click handler
+item.addEventListener('click', function(e) {
+    console.log('Clicked item ' + this.id + ' at position ' + this.position);
+});
+
+// Touch feedback
+item.addEventListener('touchstart', function(e) {
+    this.opacity = 0.7;
+});
+
+item.addEventListener('touchend', function(e) {
+    this.opacity = 1.0;
+});
+
+item.addEventListener('touchcancel', function(e) {
+    this.opacity = 1.0;
+});
+
+// Long press (note: in edit mode, long press starts drag instead)
+item.addEventListener('longpress', function(e) {
+    console.log('Long pressed item ' + this.id);
+});
+
+// Double click
+item.addEventListener('dblclick', function(e) {
+    console.log('Double clicked item ' + this.id);
+});
+```
+
 ## Creating Items
 
 ### `sortableGridModule.createItem(properties)`
